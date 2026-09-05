@@ -1,3 +1,4 @@
+import Link from "next/link";
 import SectionMark from "./SectionMark";
 
 const STEPS = [
@@ -50,13 +51,13 @@ export default function AgendaBlock() {
             </div>
           ))}
         </div>
-        <a
-          href="#agendar"
+        <Link
+          href="/contacto"
           className="mt-6 inline-flex items-center gap-2.5 rounded-[2px] border-[1.5px] border-transparent px-6 py-3.5 font-display text-[13.5px] font-bold uppercase tracking-wide text-white hover:bg-white/5"
           style={{ borderImage: "linear-gradient(90deg,#4E9AD1,#E7002A) 1" }}
         >
           Agendar ahora →
-        </a>
+        </Link>
       </div>
     </section>
   );
