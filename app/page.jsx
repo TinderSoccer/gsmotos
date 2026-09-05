@@ -1,4 +1,4 @@
-import Hero from "@/components/Hero";
+import HeroExperience from "@/components/home/HeroExperience";
 import DarkFeatureBlock from "@/components/DarkFeatureBlock";
 import AgendaBlock from "@/components/AgendaBlock";
 import AttributeStrip from "@/components/AttributeStrip";
@@ -7,7 +7,7 @@ import SiteFooter from "@/components/SiteFooter";
 export default function Home() {
   return (
     <main>
-      <Hero />
+      <HeroExperience />
 
       <DarkFeatureBlock
         eyebrow="¿Por qué elegir GSmotos?"
@@ -15,7 +15,7 @@ export default function Home() {
         text="Trabajamos con procedimientos, herramientas y estándares de concesionario para asegurar el mejor resultado en tu moto."
         ctaLabel="Conócenos más →"
         ctaHref="#nosotros"
-        photoNote="Foto real — mecánico trabajando en detalle sobre la moto"
+        photoSrc="/images/foto-taller-c.png"
       />
 
       <AgendaBlock />
@@ -26,7 +26,7 @@ export default function Home() {
         text="Servicio de traslado de motocicletas desde tu domicilio, carretera o donde lo necesites."
         ctaLabel="Solicitar traslado →"
         ctaHref="#traslado"
-        photoNote="Foto real — camión de traslado con moto"
+        photoSrc="/images/foto-traslado-b.png"
       />
 
       <AttributeStrip />

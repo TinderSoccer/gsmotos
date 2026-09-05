@@ -1,3 +1,5 @@
+import ContactInfo from "./ContactInfo";
+
 const STATS = [
   { num: "15+", lbl: "Años de experiencia\nen el mercado" },
   { num: "21+", lbl: "Años especializados\nen BMW Motorrad" },
@@ -8,12 +10,7 @@ const STATS = [
 export default function SiteFooter() {
   return (
     <footer className="grid grid-cols-1 items-center gap-10 bg-[#F4F5F6] px-12 py-14 md:grid-cols-[1fr_1.6fr_0.8fr]">
-      <div className="flex flex-col gap-4 text-sm text-gray-700">
-        <div>Av. Presidente Riesco 6721, Las Condes, Santiago, Chile</div>
-        <div>+56 9 8405 8116</div>
-        <div>WhatsApp</div>
-        <div>contacto@gsmotos.cl</div>
-      </div>
+      <ContactInfo />
 
       <div className="grid grid-cols-2 gap-2.5 sm:grid-cols-4">
         {STATS.map((s) => (
