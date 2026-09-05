@@ -2,9 +2,9 @@
 
 import { useEffect, useRef } from "react";
 import Image from "next/image";
-import SpeedometerDashboard from "./SpeedometerDashboard";
+import TableroFoto from "./TableroFoto";
 
-export default function HeroBanner({ selected, onSelect }) {
+export default function HeroBanner({ onSelect }) {
   const videoRef = useRef(null);
 
   useEffect(() => {
@@ -17,7 +17,7 @@ export default function HeroBanner({ selected, onSelect }) {
   }, []);
 
   return (
-    <section className="relative h-[760px] overflow-hidden bg-[#050505] sm:h-[640px]">
+    <section className="relative h-[760px] overflow-hidden bg-[#050505] sm:h-[580px]">
       <video
         ref={videoRef}
         autoPlay
@@ -97,8 +97,8 @@ export default function HeroBanner({ selected, onSelect }) {
         </div>
       </div>
 
-      <div className="absolute right-1.5 top-[88px] z-[25] hidden lg:block">
-        <SpeedometerDashboard selected={selected} onSelect={onSelect} />
+      <div className="absolute bottom-[-6px] right-0 z-[25] hidden lg:block">
+        <TableroFoto onSelect={onSelect} />
       </div>
     </section>
   );

@@ -1,11 +1,12 @@
 "use client";
 
-import { Suspense, useEffect, useState } from "react";
+import { Suspense, useCallback, useEffect, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import ColorBars from "@/components/services/ColorBars";
 import SiteFooter from "@/components/SiteFooter";
 import { menus } from "@/lib/servicesData";
 import { checkStock } from "@/lib/tallergp";
+import { useProductosChanged } from "@/lib/catalogo";
 
 // Plantilla de catálogo/listado — hoy solo la usa "Productos", pensada para
 // cualquier categoría futura que necesite consulta de stock en vez de una
@@ -31,7 +32,7 @@ function ProductosContent() {
   const [items, setItems] = useState([]);
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
+  const reload = useCallback(() => {
     let active = true;
     setLoading(true);
     checkStock(query).then((res) => {
@@ -44,6 +45,11 @@ function ProductosContent() {
       active = false;
     };
   }, [query]);
+
+  useEffect(reload, [reload]);
+  // El catálogo puede cambiar desde /administracion mientras esta página
+  // sigue abierta — re-consultamos cuando eso pasa.
+  useProductosChanged(reload);
 
   return (
     <main className="min-h-screen bg-[#0B0B0B]">

@@ -3,7 +3,8 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import HeroBanner from "./HeroBanner";
 import SelectorPanel from "./SelectorPanel";
-import { menus, productos } from "@/lib/servicesData";
+import { menus } from "@/lib/servicesData";
+import { useProductos } from "@/lib/catalogo";
 
 const PER_PAGE = 4;
 
@@ -16,12 +17,13 @@ export default function HeroExperience() {
 
   const menu = menus[sel];
   const isProductos = menu.kind === "catalog";
+  const productos = useProductos();
 
   const catalogue = useMemo(() => {
     const q = query.trim().toLowerCase();
     if (!q) return productos;
     return productos.filter((p) => `${p.name} ${p.cat}`.toLowerCase().includes(q));
-  }, [query]);
+  }, [productos, query]);
 
   const pageCount = Math.max(1, Math.ceil(catalogue.length / PER_PAGE));
   const page = ((prodPage % pageCount) + pageCount) % pageCount;
@@ -48,7 +50,7 @@ export default function HeroExperience() {
 
   return (
     <>
-      <HeroBanner selected={sel} onSelect={handleSelect} />
+      <HeroBanner onSelect={handleSelect} />
       <SelectorPanel
         menuTitles={menus.map((m) => m.title)}
         sel={sel}
