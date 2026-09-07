@@ -1,5 +1,6 @@
 "use client";
 
+import { Award } from "lucide-react";
 import { CERTIFICADOS } from "@/lib/certificados";
 import { useCertPhotos } from "@/lib/useCertPhotos";
 
@@ -28,11 +29,7 @@ export default function CertificadosGrid() {
                   className="flex h-full w-full flex-col items-center justify-center gap-3"
                   style={{ background: "repeating-linear-gradient(135deg, #F2F2F2 0 12px, #ECECEC 12px 24px)" }}
                 >
-                  <svg viewBox="0 0 48 48" className="h-10 w-10" fill="none">
-                    <rect x="7" y="9" width="34" height="30" rx="3" stroke="#B4B4B4" strokeWidth="2" />
-                    <circle cx="24" cy="21" r="6" stroke="#B4B4B4" strokeWidth="2" />
-                    <path d="M20 30h8l-2 8-2-2-2 2Z" stroke="#B4B4B4" strokeWidth="2" strokeLinejoin="round" />
-                  </svg>
+                  <Award size={40} strokeWidth={1.4} color="#B4B4B4" />
                   <div className="font-display text-[13.5px] uppercase tracking-[2px] text-[#9A9A9A]">Certificado pendiente</div>
                 </div>
               )}

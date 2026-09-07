@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { Search } from "lucide-react";
 import ColorBars from "../services/ColorBars";
 import ServiceGrid from "../services/ServiceGrid";
 
@@ -18,10 +19,7 @@ function ProductCarousel({ query, onQueryChange, products, pageLabel, resultLabe
   return (
     <div className="flex flex-col gap-5" style={{ animation: `${animClass} 760ms cubic-bezier(0.33,0.02,0.16,1) both` }}>
       <div className="flex items-center gap-3 rounded-[10px] border border-white/10 py-1 pl-5 pr-2.5" style={{ background: "linear-gradient(180deg, #1A1D21 0%, #0C0E10 100%)" }}>
-        <svg viewBox="0 0 24 24" style={{ width: 22, height: 22, flexShrink: 0 }} fill="none">
-          <circle cx="11" cy="11" r="7" stroke="#6E7780" strokeWidth="1.8" />
-          <line x1="16.2" y1="16.2" x2="21" y2="21" stroke="#6E7780" strokeWidth="1.8" strokeLinecap="round" />
-        </svg>
+        <Search size={20} strokeWidth={1.8} color="#6E7780" style={{ flexShrink: 0 }} />
         <input
           type="text"
           value={query}

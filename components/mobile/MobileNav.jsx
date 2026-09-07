@@ -14,6 +14,7 @@
 import { createContext, useCallback, useContext, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
+import { Mail, MapPin, Menu, Phone, X } from "lucide-react";
 import { menus } from "@/lib/servicesData";
 
 const MobileMenuContext = createContext(null);
@@ -45,9 +46,9 @@ export function MobileChrome({ children }) {
                 type="button"
                 aria-label="Cerrar menú"
                 onClick={close}
-                className="flex h-11 w-11 items-center justify-center rounded-full border border-white/20 font-body text-xl leading-none text-white"
+                className="flex h-11 w-11 items-center justify-center rounded-full border border-white/20 text-white"
               >
-                ✕
+                <X size={20} />
               </button>
             </div>
 
@@ -88,14 +89,6 @@ export function MobileChrome({ children }) {
   );
 }
 
-function TabIcon({ children }) {
-  return (
-    <svg viewBox="0 0 24 24" style={{ width: 20, height: 20 }} fill="none">
-      {children}
-    </svg>
-  );
-}
-
 function MobileTabBar() {
   return (
     <div
@@ -104,16 +97,11 @@ function MobileTabBar() {
     >
       <div className="grid w-full max-w-[430px] grid-cols-3 border-t border-[#23272B] bg-[#0B0B0B]">
         <a href="tel:+56984058116" className="flex flex-col items-center gap-1.5 py-3 pb-3.5 text-[#E4E7EA]">
-          <TabIcon>
-            <path d="M6 3h3l2 5-2.5 1.5a12 12 0 0 0 6 6L16 13l5 2v3a2 2 0 0 1-2 2C11 20 4 13 4 5a2 2 0 0 1 2-2Z" stroke="#E4E7EA" strokeWidth="1.5" strokeLinejoin="round" />
-          </TabIcon>
+          <Phone size={20} strokeWidth={1.6} />
           <span className="font-display text-[11.5px] uppercase tracking-[1.8px]">Contactar</span>
         </a>
         <a href="mailto:contacto@gsmotos.cl" className="flex flex-col items-center gap-1.5 border-x border-[#23272B] py-3 pb-3.5 text-[#E4E7EA]">
-          <TabIcon>
-            <rect x="3" y="6" width="18" height="12" rx="2" stroke="#E4E7EA" strokeWidth="1.5" />
-            <path d="m3.5 7 8.5 6 8.5-6" stroke="#E4E7EA" strokeWidth="1.4" />
-          </TabIcon>
+          <Mail size={20} strokeWidth={1.6} />
           <span className="font-display text-[11.5px] uppercase tracking-[1.8px]">Escribirnos</span>
         </a>
         <a
@@ -122,10 +110,7 @@ function MobileTabBar() {
           rel="noreferrer"
           className="flex flex-col items-center gap-1.5 py-3 pb-3.5 text-[#E4E7EA]"
         >
-          <TabIcon>
-            <path d="M12 21s7-6 7-11a7 7 0 1 0-14 0c0 5 7 11 7 11Z" stroke="#E4E7EA" strokeWidth="1.5" strokeLinejoin="round" />
-            <circle cx="12" cy="10" r="2.4" stroke="#E4E7EA" strokeWidth="1.3" />
-          </TabIcon>
+          <MapPin size={20} strokeWidth={1.6} />
           <span className="font-display text-[11.5px] uppercase tracking-[1.8px]">Ubicación</span>
         </a>
       </div>
@@ -143,11 +128,9 @@ export function MobileMenuButton({ className = "" }) {
       type="button"
       aria-label="Abrir menú"
       onClick={ctx.toggle}
-      className={`flex h-11 w-11 flex-none flex-col items-center justify-center gap-[5px] rounded-lg border border-white/[0.16] bg-white/[0.06] sm:hidden ${className}`}
+      className={`flex h-11 w-11 flex-none items-center justify-center rounded-lg border border-white/[0.16] bg-white/[0.06] text-white sm:hidden ${className}`}
     >
-      <span className="h-[2px] w-5 bg-white" />
-      <span className="h-[2px] w-5 bg-white" />
-      <span className="h-[2px] w-5 bg-white" />
+      <Menu size={20} />
     </button>
   );
 }

@@ -9,6 +9,7 @@
 import { useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
+import { Award, PlayCircle } from "lucide-react";
 import ColorBars from "@/components/services/ColorBars";
 import { CERTIFICADOS } from "@/lib/certificados";
 import { setCertPhoto, useCertPhotos } from "@/lib/useCertPhotos";
@@ -22,11 +23,7 @@ function PlaceholderIcon({ label }) {
       className="flex h-full w-full flex-col items-center justify-center gap-3"
       style={{ background: "repeating-linear-gradient(135deg, #F2F2F2 0 12px, #ECECEC 12px 24px)" }}
     >
-      <svg viewBox="0 0 48 48" className="h-10 w-10" fill="none">
-        <rect x="7" y="9" width="34" height="30" rx="3" stroke="#B4B4B4" strokeWidth="2" />
-        <circle cx="24" cy="21" r="6" stroke="#B4B4B4" strokeWidth="2" />
-        <path d="M20 30h8l-2 8-2-2-2 2Z" stroke="#B4B4B4" strokeWidth="2" strokeLinejoin="round" />
-      </svg>
+      <Award size={40} strokeWidth={1.4} color="#B4B4B4" />
       <div className="font-display text-[13.5px] uppercase tracking-[2px] text-[#9A9A9A]">{label}</div>
     </div>
   );
@@ -340,10 +337,7 @@ function TallerTab() {
                 <img src={item.photo} alt={item.caption || "Foto del taller"} className="block h-full w-full object-cover" />
               ) : (
                 <div className="flex h-full w-full flex-col items-center justify-center gap-2 bg-[#141719]">
-                  <svg viewBox="0 0 32 32" className="h-8 w-8" fill="none">
-                    <circle cx="16" cy="16" r="13" stroke="#4E9AD1" strokeWidth="1.6" />
-                    <path d="M13 11l8 5-8 5V11Z" fill="#4E9AD1" />
-                  </svg>
+                  <PlayCircle size={32} strokeWidth={1.4} color="#4E9AD1" />
                   <div className="max-w-[90%] truncate font-display text-[11.5px] uppercase tracking-wide text-[#8FC2E6]">
                     {item.url}
                   </div>
