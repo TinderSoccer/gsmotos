@@ -40,7 +40,7 @@ export function MobileChrome({ children }) {
         >
           <div className="flex w-full max-w-[430px] flex-col gap-1.5 overflow-y-auto p-[18px]">
             <div className="flex items-center justify-between pb-3.5">
-              <Image src="/images/logo-gsmotos.png" alt="GSmotos" width={150} height={83} className="block h-auto w-[150px]" />
+              <Image src="/images/logo-gsmotos.png" alt="GSmotos" width={300} height={200} className="block h-auto w-[150px]" />
               <button
                 type="button"
                 aria-label="Cerrar menú"
@@ -158,7 +158,7 @@ export function MobileTopBar() {
   return (
     <div className="flex items-center justify-between px-6 pb-2 pt-6 sm:hidden">
       <Link href="/" className="block leading-none">
-        <Image src="/images/logo-gsmotos.png" alt="GSmotos — gsmotos.cl" width={150} height={83} className="block h-auto w-[130px]" />
+        <Image src="/images/logo-gsmotos.png" alt="GSmotos — gsmotos.cl" width={300} height={200} className="block h-auto w-[130px]" />
       </Link>
       <MobileMenuButton />
     </div>

@@ -257,7 +257,7 @@ export default function AdminPanel() {
     <div className="min-h-screen bg-[#F7F7F7] text-[#0B0B0B]">
       <header className="flex items-center justify-between gap-6 bg-[#0B0B0B] px-6 py-[22px] sm:px-10">
         <Link href="/" className="block leading-none">
-          <Image src="/images/logo-gsmotos.png" alt="GSmotos — gsmotos.cl" width={190} height={105} className="block h-auto w-[150px] sm:w-[190px]" />
+          <Image src="/images/logo-gsmotos.png" alt="GSmotos — gsmotos.cl" width={300} height={200} className="block h-auto w-[150px] sm:w-[190px]" />
         </Link>
         <div className="hidden items-center gap-3.5 sm:flex">
           <ColorBars />

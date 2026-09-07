@@ -34,8 +34,8 @@ export default function ChristopherPage() {
             <Image
               src="/images/logo-gsmotos.png"
               alt="GSmotos — gsmotos.cl"
-              width={210}
-              height={116}
+              width={300}
+              height={200}
               className="block h-auto w-[150px] sm:w-[210px]"
             />
           </Link>
