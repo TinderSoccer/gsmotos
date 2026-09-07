@@ -56,24 +56,27 @@ function ProductCarousel({ query, onQueryChange, products, pageLabel, resultLabe
           <div className="text-sm text-[#9AA1A8]">Escríbenos por WhatsApp y lo buscamos por ti.</div>
         </div>
       ) : (
-        <div className="grid grid-cols-1 gap-3.5 sm:grid-cols-2 lg:grid-cols-4">
+        // En mobile: tira horizontal deslizable de a 2 tarjetas (con snap),
+        // fiel a "GSmotos Mobile.dc.html". Desde `sm` vuelve a ser la grilla
+        // responsive de siempre — sin cambios ahí.
+        <div className="-mx-6 flex snap-x snap-mandatory gap-3 overflow-x-auto px-6 pb-1 sm:mx-0 sm:grid sm:grid-cols-2 sm:gap-3.5 sm:overflow-visible sm:px-0 sm:pb-0 lg:grid-cols-4">
           {products.map((prod) => (
             <Link
               key={prod.slug}
               href={`/productos?q=${encodeURIComponent(prod.name)}`}
-              className="group flex flex-col overflow-hidden rounded-xl border border-[#1E2226] bg-[#0B0D0F] text-[#E4E7EA] transition-all hover:-translate-y-1 hover:border-mCyan"
+              className="group flex w-[46%] flex-none snap-start flex-col overflow-hidden rounded-xl border border-[#1E2226] bg-[#0B0D0F] text-[#E4E7EA] transition-all sm:w-auto sm:hover:-translate-y-1 sm:hover:border-mCyan"
             >
-              <div className="relative h-[150px] overflow-hidden bg-[#14171A]">
+              <div className="relative h-[110px] overflow-hidden bg-[#14171A] sm:h-[150px]">
                 <div className="absolute inset-0 bg-cover bg-center brightness-[1.15]" style={{ backgroundImage: `url(${prod.photo})` }} />
                 <div className="pointer-events-none absolute inset-0" style={{ background: "linear-gradient(180deg, rgba(5,5,5,0.05) 0%, rgba(5,5,5,0.55) 100%)" }} />
-                <div className="absolute left-3 top-3">
+                <div className="absolute left-3 top-3 hidden sm:block">
                   <ColorBars />
                 </div>
               </div>
-              <div className="flex flex-col gap-2 px-5 pb-5 pt-4.5">
-                <div className="font-display text-[13px] uppercase tracking-[2px] text-[#6E7780]">{prod.cat}</div>
-                <div className="font-display text-xl font-semibold uppercase leading-tight tracking-wide text-white">{prod.name}</div>
-                <div className="mt-0.5 flex items-center gap-2.5 font-display text-[13.5px] uppercase tracking-wide text-mCyan">
+              <div className="flex flex-col gap-1.5 px-3.5 pb-4 pt-3.5 sm:gap-2 sm:px-5 sm:pb-5 sm:pt-4.5">
+                <div className="font-display text-[11px] uppercase tracking-[1.6px] text-[#6E7780] sm:text-[13px] sm:tracking-[2px]">{prod.cat}</div>
+                <div className="font-display text-[15px] font-semibold uppercase leading-tight tracking-wide text-white sm:text-xl">{prod.name}</div>
+                <div className="mt-0.5 hidden items-center gap-2.5 font-display text-[13.5px] uppercase tracking-wide text-mCyan sm:flex">
                   <span>Consultar</span>
                   <span className="font-body">→</span>
                 </div>
@@ -109,9 +112,10 @@ export default function SelectorPanel({
 
   return (
     <div className="flex flex-col gap-5 bg-[#0B0B0B] px-6 pb-10 pt-8 sm:px-10">
-      {/* El tablero-menú del hero solo se muestra en pantallas grandes (ver
-          HeroBanner). Este selector cubre móvil/tablet con la misma acción. */}
-      <div className="-mx-1 flex gap-2 overflow-x-auto pb-1 lg:hidden">
+      {/* El tablero-menú del hero se muestra en mobile (dentro del propio
+          hero) y en desktop (ver HeroBanner); en el rango intermedio
+          (tablet) no hay tablero, así que estos chips cubren esa selección. */}
+      <div className="-mx-1 hidden gap-2 overflow-x-auto pb-1 sm:flex lg:hidden">
         {menuTitles.map((title, i) => (
           <button
             key={title}

@@ -3,6 +3,7 @@ import Link from "next/link";
 import ServiceGrid from "@/components/services/ServiceGrid";
 import ColorBars from "@/components/services/ColorBars";
 import SiteFooter from "@/components/SiteFooter";
+import { MobileTopBar } from "@/components/mobile/MobileNav";
 import { menus } from "@/lib/servicesData";
 
 // Plantilla de listado reutilizada por las 3 categorías de servicio
@@ -26,6 +27,7 @@ export default function CategoriaServiciosPage({ params }) {
 
   return (
     <main className="bg-[#0B0B0B]">
+      <MobileTopBar />
       <div className="flex flex-col gap-5 px-6 py-10 sm:px-10">
         <div className="flex items-center gap-4">
           <ColorBars size="lg" />

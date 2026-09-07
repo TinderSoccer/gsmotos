@@ -4,6 +4,7 @@ import { Suspense, useCallback, useEffect, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import ColorBars from "@/components/services/ColorBars";
 import SiteFooter from "@/components/SiteFooter";
+import { MobileTopBar } from "@/components/mobile/MobileNav";
 import { menus } from "@/lib/servicesData";
 import { checkStock } from "@/lib/tallergp";
 import { useProductosChanged } from "@/lib/catalogo";
@@ -53,6 +54,7 @@ function ProductosContent() {
 
   return (
     <main className="min-h-screen bg-[#0B0B0B]">
+      <MobileTopBar />
       <div className="flex flex-col gap-8 px-6 py-10 sm:px-10">
         <div className="flex items-center gap-4">
           <ColorBars size="lg" />

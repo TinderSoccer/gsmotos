@@ -61,7 +61,7 @@ export default function AttributeStrip() {
       {ATTRS.map((attr, i) => (
         <div
           key={attr.text}
-          className="flex items-center gap-3.5 border-b border-[#1c1d20] px-8 py-6 md:border-r"
+          className="flex items-center gap-3.5 border-b border-[#1c1d20] px-6 py-5 sm:px-8 sm:py-6 md:border-r"
           style={{
             borderRightWidth: (i + 1) % 3 === 0 ? 0 : undefined,
           }}

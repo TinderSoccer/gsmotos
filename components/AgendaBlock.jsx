@@ -9,7 +9,7 @@ const STEPS = [
 
 export default function AgendaBlock() {
   return (
-    <section className="grid grid-cols-1 items-center gap-14 border-t border-[#1c1d20] bg-[#0c0d0f] px-12 py-16 md:grid-cols-[0.9fr_1.1fr]">
+    <section className="grid grid-cols-1 items-center gap-8 border-t border-[#1c1d20] bg-[#0c0d0f] px-6 py-10 sm:gap-14 sm:px-12 sm:py-16 md:grid-cols-[0.9fr_1.1fr]">
       <div className="text-center">
         <svg viewBox="0 0 150 150" fill="none" className="mx-auto h-[150px] w-[150px]">
           <defs>

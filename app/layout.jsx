@@ -1,4 +1,5 @@
 import { Barlow_Condensed, Barlow } from "next/font/google";
+import { MobileChrome } from "@/components/mobile/MobileNav";
 import "./globals.css";
 
 const barlowCondensed = Barlow_Condensed({
@@ -23,7 +24,9 @@ export const metadata = {
 export default function RootLayout({ children }) {
   return (
     <html lang="es" className={`${barlowCondensed.variable} ${barlow.variable}`}>
-      <body className="font-body">{children}</body>
+      <body className="font-body">
+        <MobileChrome>{children}</MobileChrome>
+      </body>
     </html>
   );
 }

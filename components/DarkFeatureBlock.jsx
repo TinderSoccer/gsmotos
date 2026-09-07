@@ -12,7 +12,7 @@ export default function DarkFeatureBlock({
   reverse = false,
 }) {
   return (
-    <section className="grid grid-cols-1 items-center gap-12 border-t border-[#1c1d20] bg-[#0c0d0f] px-12 py-16 md:grid-cols-2">
+    <section className="grid grid-cols-1 items-center gap-8 border-t border-[#1c1d20] bg-[#0c0d0f] px-6 py-10 sm:gap-12 sm:px-12 sm:py-16 md:grid-cols-2">
       <div className={reverse ? "md:order-2" : ""}>
         <SectionMark>{eyebrow}</SectionMark>
         <h2 className="font-display text-[clamp(26px,3vw,38px)] font-bold italic uppercase leading-tight text-white">

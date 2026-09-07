@@ -1,6 +1,7 @@
 import Link from "next/link";
 import ColorBars from "@/components/services/ColorBars";
 import SiteFooter from "@/components/SiteFooter";
+import { MobileTopBar } from "@/components/mobile/MobileNav";
 import { getMenuBySlug } from "@/lib/servicesData";
 
 export const metadata = { title: "Nosotros — GSmotos" };
@@ -33,6 +34,7 @@ function Section({ id, card }) {
 export default function NosotrosPage() {
   return (
     <main className="bg-[#0B0B0B]">
+      <MobileTopBar />
       <div className="flex items-center gap-4 px-6 pt-10 sm:px-10">
         <ColorBars size="lg" />
         <h1 className="font-display text-[32px] font-bold italic uppercase leading-none text-white">GSmotos</h1>

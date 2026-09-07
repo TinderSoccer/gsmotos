@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import ColorBars from "@/components/services/ColorBars";
 import ContactInfo from "@/components/ContactInfo";
 import SiteFooter from "@/components/SiteFooter";
+import { MobileTopBar } from "@/components/mobile/MobileNav";
 import { getAvailableSlots, createAppointment } from "@/lib/tallergp";
 
 const EMPTY_FORM = { name: "", phone: "", model: "", note: "", date: "", time: "" };
@@ -47,6 +48,7 @@ export default function ContactoPage() {
 
   return (
     <main className="min-h-screen bg-[#0B0B0B]">
+      <MobileTopBar />
       <div className="flex items-center gap-4 px-6 pt-10 sm:px-10">
         <ColorBars size="lg" />
         <h1 className="font-display text-[32px] font-bold italic uppercase leading-none text-white">Contacto</h1>

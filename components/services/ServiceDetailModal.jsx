@@ -6,17 +6,21 @@ import ColorBars from "./ColorBars";
 // Popup de detalle de servicio, fiel a la animación del diseño original de
 // Claude Design (gsmBack/gsmPop, ver app/globals.css). Es la interacción
 // real al hacer clic en una tarjeta de la grilla — no una navegación.
+//
+// En mobile (< sm) se comporta como "bottom sheet" (pegado al fondo, solo
+// esquinas superiores redondeadas), tal como en "GSmotos Mobile.dc.html";
+// desde `sm` hacia arriba sigue siendo el diálogo centrado original.
 export default function ServiceDetailModal({ card, onClose }) {
   if (!card) return null;
 
   return (
     <div
-      className="fixed inset-0 z-[200] flex items-center justify-center p-6 sm:p-10"
+      className="fixed inset-0 z-[200] flex items-end justify-center sm:items-center sm:p-10"
       style={{ background: "rgba(3,4,5,0.78)", backdropFilter: "blur(6px)", animation: "gsmBack 260ms ease both" }}
       onClick={onClose}
     >
       <div
-        className="relative flex max-h-[86vh] w-full max-w-[940px] flex-col overflow-hidden rounded-2xl border border-[#262A30] bg-[#0B0D0F] shadow-[0_50px_110px_rgba(0,0,0,0.75)]"
+        className="relative flex max-h-[92vh] w-full flex-col overflow-hidden rounded-t-2xl border-t border-[#262A30] bg-[#0B0D0F] shadow-[0_50px_110px_rgba(0,0,0,0.75)] sm:max-h-[86vh] sm:max-w-[940px] sm:rounded-2xl sm:border"
         style={{ animation: "gsmPop 420ms cubic-bezier(0.22,0.61,0.36,1) both" }}
         onClick={(e) => e.stopPropagation()}
       >

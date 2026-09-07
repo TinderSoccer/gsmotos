@@ -3,6 +3,7 @@ import Link from "next/link";
 import CertificadosGrid from "@/components/nosotros/CertificadosGrid";
 import ColorBars from "@/components/services/ColorBars";
 import SiteFooter from "@/components/SiteFooter";
+import { MobileMenuButton } from "@/components/mobile/MobileNav";
 import { TRAYECTORIA } from "@/lib/certificados";
 
 // Página propia de Christopher, fiel al diseño original de Claude Design
@@ -27,7 +28,8 @@ export default function ChristopherPage() {
           style={{ background: "linear-gradient(103deg, #ffffff 50%, rgba(255,255,255,0.86) 57%, rgba(255,255,255,0) 72%)" }}
         />
 
-        <header className="absolute inset-x-0 top-0 z-30 flex items-center justify-between px-6 py-6 sm:px-10">
+        <header className="absolute inset-x-0 top-0 z-30 flex items-center justify-between gap-3 px-6 py-6 sm:px-10">
+          <MobileMenuButton />
           <Link href="/" className="block leading-none">
             <Image
               src="/images/logo-gsmotos.png"
@@ -39,10 +41,11 @@ export default function ChristopherPage() {
           </Link>
           <Link
             href="/"
-            className="inline-flex items-center gap-3.5 rounded border border-white/40 bg-black/40 px-5 py-3 font-display text-[13px] font-semibold uppercase tracking-[2.2px] text-white transition-colors hover:border-mBlue hover:bg-mBlue sm:text-sm"
+            aria-label="Volver al inicio"
+            className="inline-flex items-center gap-3.5 rounded border border-white/40 bg-black/40 px-4 py-3 font-display text-[13px] font-semibold uppercase tracking-[2.2px] text-white transition-colors hover:border-mBlue hover:bg-mBlue sm:px-5 sm:text-sm"
           >
             <span className="font-body">←</span>
-            <span>Volver al inicio</span>
+            <span className="hidden sm:inline">Volver al inicio</span>
           </Link>
         </header>
 

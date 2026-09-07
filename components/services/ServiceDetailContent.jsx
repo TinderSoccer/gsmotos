@@ -1,5 +1,6 @@
 import Link from "next/link";
 import ColorBars from "./ColorBars";
+import { MobileTopBar } from "@/components/mobile/MobileNav";
 
 // Contenido de detalle de un servicio (kicker/título/lead/texto largo/nota +
 // CTAs). Antes vivía como overlay en components/home/DetailModal.jsx; ahora
@@ -8,6 +9,7 @@ import ColorBars from "./ColorBars";
 export default function ServiceDetailContent({ card, backHref, backLabel }) {
   return (
     <article className="bg-[#0B0B0B]">
+      <MobileTopBar />
       <div className="relative h-[280px] overflow-hidden sm:h-[360px]">
         <div className="absolute inset-0 bg-cover bg-center brightness-125" style={{ backgroundImage: `url(${card.photo})` }} />
         <div className="absolute inset-0" style={{ background: "linear-gradient(180deg, rgba(5,5,5,0.25) 0%, rgba(5,5,5,0.75) 70%, #0B0B0B 100%)" }} />
