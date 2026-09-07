@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import Link from "next/link";
 import ColorBars from "@/components/services/ColorBars";
 import ContactInfo from "@/components/ContactInfo";
 import SiteFooter from "@/components/SiteFooter";
@@ -68,16 +69,24 @@ export default function ContactoPage() {
                 Te contactaremos para confirmar. Código de reserva:{" "}
                 <span className="font-display text-mCyan">{confirmation}</span>
               </p>
-              <button
-                type="button"
-                onClick={() => {
-                  setForm(EMPTY_FORM);
-                  setStatus("idle");
-                }}
-                className="mt-2 font-display text-sm uppercase tracking-wide text-mCyan hover:text-mCyan/80"
-              >
-                Agendar otra hora
-              </button>
+              <div className="mt-2 flex flex-wrap items-center justify-center gap-x-6 gap-y-2">
+                <button
+                  type="button"
+                  onClick={() => {
+                    setForm(EMPTY_FORM);
+                    setStatus("idle");
+                  }}
+                  className="font-display text-sm uppercase tracking-wide text-mCyan hover:text-mCyan/80"
+                >
+                  Agendar otra hora
+                </button>
+                <Link
+                  href="/"
+                  className="font-display text-sm uppercase tracking-wide text-white/70 hover:text-white"
+                >
+                  ← Volver al inicio
+                </Link>
+              </div>
             </div>
           ) : (
             <form onSubmit={handleSubmit} className="flex flex-col gap-4">
