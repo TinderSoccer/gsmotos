@@ -5,6 +5,7 @@
 // - Certificados: fotos de cada certificado de Christopher (lib/certificados.js).
 // - Productos: catálogo que alimenta el buscador de la Home y /productos
 //   (lib/catalogo.js).
+// - Taller: fotos y videos de /nosotros/taller (lib/taller.js).
 import { useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
@@ -12,6 +13,7 @@ import ColorBars from "@/components/services/ColorBars";
 import { CERTIFICADOS } from "@/lib/certificados";
 import { setCertPhoto, useCertPhotos } from "@/lib/useCertPhotos";
 import { resetProductos, useProductos, writeProductos } from "@/lib/catalogo";
+import { resetTallerItems, useTallerItems, writeTallerItems } from "@/lib/taller";
 import { readImageFile } from "@/lib/readImage";
 
 function PlaceholderIcon({ label }) {
@@ -250,6 +252,151 @@ function ProductosTab() {
   );
 }
 
+function TallerTab() {
+  const items = useTallerItems();
+  const [videoUrl, setVideoUrl] = useState("");
+  const [videoCaption, setVideoCaption] = useState("");
+
+  function patch(id, changes) {
+    writeTallerItems(items.map((it) => (it.id === id ? { ...it, ...changes } : it)));
+  }
+
+  function removeItem(id) {
+    writeTallerItems(items.filter((it) => it.id !== id));
+  }
+
+  async function handleFile(ev) {
+    const file = ev.target.files?.[0];
+    ev.target.value = "";
+    if (!file) return;
+    const dataUrl = await readImageFile(file, { maxSize: 1600, quality: 0.85 });
+    writeTallerItems([...items, { id: `photo-${Date.now()}`, type: "photo", photo: dataUrl, caption: "" }]);
+  }
+
+  function addVideo(ev) {
+    ev.preventDefault();
+    const url = videoUrl.trim();
+    if (!url) return;
+    writeTallerItems([...items, { id: `video-${Date.now()}`, type: "video", url, caption: videoCaption.trim() }]);
+    setVideoUrl("");
+    setVideoCaption("");
+  }
+
+  return (
+    <>
+      <div className="flex flex-wrap items-end justify-between gap-8 px-6 pb-5 pt-11 sm:px-10">
+        <div className="flex flex-col gap-2.5">
+          <h1 className="font-display text-[32px] font-bold italic uppercase leading-none text-[#0B0B0B] sm:text-4xl">
+            Contenido del taller
+          </h1>
+          <p className="max-w-xl text-[15.5px] leading-[1.6] text-[#5A5A5A]">
+            Fotos y videos que se muestran en /nosotros/taller (destino del botón &ldquo;Nuestro taller&rdquo; del
+            inicio). Un video puede ser un link directo (.mp4) o de YouTube/Vimeo.
+          </p>
+        </div>
+        <div className="flex flex-col items-end gap-0.5">
+          <div className="font-display text-[32px] font-bold italic leading-none text-mBlue">{items.length}</div>
+          <div className="font-display text-[13px] uppercase tracking-[2px] text-[#8A8A8A]">Publicados</div>
+        </div>
+      </div>
+
+      <div className="flex flex-col gap-3 px-6 pb-6 sm:flex-row sm:px-10">
+        <label className="flex flex-1 cursor-pointer items-center justify-center gap-3 rounded bg-mBlue px-4 py-3.5 font-display text-[14.5px] font-semibold uppercase tracking-[2px] text-white transition-colors hover:bg-mCyan">
+          <span>Subir foto</span>
+          <span className="font-body text-lg">+</span>
+          <input type="file" accept="image/*" className="hidden" onChange={handleFile} />
+        </label>
+        <form onSubmit={addVideo} className="flex flex-1 flex-col gap-2 sm:flex-row">
+          <input
+            type="url"
+            required
+            value={videoUrl}
+            onChange={(ev) => setVideoUrl(ev.target.value)}
+            placeholder="Link del video (YouTube, Vimeo o .mp4)"
+            className="min-w-0 flex-1 rounded-md border border-[#E0E0E0] bg-[#FBFBFB] px-3.5 py-2.5 text-sm text-[#0B0B0B] outline-none focus:border-mCyan"
+          />
+          <input
+            type="text"
+            value={videoCaption}
+            onChange={(ev) => setVideoCaption(ev.target.value)}
+            placeholder="Descripción (opcional)"
+            className="min-w-0 flex-1 rounded-md border border-[#E0E0E0] bg-[#FBFBFB] px-3.5 py-2.5 text-sm text-[#0B0B0B] outline-none focus:border-mCyan sm:max-w-[220px]"
+          />
+          <button
+            type="submit"
+            className="whitespace-nowrap rounded bg-[#0B0B0B] px-4 py-2.5 font-display text-sm font-semibold uppercase tracking-wide text-white transition-colors hover:bg-mBlue"
+          >
+            Agregar video
+          </button>
+        </form>
+      </div>
+
+      <div className="grid grid-cols-1 gap-4 px-6 pb-14 sm:grid-cols-2 sm:px-10 lg:grid-cols-3">
+        {items.map((item) => (
+          <div key={item.id} className="flex flex-col overflow-hidden rounded-xl border border-[#E0E0E0] bg-white shadow-[0_2px_10px_rgba(11,11,11,0.06)]">
+            <div className="relative h-[160px] overflow-hidden border-b border-[#E0E0E0] bg-[#F2F2F2]">
+              {item.type === "photo" ? (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img src={item.photo} alt={item.caption || "Foto del taller"} className="block h-full w-full object-cover" />
+              ) : (
+                <div className="flex h-full w-full flex-col items-center justify-center gap-2 bg-[#141719]">
+                  <svg viewBox="0 0 32 32" className="h-8 w-8" fill="none">
+                    <circle cx="16" cy="16" r="13" stroke="#4E9AD1" strokeWidth="1.6" />
+                    <path d="M13 11l8 5-8 5V11Z" fill="#4E9AD1" />
+                  </svg>
+                  <div className="max-w-[90%] truncate font-display text-[11.5px] uppercase tracking-wide text-[#8FC2E6]">
+                    {item.url}
+                  </div>
+                </div>
+              )}
+              <div
+                className="absolute left-3 top-3 rounded-[3px] px-3 py-1.5 font-display text-[11.5px] uppercase tracking-[2px] text-white"
+                style={{ background: item.type === "photo" ? "#1B5FAE" : "#0B0B0B" }}
+              >
+                {item.type === "photo" ? "Foto" : "Video"}
+              </div>
+            </div>
+            <div className="flex flex-col gap-2.5 px-4 pb-4 pt-3.5">
+              <input
+                type="text"
+                value={item.caption || ""}
+                onChange={(ev) => patch(item.id, { caption: ev.target.value })}
+                placeholder="Descripción (opcional)"
+                className="w-full rounded-md border border-[#E0E0E0] bg-[#FBFBFB] px-3 py-2 text-sm text-[#0B0B0B] outline-none focus:border-mCyan"
+              />
+              <button
+                type="button"
+                onClick={() => removeItem(item.id)}
+                className="rounded border border-[#D6D6D6] bg-white px-4 py-2.5 font-display text-sm font-semibold uppercase tracking-wide text-[#0B0B0B] transition-colors hover:border-mRed hover:text-mRed"
+              >
+                Eliminar
+              </button>
+            </div>
+          </div>
+        ))}
+      </div>
+
+      <div className="px-6 pb-14 sm:px-10">
+        <div className="flex flex-col items-start gap-4 rounded-xl border border-[#E0E0E0] bg-white p-6 sm:flex-row sm:items-center sm:justify-between">
+          <div className="flex flex-col gap-1.5">
+            <div className="font-display text-lg font-semibold uppercase tracking-wide text-[#0B0B0B]">Cómo se publica</div>
+            <div className="text-[14.5px] leading-[1.6] text-[#5A5A5A]">
+              Los cambios se reflejan de inmediato en /nosotros/taller, en el orden en que se agregan.
+            </div>
+          </div>
+          <button
+            type="button"
+            onClick={() => resetTallerItems()}
+            className="whitespace-nowrap rounded border border-mRed px-5 py-3.5 font-display text-sm font-semibold uppercase tracking-[2.2px] text-mRed transition-colors hover:bg-mRed hover:text-white"
+          >
+            Restaurar galería base
+          </button>
+        </div>
+      </div>
+    </>
+  );
+}
+
 export default function AdminPanel() {
   const [tab, setTab] = useState("certs");
 
@@ -279,9 +426,12 @@ export default function AdminPanel() {
         <Tab active={tab === "prods"} onClick={() => setTab("prods")}>
           Productos
         </Tab>
+        <Tab active={tab === "taller"} onClick={() => setTab("taller")}>
+          Taller
+        </Tab>
       </div>
 
-      {tab === "certs" ? <CertificadosTab /> : <ProductosTab />}
+      {tab === "certs" ? <CertificadosTab /> : tab === "prods" ? <ProductosTab /> : <TallerTab />}
     </div>
   );
 }

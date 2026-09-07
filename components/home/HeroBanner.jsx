@@ -106,13 +106,13 @@ export default function HeroBanner({ onSelect }) {
             <span>Conocer más</span>
             <span className="font-body">→</span>
           </a>
-          <a
-            href="#taller"
+          <Link
+            href="/nosotros/taller"
             className="flex flex-1 items-center justify-center gap-2.5 whitespace-nowrap rounded border border-white/30 px-2 py-3 font-display text-[13.5px] font-semibold uppercase tracking-[1.6px] text-white"
           >
             <span>Nuestro taller</span>
             <span className="font-body">›</span>
-          </a>
+          </Link>
         </div>
 
         <div className="relative mt-2.5 w-[calc(100%+36px)]">
@@ -148,13 +148,13 @@ export default function HeroBanner({ onSelect }) {
               <span>Conocer más</span>
               <span className="font-body text-lg">→</span>
             </a>
-            <a
-              href="#taller"
+            <Link
+              href="/nosotros/taller"
               className="inline-flex items-center gap-3 border-b-2 border-transparent pb-[3px] font-display text-[19px] font-semibold uppercase tracking-[2.5px] text-ink transition-colors hover:border-mBlue hover:text-mBlue"
             >
               <span>Nuestro taller</span>
               <span className="font-body text-mRed">›</span>
-            </a>
+            </Link>
           </div>
         </div>
       </div>
