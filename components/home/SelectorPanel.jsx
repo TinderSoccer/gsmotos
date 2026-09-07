@@ -109,7 +109,7 @@ export default function SelectorPanel({
   const animCards = tick % 2 ? "gsmIn2" : "gsmIn1";
 
   return (
-    <div className="flex flex-col gap-5 bg-[#0B0B0B] px-6 pb-10 pt-8 sm:px-10">
+    <div id="servicios" className="flex flex-col gap-5 bg-[#0B0B0B] px-6 pb-10 pt-8 sm:px-10">
       {/* El tablero-menú del hero se muestra en mobile (dentro del propio
           hero) y en desktop (ver HeroBanner); en el rango intermedio
           (tablet) no hay tablero, así que estos chips cubren esa selección. */}

@@ -15,7 +15,7 @@ export default function Home() {
         title="Experiencia, tecnología y confianza"
         text="Trabajamos con procedimientos, herramientas y estándares de concesionario para asegurar el mejor resultado en tu moto."
         ctaLabel="Conócenos más →"
-        ctaHref="#nosotros"
+        ctaHref="/nosotros"
         photoSrc="/images/foto-taller-c.png"
       />
 
@@ -26,7 +26,7 @@ export default function Home() {
         title="Nosotros vamos por ella"
         text="Servicio de traslado de motocicletas desde tu domicilio, carretera o donde lo necesites."
         ctaLabel="Solicitar traslado →"
-        ctaHref="#traslado"
+        ctaHref="/contacto?motivo=traslado"
         photoSrc="/images/foto-traslado-b.png"
       />
 

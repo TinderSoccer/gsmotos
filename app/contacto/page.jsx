@@ -1,7 +1,8 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { Suspense, useEffect, useState } from "react";
 import Link from "next/link";
+import { useSearchParams } from "next/navigation";
 import ColorBars from "@/components/services/ColorBars";
 import ContactInfo from "@/components/ContactInfo";
 import SiteFooter from "@/components/SiteFooter";
@@ -10,11 +11,19 @@ import { getAvailableSlots, createAppointment } from "@/lib/tallergp";
 
 const EMPTY_FORM = { name: "", phone: "", model: "", note: "", date: "", time: "" };
 
+// Notas pre-cargadas según de dónde venga el visitante (?motivo=...), para
+// que no tenga que volver a escribir lo que ya dijo con el botón que tocó.
+const MOTIVO_NOTE = {
+  traslado: "Necesito el servicio de traslado de mi moto.",
+};
+
 // Formulario de agendamiento — sin carrito ni pago online, solo reserva de
 // hora. Usa lib/tallergp.js (mock); ver ese archivo para dónde conectar la
 // API real de TallerGP cuando existan credenciales.
-export default function ContactoPage() {
-  const [form, setForm] = useState(EMPTY_FORM);
+function ContactoContent() {
+  const searchParams = useSearchParams();
+  const motivoNote = MOTIVO_NOTE[searchParams.get("motivo")] || "";
+  const [form, setForm] = useState(() => ({ ...EMPTY_FORM, note: motivoNote }));
   const [slots, setSlots] = useState([]);
   const [status, setStatus] = useState("idle"); // idle | loading | done | error
   const [confirmation, setConfirmation] = useState(null);
@@ -182,5 +191,13 @@ export default function ContactoPage() {
 
       <SiteFooter />
     </main>
+  );
+}
+
+export default function ContactoPage() {
+  return (
+    <Suspense fallback={null}>
+      <ContactoContent />
+    </Suspense>
   );
 }

@@ -1,4 +1,5 @@
 import Image from "next/image";
+import Link from "next/link";
 import SectionMark from "./SectionMark";
 
 export default function DarkFeatureBlock({
@@ -21,12 +22,12 @@ export default function DarkFeatureBlock({
         <p className="mt-3.5 max-w-[440px] text-[14.5px] leading-relaxed text-white/55">
           {text}
         </p>
-        <a
+        <Link
           href={ctaHref}
           className="mt-6 inline-flex items-center gap-2.5 rounded-[2px] border-[1.5px] border-mCyan px-6 py-3.5 font-display text-[13.5px] font-bold uppercase tracking-wide text-white hover:bg-mCyan/10"
         >
           {ctaLabel}
-        </a>
+        </Link>
       </div>
       <div className={`relative h-80 overflow-hidden rounded ${reverse ? "md:order-1" : ""}`}>
         {photoSrc ? (
