@@ -156,14 +156,22 @@ export default function ContactoPage() {
                   </select>
                 </label>
               </div>
-              <button
-                type="submit"
-                disabled={status === "loading"}
-                className="mt-2 inline-flex w-fit items-center gap-4 rounded border border-mBlue bg-mBlue px-6 py-[15px] font-display text-[17px] font-semibold uppercase tracking-[2.4px] text-white transition-colors hover:border-mCyan hover:bg-mCyan disabled:opacity-60"
-              >
-                <span>{status === "loading" ? "Agendando…" : "Agendar ahora"}</span>
-                <span className="font-body">→</span>
-              </button>
+              <div className="mt-2 flex flex-wrap items-center gap-x-6 gap-y-3">
+                <button
+                  type="submit"
+                  disabled={status === "loading"}
+                  className="inline-flex w-fit items-center gap-4 rounded border border-mBlue bg-mBlue px-6 py-[15px] font-display text-[17px] font-semibold uppercase tracking-[2.4px] text-white transition-colors hover:border-mCyan hover:bg-mCyan disabled:opacity-60"
+                >
+                  <span>{status === "loading" ? "Agendando…" : "Agendar ahora"}</span>
+                  <span className="font-body">→</span>
+                </button>
+                <Link
+                  href="/"
+                  className="font-display text-sm uppercase tracking-wide text-white/70 hover:text-white"
+                >
+                  ← Volver al inicio
+                </Link>
+              </div>
               {status === "error" && (
                 <div className="text-sm text-mRed">No pudimos agendar la hora. Revisa los datos e intenta de nuevo.</div>
               )}
