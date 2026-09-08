@@ -70,27 +70,36 @@ function ProductCarousel({ query, onQueryChange, products, pageLabel, resultLabe
         // responsive de siempre — sin cambios ahí.
         <div className="-mx-6 flex snap-x snap-mandatory gap-3 overflow-x-auto px-6 pb-1 sm:mx-0 sm:grid sm:grid-cols-2 sm:gap-3.5 sm:overflow-visible sm:px-0 sm:pb-0 lg:grid-cols-4">
           {products.map((prod) => (
-            <Link
+            <div
               key={prod.slug}
-              href={`/productos?q=${encodeURIComponent(prod.name)}`}
               className="group flex w-[46%] flex-none snap-start flex-col overflow-hidden rounded-xl border border-[#1E2226] bg-[#0B0D0F] text-[#E4E7EA] transition-all sm:w-auto sm:hover:-translate-y-1 sm:hover:border-mCyan"
             >
-              <div className="relative h-[110px] overflow-hidden bg-[#14171A] sm:h-[150px]">
-                <div className="absolute inset-0 bg-cover bg-center brightness-[1.15]" style={{ backgroundImage: `url(${prod.photo})` }} />
-                <div className="pointer-events-none absolute inset-0" style={{ background: "linear-gradient(180deg, rgba(5,5,5,0.05) 0%, rgba(5,5,5,0.55) 100%)" }} />
-                <div className="absolute left-3 top-3 hidden sm:block">
-                  <ColorBars />
+              <Link href={`/productos?q=${encodeURIComponent(prod.name)}`} className="block">
+                <div className="relative h-[110px] overflow-hidden bg-[#14171A] sm:h-[150px]">
+                  <div className="absolute inset-0 bg-cover bg-center brightness-[1.15]" style={{ backgroundImage: `url(${prod.photo})` }} />
+                  <div className="pointer-events-none absolute inset-0" style={{ background: "linear-gradient(180deg, rgba(5,5,5,0.05) 0%, rgba(5,5,5,0.55) 100%)" }} />
+                  <div className="absolute left-3 top-3 hidden sm:block">
+                    <ColorBars />
+                  </div>
                 </div>
-              </div>
-              <div className="flex flex-col gap-1.5 px-3.5 pb-4 pt-3.5 sm:gap-2 sm:px-5 sm:pb-5 sm:pt-4.5">
-                <div className="font-display text-[11px] uppercase tracking-[1.6px] text-[#6E7780] sm:text-[13px] sm:tracking-[2px]">{prod.cat}</div>
-                <div className="font-display text-[15px] font-semibold uppercase leading-tight tracking-wide text-white sm:text-xl">{prod.name}</div>
-                <div className="mt-0.5 hidden items-center gap-2.5 font-display text-[13.5px] uppercase tracking-wide text-mCyan sm:flex">
-                  <span>Consultar</span>
+                <div className="flex flex-col gap-1.5 px-3.5 pt-3.5 sm:gap-2 sm:px-5 sm:pt-4.5">
+                  <div className="font-display text-[11px] uppercase tracking-[1.6px] text-[#6E7780] sm:text-[13px] sm:tracking-[2px]">{prod.cat}</div>
+                  <div className="font-display text-[15px] font-semibold uppercase leading-tight tracking-wide text-white sm:text-xl">{prod.name}</div>
+                </div>
+              </Link>
+              <div className="px-3.5 pb-4 pt-1.5 sm:px-5 sm:pb-5 sm:pt-2">
+                <a
+                  href={whatsappUrl(s.phoneDigits, `Hola, quiero consultar por: ${prod.name} (${prod.cat})`)}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="inline-flex items-center gap-2 font-display text-[12.5px] uppercase tracking-wide text-mCyan hover:text-mCyan/80 sm:text-[13.5px]"
+                >
+                  <FaWhatsapp size={14} color="#25D366" />
+                  Consultar
                   <span className="font-body">→</span>
-                </div>
+                </a>
               </div>
-            </Link>
+            </div>
           ))}
         </div>
       )}

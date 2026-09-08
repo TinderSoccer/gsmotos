@@ -127,6 +127,15 @@ function ProductosContent() {
                   <div className="mt-1">
                     <StockBadge stock={prod.stock} />
                   </div>
+                  <a
+                    href={whatsappUrl(s.phoneDigits, `Hola, quiero consultar por: ${prod.name} (${prod.cat})`)}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="mt-2 inline-flex items-center justify-center gap-2 rounded border border-mCyan px-4 py-2.5 font-display text-[13px] font-semibold uppercase tracking-wide text-white transition-colors hover:bg-mCyan/[0.16]"
+                  >
+                    <FaWhatsapp size={16} color="#25D366" />
+                    Consultar por el producto
+                  </a>
                 </div>
               </div>
             ))}

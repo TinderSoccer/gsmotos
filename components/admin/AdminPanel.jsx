@@ -230,15 +230,106 @@ function ServiciosTab() {
   );
 }
 
+function NewProductModal({ onClose, onCreate }) {
+  const [name, setName] = useState("");
+  const [cat, setCat] = useState("");
+  const [photo, setPhoto] = useState("");
+
+  async function handleFile(ev) {
+    const file = ev.target.files?.[0];
+    ev.target.value = "";
+    if (!file) return;
+    const dataUrl = await readImageFile(file, { maxSize: 1200, quality: 0.8 });
+    setPhoto(dataUrl);
+  }
+
+  function handleSubmit(ev) {
+    ev.preventDefault();
+    if (!name.trim()) return;
+    onCreate({ name: name.trim(), cat: cat.trim() || "General", photo });
+  }
+
+  return (
+    <div
+      className="fixed inset-0 z-[300] flex items-center justify-center bg-black/60 p-6"
+      style={{ animation: "gsmBack 220ms ease both" }}
+      onClick={onClose}
+    >
+      <div
+        className="w-full max-w-[440px] rounded-xl bg-white p-7"
+        style={{ animation: "gsmPop 280ms cubic-bezier(0.22,0.61,0.36,1) both" }}
+        onClick={(ev) => ev.stopPropagation()}
+      >
+        <div className="mb-5 font-display text-2xl font-bold italic uppercase leading-none text-[#0B0B0B]">
+          Nuevo producto
+        </div>
+        <form onSubmit={handleSubmit} className="flex flex-col gap-4">
+          <div className="relative h-[140px] overflow-hidden rounded-lg border border-[#E4E4E4] bg-[#F2F2F2]">
+            {photo ? (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img src={photo} alt="" className="block h-full w-full object-cover" />
+            ) : (
+              <div className="flex h-full w-full items-center justify-center font-display text-xs uppercase tracking-wide text-[#9A9A9A]">
+                Sin foto
+              </div>
+            )}
+          </div>
+          <label className="flex cursor-pointer items-center justify-center gap-2.5 rounded bg-mBlue px-4 py-2.5 font-display text-sm font-semibold uppercase tracking-wide text-white transition-colors hover:bg-mCyan">
+            <span>{photo ? "Reemplazar foto" : "Subir foto"}</span>
+            <input type="file" accept="image/*" className="hidden" onChange={handleFile} />
+          </label>
+          <label className="flex flex-col gap-1.5 text-sm text-[#3A3A3A]">
+            Nombre del producto
+            <input
+              required
+              autoFocus
+              value={name}
+              onChange={(ev) => setName(ev.target.value)}
+              placeholder="Ej. Aceite motor BMW Advantec 5W-40"
+              className="rounded-md border border-[#E0E0E0] bg-[#FBFBFB] px-3.5 py-2.5 font-display text-base text-[#0B0B0B] outline-none focus:border-mCyan"
+            />
+          </label>
+          <label className="flex flex-col gap-1.5 text-sm text-[#3A3A3A]">
+            Categoría
+            <input
+              value={cat}
+              onChange={(ev) => setCat(ev.target.value)}
+              placeholder="Ej. Aceites"
+              className="rounded-md border border-[#E0E0E0] bg-[#FBFBFB] px-3.5 py-2.5 font-display text-base text-[#0B0B0B] outline-none focus:border-mCyan"
+            />
+          </label>
+          <div className="mt-2 flex items-center gap-3">
+            <button
+              type="submit"
+              className="flex-1 rounded bg-mBlue py-3 font-display text-sm font-semibold uppercase tracking-[2.2px] text-white transition-colors hover:bg-mCyan"
+            >
+              Crear producto
+            </button>
+            <button
+              type="button"
+              onClick={onClose}
+              className="rounded border border-[#D6D6D6] px-5 py-3 font-display text-sm font-semibold uppercase tracking-wide text-[#0B0B0B] transition-colors hover:border-mRed hover:text-mRed"
+            >
+              Cancelar
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  );
+}
+
 function ProductosTab() {
   const products = useProductos();
+  const [showNew, setShowNew] = useState(false);
 
   function patch(i, changes) {
     writeProductos(products.map((p, k) => (k === i ? { ...p, ...changes } : p)));
   }
 
-  function addProduct() {
-    writeProductos([...products, { cat: "Categoría", name: "Nuevo producto", photo: "" }]);
+  function createProduct(newProduct) {
+    writeProductos([...products, newProduct]);
+    setShowNew(false);
   }
 
   function removeProduct(i) {
@@ -255,6 +346,7 @@ function ProductosTab() {
 
   return (
     <>
+      {showNew && <NewProductModal onClose={() => setShowNew(false)} onCreate={createProduct} />}
       <div className="flex flex-wrap items-end justify-between gap-8 px-6 pb-5 pt-11 sm:px-10">
         <div className="flex flex-col gap-2.5">
           <h1 className="font-display text-[32px] font-bold italic uppercase leading-none text-[#0B0B0B] sm:text-4xl">
@@ -271,7 +363,7 @@ function ProductosTab() {
           </div>
           <button
             type="button"
-            onClick={addProduct}
+            onClick={() => setShowNew(true)}
             className="inline-flex items-center gap-3.5 whitespace-nowrap rounded bg-mBlue px-6 py-[15px] font-display text-base font-semibold uppercase tracking-[2.2px] text-white transition-colors hover:bg-mCyan"
           >
             <span>Nuevo producto</span>
