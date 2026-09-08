@@ -19,6 +19,13 @@ export default function ChristopherPage() {
     <main className="bg-white text-[#0B0B0B]">
       <section className="relative h-[360px] overflow-hidden bg-[#050505] sm:h-[430px]">
         <div className="absolute inset-0 bg-cover bg-center brightness-125" style={{ backgroundImage: `url(${HERO_PHOTO})` }} />
+        {/* Viñeta oscura solo en mobile — sin el recorte diagonal blanco (que
+            arranca en sm), el texto blanco quedaba directo sobre la foto
+            aclarada (brightness-125), poco legible si esa zona es clara. */}
+        <div
+          className="pointer-events-none absolute inset-0 sm:hidden"
+          style={{ background: "linear-gradient(180deg, rgba(5,5,5,0.35) 0%, rgba(5,5,5,0.55) 55%, rgba(5,5,5,0.85) 100%)" }}
+        />
         <div
           className="pointer-events-none absolute inset-0 hidden bg-white sm:block"
           style={{ clipPath: "polygon(0 0, 34% 0, 47% 100%, 0 100%)" }}
