@@ -2,9 +2,11 @@
 // Se reutiliza en el footer (tema claro) y en la página /contacto (tema
 // oscuro).
 import { Mail, MapPin, MessageCircle, Phone } from "lucide-react";
+import InstagramIcon from "./icons/InstagramIcon";
 
 const MAPS_URL = "https://maps.google.com/?q=Av.+Presidente+Riesco+6721,+Las+Condes,+Santiago";
 const WHATSAPP_URL = "https://wa.me/56984058116";
+const INSTAGRAM_URL = "https://www.instagram.com/tallergsmotos/";
 
 const ITEMS = [
   {
@@ -28,6 +30,12 @@ const ITEMS = [
     label: "contacto@gsmotos.cl",
     href: "mailto:contacto@gsmotos.cl",
     Icon: Mail,
+  },
+  {
+    label: "@tallergsmotos",
+    href: INSTAGRAM_URL,
+    external: true,
+    Icon: InstagramIcon,
   },
 ];
 

@@ -2,7 +2,7 @@
 
 // Navegación mobile, portada del diseño "GSmotos Mobile.dc.html" de Claude
 // Design: menú hamburguesa a pantalla completa + barra de accesos rápidos
-// fija al fondo (Contactar / Escribirnos / Ubicación). Solo visible bajo el
+// fija al fondo (Contactar / Escribirnos / Ubicación / Instagram). Solo visible bajo el
 // breakpoint `sm` — en desktop/tablet el sitio sigue con su navegación
 // actual (tablero del hero, enlaces de cada página, footer).
 //
@@ -15,6 +15,7 @@ import { createContext, useCallback, useContext, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { Mail, MapPin, Menu, Phone, X } from "lucide-react";
+import InstagramIcon from "@/components/icons/InstagramIcon";
 import { menus } from "@/lib/servicesData";
 
 const MobileMenuContext = createContext(null);
@@ -95,12 +96,12 @@ function MobileTabBar() {
       className="fixed inset-x-0 bottom-0 z-[150] flex justify-center sm:hidden"
       style={{ paddingBottom: "env(safe-area-inset-bottom)" }}
     >
-      <div className="grid w-full max-w-[430px] grid-cols-3 border-t border-[#23272B] bg-[#0B0B0B]">
-        <a href="tel:+56984058116" className="flex flex-col items-center gap-1.5 py-3 pb-3.5 text-[#E4E7EA]">
+      <div className="grid w-full max-w-[430px] grid-cols-4 border-t border-[#23272B] bg-[#0B0B0B]">
+        <a href="tel:+56984058116" className="flex flex-col items-center gap-1.5 border-r border-[#23272B] py-3 pb-3.5 text-[#E4E7EA]">
           <Phone size={20} strokeWidth={1.6} />
           <span className="font-display text-[11.5px] uppercase tracking-[1.8px]">Contactar</span>
         </a>
-        <a href="mailto:contacto@gsmotos.cl" className="flex flex-col items-center gap-1.5 border-x border-[#23272B] py-3 pb-3.5 text-[#E4E7EA]">
+        <a href="mailto:contacto@gsmotos.cl" className="flex flex-col items-center gap-1.5 border-r border-[#23272B] py-3 pb-3.5 text-[#E4E7EA]">
           <Mail size={20} strokeWidth={1.6} />
           <span className="font-display text-[11.5px] uppercase tracking-[1.8px]">Escribirnos</span>
         </a>
@@ -108,10 +109,19 @@ function MobileTabBar() {
           href="https://maps.google.com/?q=Av.+Presidente+Riesco+6721,+Las+Condes,+Santiago"
           target="_blank"
           rel="noreferrer"
-          className="flex flex-col items-center gap-1.5 py-3 pb-3.5 text-[#E4E7EA]"
+          className="flex flex-col items-center gap-1.5 border-r border-[#23272B] py-3 pb-3.5 text-[#E4E7EA]"
         >
           <MapPin size={20} strokeWidth={1.6} />
           <span className="font-display text-[11.5px] uppercase tracking-[1.8px]">Ubicación</span>
+        </a>
+        <a
+          href="https://www.instagram.com/tallergsmotos/"
+          target="_blank"
+          rel="noreferrer"
+          className="flex flex-col items-center gap-1.5 py-3 pb-3.5 text-[#E4E7EA]"
+        >
+          <InstagramIcon size={20} strokeWidth={1.6} />
+          <span className="font-display text-[11.5px] uppercase tracking-[1.8px]">Instagram</span>
         </a>
       </div>
     </div>

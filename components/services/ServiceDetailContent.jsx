@@ -51,6 +51,14 @@ export default function ServiceDetailContent({ card, backHref, backLabel }) {
           >
             Escribir por WhatsApp
           </a>
+          <a
+            href="https://www.instagram.com/tallergsmotos/"
+            target="_blank"
+            rel="noreferrer"
+            className="inline-flex items-center gap-3 rounded border border-white/25 px-[22px] py-[15px] font-display text-base font-semibold uppercase tracking-[2.2px] text-white transition-colors hover:border-white/50"
+          >
+            Seguir en Instagram
+          </a>
         </div>
       </div>
     </article>
