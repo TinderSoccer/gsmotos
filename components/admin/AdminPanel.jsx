@@ -19,12 +19,27 @@ import { Award, ExternalLink, LogOut, PlayCircle } from "lucide-react";
 import ColorBars from "@/components/services/ColorBars";
 import { CERTIFICADOS } from "@/lib/certificados";
 import { setCertPhoto, useCertPhotos } from "@/lib/useCertPhotos";
-import { resetProductos, useProductos, writeProductos } from "@/lib/catalogo";
+import { setFounderPhoto, useFounderPhoto } from "@/lib/founderPhoto";
+import { useProductos, writeProductos } from "@/lib/catalogo";
 import { resetTallerItems, useTallerItems, writeTallerItems } from "@/lib/taller";
 import { menus } from "@/lib/servicesData";
 import { resetServicePhotos, servicePhotoKey, setServicePhoto, useServicePhotos } from "@/lib/servicePhotos";
 import { DEFAULT_SETTINGS, resetSettings, useSettings, writeSettings } from "@/lib/settings";
 import { readImageFile } from "@/lib/readImage";
+
+// Todas las escrituras a localStorage (fotos, catálogo, textos) pueden
+// fallar si el navegador llegó a la cuota de almacenamiento del sitio —
+// las fotos como data URL son lo que más pesa. Antes ese error se
+// descartaba en silencio (el cambio no se guardaba y el panel no avisaba
+// nada); ahora cada función `write*`/`set*` de lib/ devuelve true/false y
+// este helper avisa cuando falla.
+const STORAGE_FULL_MSG =
+  "No se pudo guardar el cambio: se llegó al límite de almacenamiento del navegador para este sitio (las fotos ocupan la mayor parte). Elimina o reemplaza alguna foto para liberar espacio e intenta de nuevo.";
+
+function warnIfFailed(ok) {
+  if (!ok) alert(STORAGE_FULL_MSG);
+  return ok;
+}
 
 function PlaceholderIcon({ label }) {
   return (
@@ -52,6 +67,54 @@ function Tab({ active, onClick, children }) {
   );
 }
 
+function FounderHeroPhoto() {
+  const photo = useFounderPhoto();
+
+  async function handleFile(ev) {
+    const file = ev.target.files?.[0];
+    ev.target.value = "";
+    if (!file) return;
+    const dataUrl = await readImageFile(file, { maxSize: 1800, quality: 0.85 });
+    warnIfFailed(setFounderPhoto(dataUrl));
+  }
+
+  return (
+    <div className="mx-6 mb-8 flex flex-col gap-4 rounded-xl border border-[#E0E0E0] bg-white p-5 sm:mx-10 sm:flex-row sm:items-center sm:gap-6">
+      <div className="relative h-[110px] w-full overflow-hidden rounded-lg border border-[#E4E4E4] bg-[#F2F2F2] sm:w-[180px] sm:flex-none">
+        {photo ? (
+          // eslint-disable-next-line @next/next/no-img-element
+          <img src={photo} alt="Foto del hero de Christopher" className="block h-full w-full object-cover" />
+        ) : (
+          <div className="flex h-full w-full items-center justify-center font-display text-[11px] uppercase tracking-wide text-[#9A9A9A]">
+            Foto genérica actual
+          </div>
+        )}
+      </div>
+      <div className="flex flex-1 flex-col gap-2">
+        <div className="font-display text-lg font-semibold uppercase tracking-wide text-[#0B0B0B]">Foto del hero (fundador)</div>
+        <p className="text-sm leading-[1.5] text-[#5A5A5A]">
+          Es la foto grande de fondo en /nosotros/christopher. Hoy usa una foto genérica del taller — sube una foto
+          real de Christopher para reemplazarla.
+        </p>
+        <div className="mt-1 flex items-center gap-2.5">
+          <label className="flex cursor-pointer items-center justify-center gap-2.5 whitespace-nowrap rounded bg-mBlue px-4 py-2.5 font-display text-sm font-semibold uppercase tracking-wide text-white transition-colors hover:bg-mCyan">
+            <span>{photo ? "Reemplazar" : "Subir foto"}</span>
+            <input type="file" accept="image/*" className="hidden" onChange={handleFile} />
+          </label>
+          <button
+            type="button"
+            onClick={() => setFounderPhoto("")}
+            disabled={!photo}
+            className="rounded border border-[#D6D6D6] bg-white px-4 py-2.5 font-display text-sm font-semibold uppercase tracking-wide text-[#0B0B0B] transition-colors enabled:hover:border-mRed enabled:hover:text-mRed disabled:cursor-not-allowed disabled:text-[#B4B4B4]"
+          >
+            Quitar
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 function CertificadosTab() {
   const photos = useCertPhotos();
   const count = CERTIFICADOS.filter((c) => photos[c.slot]).length;
@@ -61,7 +124,7 @@ function CertificadosTab() {
     ev.target.value = "";
     if (!file) return;
     const dataUrl = await readImageFile(file, { maxSize: 1400, quality: 0.82 });
-    setCertPhoto(slot, dataUrl);
+    warnIfFailed(setCertPhoto(slot, dataUrl));
   }
 
   return (
@@ -83,6 +146,8 @@ function CertificadosTab() {
           <div className="font-display text-[13px] uppercase tracking-[2px] text-[#8A8A8A]">Publicados</div>
         </div>
       </div>
+
+      <FounderHeroPhoto />
 
       <div className="grid grid-cols-1 gap-4 px-6 pb-14 pt-5 sm:grid-cols-2 sm:px-10 lg:grid-cols-3">
         {CERTIFICADOS.map((cert) => {
@@ -143,7 +208,7 @@ function ServiciosTab() {
     ev.target.value = "";
     if (!file) return;
     const dataUrl = await readImageFile(file, { maxSize: 1600, quality: 0.85 });
-    setServicePhoto(key, dataUrl);
+    warnIfFailed(setServicePhoto(key, dataUrl));
   }
 
   return (
@@ -153,10 +218,6 @@ function ServiciosTab() {
           <h1 className="font-display text-[32px] font-bold italic uppercase leading-none text-[#0B0B0B] sm:text-4xl">
             Fotos de servicios
           </h1>
-          <p className="max-w-xl text-[15.5px] leading-[1.6] text-[#5A5A5A]">
-            Hoy todas las tarjetas repiten las mismas 2 fotos genéricas del taller. Sube una foto real por servicio
-            para reemplazarla — se ve así en el selector del inicio y en /servicios.
-          </p>
         </div>
         <div className="flex flex-col items-end gap-0.5">
           <div className="font-display text-[32px] font-bold italic leading-none text-mBlue">{customCount}</div>
@@ -324,16 +385,19 @@ function ProductosTab() {
   const [showNew, setShowNew] = useState(false);
 
   function patch(i, changes) {
-    writeProductos(products.map((p, k) => (k === i ? { ...p, ...changes } : p)));
+    warnIfFailed(writeProductos(products.map((p, k) => (k === i ? { ...p, ...changes } : p))));
   }
 
   function createProduct(newProduct) {
-    writeProductos([...products, newProduct]);
-    setShowNew(false);
+    // Si falla (cuota llena) el modal se queda abierto con lo ya escrito —
+    // antes se cerraba igual aunque el producto nunca se hubiera guardado.
+    if (warnIfFailed(writeProductos([...products, newProduct]))) {
+      setShowNew(false);
+    }
   }
 
   function removeProduct(i) {
-    writeProductos(products.filter((_, k) => k !== i));
+    warnIfFailed(writeProductos(products.filter((_, k) => k !== i)));
   }
 
   async function handleFile(i, ev) {
@@ -427,21 +491,12 @@ function ProductosTab() {
       </div>
 
       <div className="px-6 pb-14 sm:px-10">
-        <div className="flex flex-col items-start gap-4 rounded-xl border border-[#E0E0E0] bg-white p-6 sm:flex-row sm:items-center sm:justify-between">
-          <div className="flex flex-col gap-1.5">
-            <div className="font-display text-lg font-semibold uppercase tracking-wide text-[#0B0B0B]">Cómo se publica</div>
-            <div className="text-[14.5px] leading-[1.6] text-[#5A5A5A]">
-              La Home muestra 4 productos por página en el orden de esta lista. Foto horizontal recomendada,
-              mínimo 1000&nbsp;px de ancho.
-            </div>
+        <div className="flex flex-col gap-1.5 rounded-xl border border-[#E0E0E0] bg-white p-6">
+          <div className="font-display text-lg font-semibold uppercase tracking-wide text-[#0B0B0B]">Cómo se publica</div>
+          <div className="text-[14.5px] leading-[1.6] text-[#5A5A5A]">
+            La Home muestra 4 productos por página en el orden de esta lista. Foto horizontal recomendada,
+            mínimo 1000&nbsp;px de ancho.
           </div>
-          <button
-            type="button"
-            onClick={() => resetProductos()}
-            className="whitespace-nowrap rounded border border-mRed px-5 py-3.5 font-display text-sm font-semibold uppercase tracking-[2.2px] text-mRed transition-colors hover:bg-mRed hover:text-white"
-          >
-            Restaurar catálogo base
-          </button>
         </div>
       </div>
     </>
@@ -454,11 +509,11 @@ function TallerTab() {
   const [videoCaption, setVideoCaption] = useState("");
 
   function patch(id, changes) {
-    writeTallerItems(items.map((it) => (it.id === id ? { ...it, ...changes } : it)));
+    warnIfFailed(writeTallerItems(items.map((it) => (it.id === id ? { ...it, ...changes } : it))));
   }
 
   function removeItem(id) {
-    writeTallerItems(items.filter((it) => it.id !== id));
+    warnIfFailed(writeTallerItems(items.filter((it) => it.id !== id)));
   }
 
   async function handleFile(ev) {
@@ -466,14 +521,14 @@ function TallerTab() {
     ev.target.value = "";
     if (!file) return;
     const dataUrl = await readImageFile(file, { maxSize: 1600, quality: 0.85 });
-    writeTallerItems([...items, { id: `photo-${Date.now()}`, type: "photo", photo: dataUrl, caption: "" }]);
+    warnIfFailed(writeTallerItems([...items, { id: `photo-${Date.now()}`, type: "photo", photo: dataUrl, caption: "" }]));
   }
 
   function addVideo(ev) {
     ev.preventDefault();
     const url = videoUrl.trim();
     if (!url) return;
-    writeTallerItems([...items, { id: `video-${Date.now()}`, type: "video", url, caption: videoCaption.trim() }]);
+    if (!warnIfFailed(writeTallerItems([...items, { id: `video-${Date.now()}`, type: "video", url, caption: videoCaption.trim() }]))) return;
     setVideoUrl("");
     setVideoCaption("");
   }
@@ -627,7 +682,7 @@ function ContactoTab() {
 
   function handleSave(ev) {
     ev.preventDefault();
-    writeSettings(form);
+    if (!warnIfFailed(writeSettings(form))) return;
     setDirty(false);
     setSavedFlash(true);
     setTimeout(() => setSavedFlash(false), 2200);

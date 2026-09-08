@@ -1,5 +1,6 @@
 import Link from "next/link";
 import CertificadosGrid from "@/components/nosotros/CertificadosGrid";
+import ChristopherHeroBg from "@/components/nosotros/ChristopherHeroBg";
 import ColorBars from "@/components/services/ColorBars";
 import SiteFooter from "@/components/SiteFooter";
 import Logo from "@/components/Logo";
@@ -17,14 +18,14 @@ const HERO_PHOTO = "/images/foto-taller-c.png";
 export default function ChristopherPage() {
   return (
     <main className="bg-white text-[#0B0B0B]">
-      <section className="relative h-[360px] overflow-hidden bg-[#050505] sm:h-[430px]">
-        <div className="absolute inset-0 bg-cover bg-center brightness-125" style={{ backgroundImage: `url(${HERO_PHOTO})` }} />
+      <section className="relative h-[320px] overflow-hidden bg-[#050505] sm:h-[430px]">
+        <ChristopherHeroBg defaultPhoto={HERO_PHOTO} />
         {/* Viñeta oscura solo en mobile — sin el recorte diagonal blanco (que
-            arranca en sm), el texto blanco quedaba directo sobre la foto
-            aclarada (brightness-125), poco legible si esa zona es clara. */}
+            arranca en sm), el texto blanco quedaba directo sobre la foto,
+            poco legible si esa zona es clara. */}
         <div
           className="pointer-events-none absolute inset-0 sm:hidden"
-          style={{ background: "linear-gradient(180deg, rgba(5,5,5,0.35) 0%, rgba(5,5,5,0.55) 55%, rgba(5,5,5,0.85) 100%)" }}
+          style={{ background: "linear-gradient(180deg, rgba(5,5,5,0.55) 0%, rgba(5,5,5,0.72) 50%, rgba(5,5,5,0.93) 100%)" }}
         />
         <div
           className="pointer-events-none absolute inset-0 hidden bg-white sm:block"

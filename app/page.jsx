@@ -2,7 +2,6 @@ import HeroExperience from "@/components/home/HeroExperience";
 import DarkFeatureBlock from "@/components/DarkFeatureBlock";
 import AgendaBlock from "@/components/AgendaBlock";
 import AttributeStrip from "@/components/AttributeStrip";
-import MobileStats from "@/components/home/MobileStats";
 import SiteFooter from "@/components/SiteFooter";
 
 export default function Home() {
@@ -30,7 +29,6 @@ export default function Home() {
         photoSrc="/images/foto-traslado-b.png"
       />
 
-      <MobileStats />
       <AttributeStrip />
       <SiteFooter />
     </main>
