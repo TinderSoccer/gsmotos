@@ -23,8 +23,13 @@ export default function SiteFooter() {
         ))}
       </div>
 
-      <div className="flex items-center gap-5">
-        <div className="flex flex-col gap-1.5 rounded-md border border-gray-200 bg-white px-5 py-4">
+      <a
+        href="https://maps.google.com/?q=Av.+Presidente+Riesco+6721,+Las+Condes,+Santiago"
+        target="_blank"
+        rel="noreferrer"
+        className="flex items-center gap-5"
+      >
+        <div className="flex flex-col gap-1.5 rounded-md border border-gray-200 bg-white px-5 py-4 transition-colors hover:border-mCyan">
           <div className="font-display text-lg font-bold">EXCELENTE</div>
           <div className="flex items-center gap-2">
             <span className="font-display text-xl font-bold">4.9</span>
@@ -41,7 +46,7 @@ export default function SiteFooter() {
             Ver reseñas
           </span>
         </div>
-      </div>
+      </a>
     </footer>
   );
 }

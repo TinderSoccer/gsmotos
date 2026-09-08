@@ -51,7 +51,14 @@ function ProductCarousel({ query, onQueryChange, products, pageLabel, resultLabe
       {empty ? (
         <div className="flex flex-col items-center gap-2.5 rounded-xl border border-dashed border-white/[0.16] bg-white/[0.02] px-5 py-14">
           <div className="font-display text-2xl font-bold italic uppercase text-white">Sin resultados para &ldquo;{query}&rdquo;</div>
-          <div className="text-sm text-[#9AA1A8]">Escríbenos por WhatsApp y lo buscamos por ti.</div>
+          <a
+            href={`https://wa.me/56984058116?text=${encodeURIComponent(`Hola, busco: ${query}`)}`}
+            target="_blank"
+            rel="noreferrer"
+            className="text-sm text-mCyan underline-offset-2 hover:underline"
+          >
+            Escríbenos por WhatsApp y lo buscamos por ti.
+          </a>
         </div>
       ) : (
         // En mobile: tira horizontal deslizable de a 2 tarjetas (con snap),

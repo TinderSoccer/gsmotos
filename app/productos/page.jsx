@@ -2,6 +2,7 @@
 
 import { Suspense, useCallback, useEffect, useState } from "react";
 import { useSearchParams } from "next/navigation";
+import Link from "next/link";
 import { Search } from "lucide-react";
 import ColorBars from "@/components/services/ColorBars";
 import SiteFooter from "@/components/SiteFooter";
@@ -57,12 +58,15 @@ function ProductosContent() {
     <main className="min-h-screen bg-[#0B0B0B]">
       <MobileTopBar />
       <div className="flex flex-col gap-8 px-6 py-10 sm:px-10">
-        <div className="flex items-center gap-4">
+        <div className="flex flex-wrap items-center gap-4">
           <ColorBars size="lg" />
           <h1 className="font-display text-[32px] font-bold italic uppercase leading-none text-white">Productos</h1>
           <div className="hidden font-display text-base uppercase tracking-wide text-[#6E7780] sm:block">
             Búsqueda guiada, no vitrina
           </div>
+          <Link href="/" className="ml-auto font-display text-sm uppercase tracking-wide text-mCyan hover:text-mCyan/80">
+            ← Volver al inicio
+          </Link>
         </div>
 
         <div className="grid grid-cols-1 gap-3.5 sm:grid-cols-2 lg:grid-cols-4">
@@ -93,7 +97,14 @@ function ProductosContent() {
         ) : items.length === 0 ? (
           <div className="flex flex-col items-center gap-2.5 rounded-xl border border-dashed border-white/[0.16] bg-white/[0.02] px-5 py-14">
             <div className="font-display text-2xl font-bold italic uppercase text-white">Sin resultados para &ldquo;{query}&rdquo;</div>
-            <div className="text-sm text-[#9AA1A8]">Escríbenos por WhatsApp y lo buscamos por ti.</div>
+            <a
+              href={`https://wa.me/56984058116?text=${encodeURIComponent(`Hola, busco: ${query}`)}`}
+              target="_blank"
+              rel="noreferrer"
+              className="text-sm text-mCyan underline-offset-2 hover:underline"
+            >
+              Escríbenos por WhatsApp y lo buscamos por ti.
+            </a>
           </div>
         ) : (
           <div className="grid grid-cols-1 gap-3.5 sm:grid-cols-2 lg:grid-cols-4">

@@ -35,12 +35,15 @@ export default function NosotrosPage() {
   return (
     <main className="bg-[#0B0B0B]">
       <MobileTopBar />
-      <div className="flex items-center gap-4 px-6 pt-10 sm:px-10">
+      <div className="flex flex-wrap items-center gap-4 px-6 pt-10 sm:px-10">
         <ColorBars size="lg" />
         <h1 className="font-display text-[32px] font-bold italic uppercase leading-none text-white">GSmotos</h1>
         <div className="hidden font-display text-base uppercase tracking-wide text-[#6E7780] sm:block">
           15 años de experiencia
         </div>
+        <Link href="/" className="ml-auto font-display text-sm uppercase tracking-wide text-mCyan hover:text-mCyan/80">
+          ← Volver al inicio
+        </Link>
       </div>
 
       <Section card={nosotros} />

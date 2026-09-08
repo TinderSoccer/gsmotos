@@ -44,7 +44,9 @@ export default function ServiceDetailContent({ card, backHref, backLabel }) {
             <span className="font-body">→</span>
           </Link>
           <a
-            href="#whatsapp"
+            href={`https://wa.me/56984058116?text=${encodeURIComponent(`Hola, quiero consultar por: ${card.title}`)}`}
+            target="_blank"
+            rel="noreferrer"
             className="inline-flex items-center gap-3 rounded border border-mCyan px-[22px] py-[15px] font-display text-base font-semibold uppercase tracking-[2.2px] text-white transition-colors hover:bg-mCyan/[0.16]"
           >
             Escribir por WhatsApp
