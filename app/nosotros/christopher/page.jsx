@@ -1,8 +1,8 @@
-import Image from "next/image";
 import Link from "next/link";
 import CertificadosGrid from "@/components/nosotros/CertificadosGrid";
 import ColorBars from "@/components/services/ColorBars";
 import SiteFooter from "@/components/SiteFooter";
+import Logo from "@/components/Logo";
 import { MobileMenuButton } from "@/components/mobile/MobileNav";
 import { TRAYECTORIA } from "@/lib/certificados";
 
@@ -31,13 +31,7 @@ export default function ChristopherPage() {
         <header className="absolute inset-x-0 top-0 z-30 flex items-center justify-between gap-3 px-6 py-6 sm:px-10">
           <MobileMenuButton />
           <Link href="/" className="block leading-none">
-            <Image
-              src="/images/logo-gsmotos.png"
-              alt="GSmotos — gsmotos.cl"
-              width={300}
-              height={200}
-              className="block h-auto w-[110px] sm:w-[210px]"
-            />
+            <Logo light="mobile" className="block h-auto w-[110px] sm:w-[210px]" />
           </Link>
           <Link
             href="/"

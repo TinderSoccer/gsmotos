@@ -12,8 +12,8 @@
 // - Contacto: teléfono/mail/dirección/Instagram y cifras del sitio
 //   (lib/settings.js).
 import { useEffect, useState } from "react";
-import Image from "next/image";
 import Link from "next/link";
+import Logo from "@/components/Logo";
 import { useRouter } from "next/navigation";
 import { Award, ExternalLink, LogOut, PlayCircle } from "lucide-react";
 import ColorBars from "@/components/services/ColorBars";
@@ -755,7 +755,7 @@ export default function AdminPanel() {
     <div className="min-h-screen bg-[#F7F7F7] text-[#0B0B0B]">
       <header className="flex items-center justify-between gap-3 bg-[#0B0B0B] px-6 py-[18px] sm:gap-6 sm:px-10 sm:py-[22px]">
         <Link href="/" className="block flex-none leading-none">
-          <Image src="/images/logo-gsmotos.png" alt="GSmotos — gsmotos.cl" width={300} height={200} className="block h-auto w-[100px] sm:w-[190px]" />
+          <Logo className="block h-auto w-[100px] sm:w-[190px]" />
         </Link>
         <div className="hidden items-center gap-3.5 sm:flex">
           <ColorBars />

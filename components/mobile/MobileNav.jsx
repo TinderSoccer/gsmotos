@@ -2,9 +2,10 @@
 
 // Navegación mobile, portada del diseño "GSmotos Mobile.dc.html" de Claude
 // Design: menú hamburguesa a pantalla completa + barra de accesos rápidos
-// fija al fondo (Contactar / Escribirnos / Ubicación / Instagram). Solo visible bajo el
-// breakpoint `sm` — en desktop/tablet el sitio sigue con su navegación
-// actual (tablero del hero, enlaces de cada página, footer).
+// fija al fondo (Contactar / WhatsApp / Escribirnos / Ubicación /
+// Instagram). Solo visible bajo el breakpoint `sm` — en desktop/tablet el
+// sitio sigue con su navegación actual (tablero del hero, enlaces de cada
+// página, footer).
 //
 // `MobileChrome` se monta una sola vez en app/layout.jsx y provee el
 // contexto; `MobileMenuButton` es el botón hamburguesa que cada página
@@ -12,12 +13,12 @@
 // administración: esa ruta se mantiene deliberadamente fuera de la
 // navegación pública (ver app/administracion/page.jsx).
 import { createContext, useCallback, useContext, useState } from "react";
-import Image from "next/image";
 import Link from "next/link";
 import { Mail, MapPin, Menu, Phone, X } from "lucide-react";
-import { FaInstagram } from "react-icons/fa6";
+import { FaInstagram, FaWhatsapp } from "react-icons/fa6";
+import Logo from "@/components/Logo";
 import { menus } from "@/lib/servicesData";
-import { instagramUrl, mapsUrl, useSettings } from "@/lib/settings";
+import { instagramUrl, mapsUrl, useSettings, whatsappUrl } from "@/lib/settings";
 
 const MobileMenuContext = createContext(null);
 
@@ -43,7 +44,7 @@ export function MobileChrome({ children }) {
         >
           <div className="flex w-full max-w-[430px] flex-col gap-1.5 overflow-y-auto p-[18px]">
             <div className="flex items-center justify-between pb-3.5">
-              <Image src="/images/logo-gsmotos.png" alt="GSmotos" width={300} height={200} className="block h-auto w-[150px]" />
+              <Logo alt="GSmotos" className="block h-auto w-[150px]" />
               <button
                 type="button"
                 aria-label="Cerrar menú"
@@ -98,14 +99,23 @@ function MobileTabBar() {
       className="fixed inset-x-0 bottom-0 z-[150] flex justify-center sm:hidden"
       style={{ paddingBottom: "env(safe-area-inset-bottom)" }}
     >
-      <div className="grid w-full max-w-[430px] grid-cols-4 border-t border-[#23272B] bg-[#0B0B0B]">
+      <div className="grid w-full max-w-[430px] grid-cols-5 border-t border-[#23272B] bg-[#0B0B0B]">
         <a href={`tel:+${s.phoneDigits}`} className="flex flex-col items-center gap-1.5 border-r border-[#23272B] py-3 pb-3.5 text-[#E4E7EA]">
-          <Phone size={20} strokeWidth={1.6} />
-          <span className="font-display text-[11.5px] uppercase tracking-[1.8px]">Contactar</span>
+          <Phone size={19} strokeWidth={1.6} />
+          <span className="font-display text-[10.5px] uppercase tracking-[1.4px]">Contactar</span>
+        </a>
+        <a
+          href={whatsappUrl(s.phoneDigits)}
+          target="_blank"
+          rel="noreferrer"
+          className="flex flex-col items-center gap-1.5 border-r border-[#23272B] py-3 pb-3.5 text-[#E4E7EA]"
+        >
+          <FaWhatsapp size={18} color="#25D366" />
+          <span className="font-display text-[10.5px] uppercase tracking-[1.4px]">WhatsApp</span>
         </a>
         <a href={`mailto:${s.email}`} className="flex flex-col items-center gap-1.5 border-r border-[#23272B] py-3 pb-3.5 text-[#E4E7EA]">
-          <Mail size={20} strokeWidth={1.6} />
-          <span className="font-display text-[11.5px] uppercase tracking-[1.8px]">Escribirnos</span>
+          <Mail size={19} strokeWidth={1.6} />
+          <span className="font-display text-[10.5px] uppercase tracking-[1.4px]">Escribirnos</span>
         </a>
         <a
           href={mapsUrl(s.address)}
@@ -113,8 +123,8 @@ function MobileTabBar() {
           rel="noreferrer"
           className="flex flex-col items-center gap-1.5 border-r border-[#23272B] py-3 pb-3.5 text-[#E4E7EA]"
         >
-          <MapPin size={20} strokeWidth={1.6} />
-          <span className="font-display text-[11.5px] uppercase tracking-[1.8px]">Ubicación</span>
+          <MapPin size={19} strokeWidth={1.6} />
+          <span className="font-display text-[10.5px] uppercase tracking-[1.4px]">Ubicación</span>
         </a>
         <a
           href={instagramUrl(s.instagramUser)}
@@ -122,8 +132,8 @@ function MobileTabBar() {
           rel="noreferrer"
           className="flex flex-col items-center gap-1.5 py-3 pb-3.5 text-[#E4E7EA]"
         >
-          <FaInstagram size={19} />
-          <span className="font-display text-[11.5px] uppercase tracking-[1.8px]">Instagram</span>
+          <FaInstagram size={18} />
+          <span className="font-display text-[10.5px] uppercase tracking-[1.4px]">Instagram</span>
         </a>
       </div>
     </div>
@@ -153,7 +163,7 @@ export function MobileTopBar() {
   return (
     <div className="flex items-center justify-between px-6 pb-2 pt-6 sm:hidden">
       <Link href="/" className="block leading-none">
-        <Image src="/images/logo-gsmotos.png" alt="GSmotos — gsmotos.cl" width={300} height={200} className="block h-auto w-[130px]" />
+        <Logo className="block h-auto w-[130px]" />
       </Link>
       <MobileMenuButton />
     </div>

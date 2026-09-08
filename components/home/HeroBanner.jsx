@@ -1,8 +1,8 @@
 "use client";
 
 import { useEffect, useRef } from "react";
-import Image from "next/image";
 import Link from "next/link";
+import Logo from "@/components/Logo";
 import { MobileMenuButton } from "@/components/mobile/MobileNav";
 import TableroFoto from "./TableroFoto";
 
@@ -54,14 +54,7 @@ export default function HeroBanner({ onSelect }) {
       <header className="absolute inset-x-0 top-0 z-30 flex items-start justify-between px-6 py-6 sm:px-10">
         <MobileMenuButton />
         <a href="/" className="block leading-none">
-          <Image
-            src="/images/logo-gsmotos.png"
-            alt="GSmotos — gsmotos.cl"
-            width={300}
-            height={200}
-            className="block h-auto w-[150px] sm:w-[210px]"
-            priority
-          />
+          <Logo light="mobile" className="block h-auto w-[150px] sm:w-[210px]" priority />
         </a>
         {/* Espaciador: mantiene el logo centrado frente al botón hamburguesa en mobile */}
         <div className="w-11 flex-none sm:hidden" />
