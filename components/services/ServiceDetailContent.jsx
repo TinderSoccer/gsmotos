@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { FaInstagram, FaWhatsapp } from "react-icons/fa6";
 import ColorBars from "./ColorBars";
 import { MobileTopBar } from "@/components/mobile/MobileNav";
 
@@ -47,16 +48,18 @@ export default function ServiceDetailContent({ card, backHref, backLabel }) {
             href={`https://wa.me/56984058116?text=${encodeURIComponent(`Hola, quiero consultar por: ${card.title}`)}`}
             target="_blank"
             rel="noreferrer"
-            className="inline-flex items-center gap-3 rounded border border-mCyan px-[22px] py-[15px] font-display text-base font-semibold uppercase tracking-[2.2px] text-white transition-colors hover:bg-mCyan/[0.16]"
+            className="inline-flex items-center gap-2.5 rounded border border-mCyan px-[22px] py-[15px] font-display text-base font-semibold uppercase tracking-[2.2px] text-white transition-colors hover:bg-mCyan/[0.16]"
           >
+            <FaWhatsapp size={19} color="#25D366" />
             Escribir por WhatsApp
           </a>
           <a
             href="https://www.instagram.com/tallergsmotos/"
             target="_blank"
             rel="noreferrer"
-            className="inline-flex items-center gap-3 rounded border border-white/25 px-[22px] py-[15px] font-display text-base font-semibold uppercase tracking-[2.2px] text-white transition-colors hover:border-white/50"
+            className="inline-flex items-center gap-2.5 rounded border border-white/25 px-[22px] py-[15px] font-display text-base font-semibold uppercase tracking-[2.2px] text-white transition-colors hover:border-white/50"
           >
+            <FaInstagram size={19} color="#E1306C" />
             Seguir en Instagram
           </a>
         </div>

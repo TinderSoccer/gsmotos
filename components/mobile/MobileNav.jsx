@@ -15,7 +15,7 @@ import { createContext, useCallback, useContext, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { Mail, MapPin, Menu, Phone, X } from "lucide-react";
-import InstagramIcon from "@/components/icons/InstagramIcon";
+import { FaInstagram } from "react-icons/fa6";
 import { menus } from "@/lib/servicesData";
 
 const MobileMenuContext = createContext(null);
@@ -120,7 +120,7 @@ function MobileTabBar() {
           rel="noreferrer"
           className="flex flex-col items-center gap-1.5 py-3 pb-3.5 text-[#E4E7EA]"
         >
-          <InstagramIcon size={20} strokeWidth={1.6} />
+          <FaInstagram size={19} />
           <span className="font-display text-[11.5px] uppercase tracking-[1.8px]">Instagram</span>
         </a>
       </div>

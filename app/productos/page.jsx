@@ -4,6 +4,7 @@ import { Suspense, useCallback, useEffect, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { Search } from "lucide-react";
+import { FaWhatsapp } from "react-icons/fa6";
 import ColorBars from "@/components/services/ColorBars";
 import SiteFooter from "@/components/SiteFooter";
 import { MobileTopBar } from "@/components/mobile/MobileNav";
@@ -101,8 +102,9 @@ function ProductosContent() {
               href={`https://wa.me/56984058116?text=${encodeURIComponent(`Hola, busco: ${query}`)}`}
               target="_blank"
               rel="noreferrer"
-              className="text-sm text-mCyan underline-offset-2 hover:underline"
+              className="inline-flex items-center gap-1.5 text-sm text-mCyan underline-offset-2 hover:underline"
             >
+              <FaWhatsapp size={16} color="#25D366" />
               Escríbenos por WhatsApp y lo buscamos por ti.
             </a>
           </div>
