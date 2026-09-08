@@ -15,7 +15,7 @@ import { useEffect, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { Award, PlayCircle } from "lucide-react";
+import { Award, ExternalLink, LogOut, PlayCircle } from "lucide-react";
 import ColorBars from "@/components/services/ColorBars";
 import { CERTIFICADOS } from "@/lib/certificados";
 import { setCertPhoto, useCertPhotos } from "@/lib/useCertPhotos";
@@ -738,9 +738,11 @@ function LogoutButton() {
       type="button"
       onClick={handleLogout}
       disabled={loading}
-      className="inline-flex items-center gap-3 whitespace-nowrap rounded border border-white/[0.28] px-5 py-3 font-display text-sm font-semibold uppercase tracking-[2.2px] text-white transition-colors hover:border-mRed hover:bg-mRed disabled:opacity-60"
+      aria-label="Cerrar sesión"
+      className="inline-flex items-center gap-2.5 whitespace-nowrap rounded border border-white/[0.28] px-3 py-2.5 font-display text-sm font-semibold uppercase tracking-[2.2px] text-white transition-colors hover:border-mRed hover:bg-mRed disabled:opacity-60 sm:px-5 sm:py-3"
     >
-      {loading ? "Saliendo…" : "Cerrar sesión"}
+      <LogOut size={16} className="sm:hidden" />
+      <span className="hidden sm:inline">{loading ? "Saliendo…" : "Cerrar sesión"}</span>
     </button>
   );
 }
@@ -751,21 +753,23 @@ export default function AdminPanel() {
 
   return (
     <div className="min-h-screen bg-[#F7F7F7] text-[#0B0B0B]">
-      <header className="flex items-center justify-between gap-6 bg-[#0B0B0B] px-6 py-[22px] sm:px-10">
-        <Link href="/" className="block leading-none">
-          <Image src="/images/logo-gsmotos.png" alt="GSmotos — gsmotos.cl" width={300} height={200} className="block h-auto w-[150px] sm:w-[190px]" />
+      <header className="flex items-center justify-between gap-3 bg-[#0B0B0B] px-6 py-[18px] sm:gap-6 sm:px-10 sm:py-[22px]">
+        <Link href="/" className="block flex-none leading-none">
+          <Image src="/images/logo-gsmotos.png" alt="GSmotos — gsmotos.cl" width={300} height={200} className="block h-auto w-[100px] sm:w-[190px]" />
         </Link>
         <div className="hidden items-center gap-3.5 sm:flex">
           <ColorBars />
           <div className="font-display text-base uppercase tracking-[3px] text-white">Panel de administración</div>
         </div>
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-2.5 sm:gap-3">
           <Link
             href="/"
-            className="inline-flex items-center gap-3 whitespace-nowrap rounded border border-white/[0.28] px-5 py-3 font-display text-sm font-semibold uppercase tracking-[2.2px] text-white transition-colors hover:border-mBlue hover:bg-mBlue"
+            aria-label="Ver sitio público"
+            className="inline-flex items-center gap-2.5 whitespace-nowrap rounded border border-white/[0.28] px-3 py-2.5 font-display text-sm font-semibold uppercase tracking-[2.2px] text-white transition-colors hover:border-mBlue hover:bg-mBlue sm:px-5 sm:py-3"
           >
-            <span>Ver sitio público</span>
-            <span className="font-body">→</span>
+            <ExternalLink size={16} className="sm:hidden" />
+            <span className="hidden sm:inline">Ver sitio público</span>
+            <span className="hidden font-body sm:inline">→</span>
           </Link>
           <LogoutButton />
         </div>

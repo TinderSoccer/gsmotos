@@ -36,7 +36,7 @@ export default function ChristopherPage() {
               alt="GSmotos — gsmotos.cl"
               width={300}
               height={200}
-              className="block h-auto w-[150px] sm:w-[210px]"
+              className="block h-auto w-[110px] sm:w-[210px]"
             />
           </Link>
           <Link
