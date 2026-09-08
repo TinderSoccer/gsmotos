@@ -17,6 +17,7 @@ import Link from "next/link";
 import { Mail, MapPin, Menu, Phone, X } from "lucide-react";
 import { FaInstagram } from "react-icons/fa6";
 import { menus } from "@/lib/servicesData";
+import { instagramUrl, mapsUrl, useSettings } from "@/lib/settings";
 
 const MobileMenuContext = createContext(null);
 
@@ -91,22 +92,23 @@ export function MobileChrome({ children }) {
 }
 
 function MobileTabBar() {
+  const s = useSettings();
   return (
     <div
       className="fixed inset-x-0 bottom-0 z-[150] flex justify-center sm:hidden"
       style={{ paddingBottom: "env(safe-area-inset-bottom)" }}
     >
       <div className="grid w-full max-w-[430px] grid-cols-4 border-t border-[#23272B] bg-[#0B0B0B]">
-        <a href="tel:+56984058116" className="flex flex-col items-center gap-1.5 border-r border-[#23272B] py-3 pb-3.5 text-[#E4E7EA]">
+        <a href={`tel:+${s.phoneDigits}`} className="flex flex-col items-center gap-1.5 border-r border-[#23272B] py-3 pb-3.5 text-[#E4E7EA]">
           <Phone size={20} strokeWidth={1.6} />
           <span className="font-display text-[11.5px] uppercase tracking-[1.8px]">Contactar</span>
         </a>
-        <a href="mailto:contacto@gsmotos.cl" className="flex flex-col items-center gap-1.5 border-r border-[#23272B] py-3 pb-3.5 text-[#E4E7EA]">
+        <a href={`mailto:${s.email}`} className="flex flex-col items-center gap-1.5 border-r border-[#23272B] py-3 pb-3.5 text-[#E4E7EA]">
           <Mail size={20} strokeWidth={1.6} />
           <span className="font-display text-[11.5px] uppercase tracking-[1.8px]">Escribirnos</span>
         </a>
         <a
-          href="https://maps.google.com/?q=Av.+Presidente+Riesco+6721,+Las+Condes,+Santiago"
+          href={mapsUrl(s.address)}
           target="_blank"
           rel="noreferrer"
           className="flex flex-col items-center gap-1.5 border-r border-[#23272B] py-3 pb-3.5 text-[#E4E7EA]"
@@ -115,7 +117,7 @@ function MobileTabBar() {
           <span className="font-display text-[11.5px] uppercase tracking-[1.8px]">Ubicación</span>
         </a>
         <a
-          href="https://www.instagram.com/tallergsmotos/"
+          href={instagramUrl(s.instagramUser)}
           target="_blank"
           rel="noreferrer"
           className="flex flex-col items-center gap-1.5 py-3 pb-3.5 text-[#E4E7EA]"

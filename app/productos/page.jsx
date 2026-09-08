@@ -11,6 +11,7 @@ import { MobileTopBar } from "@/components/mobile/MobileNav";
 import { menus } from "@/lib/servicesData";
 import { checkStock } from "@/lib/tallergp";
 import { useProductosChanged } from "@/lib/catalogo";
+import { useSettings, whatsappUrl } from "@/lib/settings";
 
 // Plantilla de catálogo/listado — hoy solo la usa "Productos", pensada para
 // cualquier categoría futura que necesite consulta de stock en vez de una
@@ -31,6 +32,7 @@ function StockBadge({ stock }) {
 }
 
 function ProductosContent() {
+  const s = useSettings();
   const searchParams = useSearchParams();
   const [query, setQuery] = useState(searchParams.get("q") || "");
   const [items, setItems] = useState([]);
@@ -99,7 +101,7 @@ function ProductosContent() {
           <div className="flex flex-col items-center gap-2.5 rounded-xl border border-dashed border-white/[0.16] bg-white/[0.02] px-5 py-14">
             <div className="font-display text-2xl font-bold italic uppercase text-white">Sin resultados para &ldquo;{query}&rdquo;</div>
             <a
-              href={`https://wa.me/56984058116?text=${encodeURIComponent(`Hola, busco: ${query}`)}`}
+              href={whatsappUrl(s.phoneDigits, `Hola, busco: ${query}`)}
               target="_blank"
               rel="noreferrer"
               className="inline-flex items-center gap-1.5 text-sm text-mCyan underline-offset-2 hover:underline"

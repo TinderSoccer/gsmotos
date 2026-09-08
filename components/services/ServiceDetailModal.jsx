@@ -3,6 +3,8 @@
 import Link from "next/link";
 import { FaInstagram, FaWhatsapp } from "react-icons/fa6";
 import ColorBars from "./ColorBars";
+import { useServicePhoto } from "@/lib/servicePhotos";
+import { instagramUrl, useSettings, whatsappUrl } from "@/lib/settings";
 
 // Popup de detalle de servicio, fiel a la animación del diseño original de
 // Claude Design (gsmBack/gsmPop, ver app/globals.css). Es la interacción
@@ -12,6 +14,8 @@ import ColorBars from "./ColorBars";
 // esquinas superiores redondeadas), tal como en "GSmotos Mobile.dc.html";
 // desde `sm` hacia arriba sigue siendo el diálogo centrado original.
 export default function ServiceDetailModal({ card, onClose }) {
+  const photo = useServicePhoto(card);
+  const s = useSettings();
   if (!card) return null;
 
   return (
@@ -26,7 +30,7 @@ export default function ServiceDetailModal({ card, onClose }) {
         onClick={(e) => e.stopPropagation()}
       >
         <div className="relative h-[210px] flex-none overflow-hidden">
-          <div className="absolute inset-0 bg-cover bg-center brightness-125" style={{ backgroundImage: `url(${card.photo})` }} />
+          <div className="absolute inset-0 bg-cover bg-center brightness-125" style={{ backgroundImage: `url(${photo})` }} />
           <div className="absolute inset-0" style={{ background: "linear-gradient(180deg, rgba(5,5,5,0.20) 0%, rgba(5,5,5,0.72) 62%, #0B0D0F 100%)" }} />
           <div className="relative flex h-full flex-col justify-end gap-3 px-6 py-7 sm:px-[34px]">
             <div className="flex items-center gap-3">
@@ -60,7 +64,7 @@ export default function ServiceDetailModal({ card, onClose }) {
               <span className="font-body">→</span>
             </Link>
             <a
-              href={`https://wa.me/56984058116?text=${encodeURIComponent(`Hola, quiero consultar por: ${card.title}`)}`}
+              href={whatsappUrl(s.phoneDigits, `Hola, quiero consultar por: ${card.title}`)}
               target="_blank"
               rel="noreferrer"
               className="inline-flex items-center gap-2.5 rounded border border-mCyan px-[22px] py-[15px] font-display text-base font-semibold uppercase tracking-[2.2px] text-white transition-colors hover:bg-mCyan/[0.16]"
@@ -69,7 +73,7 @@ export default function ServiceDetailModal({ card, onClose }) {
               Escribir por WhatsApp
             </a>
             <a
-              href="https://www.instagram.com/tallergsmotos/"
+              href={instagramUrl(s.instagramUser)}
               target="_blank"
               rel="noreferrer"
               className="inline-flex items-center gap-2.5 rounded border border-white/25 px-[22px] py-[15px] font-display text-base font-semibold uppercase tracking-[2.2px] text-white transition-colors hover:border-white/50"

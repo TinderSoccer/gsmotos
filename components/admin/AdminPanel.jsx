@@ -1,20 +1,29 @@
 "use client";
 
 // Panel de administración, portado del diseño "Administración.dc.html" de
-// Claude Design. Sin backend: todo vive en localStorage del navegador —
+// Claude Design. Protegido con usuario/contraseña (ver app/administracion/
+// page.jsx y lib/adminAuth.js). Sin base de datos: el contenido vive en
+// localStorage del navegador —
 // - Certificados: fotos de cada certificado de Christopher (lib/certificados.js).
 // - Productos: catálogo que alimenta el buscador de la Home y /productos
 //   (lib/catalogo.js).
+// - Servicios: foto propia por cada servicio (lib/servicePhotos.js).
 // - Taller: fotos y videos de /nosotros/taller (lib/taller.js).
-import { useState } from "react";
+// - Contacto: teléfono/mail/dirección/Instagram y cifras del sitio
+//   (lib/settings.js).
+import { useEffect, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { Award, PlayCircle } from "lucide-react";
 import ColorBars from "@/components/services/ColorBars";
 import { CERTIFICADOS } from "@/lib/certificados";
 import { setCertPhoto, useCertPhotos } from "@/lib/useCertPhotos";
 import { resetProductos, useProductos, writeProductos } from "@/lib/catalogo";
 import { resetTallerItems, useTallerItems, writeTallerItems } from "@/lib/taller";
+import { menus } from "@/lib/servicesData";
+import { resetServicePhotos, servicePhotoKey, setServicePhoto, useServicePhotos } from "@/lib/servicePhotos";
+import { DEFAULT_SETTINGS, resetSettings, useSettings, writeSettings } from "@/lib/settings";
 import { readImageFile } from "@/lib/readImage";
 
 function PlaceholderIcon({ label }) {
@@ -118,6 +127,104 @@ function CertificadosTab() {
             </div>
           );
         })}
+      </div>
+    </>
+  );
+}
+
+const SERVICE_CATEGORIES = menus.filter((m) => m.kind === "service");
+
+function ServiciosTab() {
+  const overrides = useServicePhotos();
+  const customCount = Object.keys(overrides).length;
+
+  async function handleFile(key, ev) {
+    const file = ev.target.files?.[0];
+    ev.target.value = "";
+    if (!file) return;
+    const dataUrl = await readImageFile(file, { maxSize: 1600, quality: 0.85 });
+    setServicePhoto(key, dataUrl);
+  }
+
+  return (
+    <>
+      <div className="flex flex-wrap items-end justify-between gap-8 px-6 pb-5 pt-11 sm:px-10">
+        <div className="flex flex-col gap-2.5">
+          <h1 className="font-display text-[32px] font-bold italic uppercase leading-none text-[#0B0B0B] sm:text-4xl">
+            Fotos de servicios
+          </h1>
+          <p className="max-w-xl text-[15.5px] leading-[1.6] text-[#5A5A5A]">
+            Hoy todas las tarjetas repiten las mismas 2 fotos genéricas del taller. Sube una foto real por servicio
+            para reemplazarla — se ve así en el selector del inicio y en /servicios.
+          </p>
+        </div>
+        <div className="flex flex-col items-end gap-0.5">
+          <div className="font-display text-[32px] font-bold italic leading-none text-mBlue">{customCount}</div>
+          <div className="font-display text-[13px] uppercase tracking-[2px] text-[#8A8A8A]">Con foto propia</div>
+        </div>
+      </div>
+
+      {SERVICE_CATEGORIES.map((menu) => (
+        <div key={menu.slug} className="px-6 pb-10 sm:px-10">
+          <div className="mb-4 font-display text-xl font-bold uppercase tracking-wide text-[#0B0B0B]">{menu.title}</div>
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+            {menu.cards.map((card) => {
+              const key = servicePhotoKey(card.categorySlug, card.slug);
+              const photo = overrides[key] || card.photo;
+              const custom = Boolean(overrides[key]);
+              return (
+                <div key={key} className="flex flex-col overflow-hidden rounded-xl border border-[#E0E0E0] bg-white shadow-[0_2px_10px_rgba(11,11,11,0.06)]">
+                  <div className="relative h-[150px] overflow-hidden border-b border-[#E0E0E0] bg-[#F2F2F2]">
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img src={photo} alt={card.title} className="block h-full w-full object-cover" />
+                    <div
+                      className="absolute left-3 top-3 rounded-[3px] px-3 py-1.5 font-display text-[11px] uppercase tracking-[2px] text-white"
+                      style={{ background: custom ? "#1B5FAE" : "#7A7A7A" }}
+                    >
+                      {custom ? "Foto propia" : "Genérica"}
+                    </div>
+                  </div>
+                  <div className="flex flex-col gap-2.5 px-4 pb-4 pt-3.5">
+                    <div className="font-display text-base font-semibold uppercase leading-tight text-[#0B0B0B]">{card.title}</div>
+                    <div className="flex items-center gap-2.5">
+                      <label className="flex flex-1 cursor-pointer items-center justify-center gap-2.5 whitespace-nowrap rounded bg-mBlue px-4 py-2.5 font-display text-sm font-semibold uppercase tracking-wide text-white transition-colors hover:bg-mCyan">
+                        <span>{custom ? "Reemplazar" : "Subir foto"}</span>
+                        <input type="file" accept="image/*" className="hidden" onChange={(ev) => handleFile(key, ev)} />
+                      </label>
+                      <button
+                        type="button"
+                        onClick={() => setServicePhoto(key, "")}
+                        disabled={!custom}
+                        className="rounded border border-[#D6D6D6] bg-white px-4 py-2.5 font-display text-sm font-semibold uppercase tracking-wide text-[#0B0B0B] transition-colors enabled:hover:border-mRed enabled:hover:text-mRed disabled:cursor-not-allowed disabled:text-[#B4B4B4]"
+                      >
+                        Quitar
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      ))}
+
+      <div className="px-6 pb-14 sm:px-10">
+        <div className="flex flex-col items-start gap-4 rounded-xl border border-[#E0E0E0] bg-white p-6 sm:flex-row sm:items-center sm:justify-between">
+          <div className="flex flex-col gap-1.5">
+            <div className="font-display text-lg font-semibold uppercase tracking-wide text-[#0B0B0B]">Cómo se publica</div>
+            <div className="text-[14.5px] leading-[1.6] text-[#5A5A5A]">
+              Los cambios se reflejan de inmediato en el Home y en /servicios. Foto horizontal recomendada, mínimo
+              1000&nbsp;px de ancho.
+            </div>
+          </div>
+          <button
+            type="button"
+            onClick={() => resetServicePhotos()}
+            className="whitespace-nowrap rounded border border-mRed px-5 py-3.5 font-display text-sm font-semibold uppercase tracking-[2.2px] text-mRed transition-colors hover:bg-mRed hover:text-white"
+          >
+            Restaurar todas a la foto genérica
+          </button>
+        </div>
       </div>
     </>
   );
@@ -391,8 +498,164 @@ function TallerTab() {
   );
 }
 
+function Field({ label, value, onChange, placeholder, hint, type = "text" }) {
+  return (
+    <label className="flex flex-col gap-1.5 text-sm text-[#3A3A3A]">
+      {label}
+      <input
+        type={type}
+        value={value}
+        onChange={(ev) => onChange(ev.target.value)}
+        placeholder={placeholder}
+        className="rounded-md border border-[#E0E0E0] bg-[#FBFBFB] px-3.5 py-2.5 font-display text-base text-[#0B0B0B] outline-none focus:border-mCyan"
+      />
+      {hint && <span className="text-xs text-[#9A9A9A]">{hint}</span>}
+    </label>
+  );
+}
+
+function ContactoTab() {
+  const s = useSettings();
+  const [form, setForm] = useState(s);
+  const [dirty, setDirty] = useState(false);
+  const [savedFlash, setSavedFlash] = useState(false);
+
+  // Mientras el admin no haya tocado nada, el formulario sigue el valor real
+  // guardado (útil porque useSettings() recién sabe el valor de
+  // localStorage después de montar). Apenas escribe algo, se corta el
+  // seguimiento para no pisarle lo que está editando.
+  useEffect(() => {
+    if (!dirty) setForm(s);
+  }, [s, dirty]);
+
+  function update(key, value) {
+    setDirty(true);
+    setForm((f) => ({ ...f, [key]: value }));
+  }
+
+  function handleSave(ev) {
+    ev.preventDefault();
+    writeSettings(form);
+    setDirty(false);
+    setSavedFlash(true);
+    setTimeout(() => setSavedFlash(false), 2200);
+  }
+
+  function handleReset() {
+    resetSettings();
+    setForm(DEFAULT_SETTINGS);
+    setDirty(false);
+  }
+
+  return (
+    <form onSubmit={handleSave}>
+      <div className="flex flex-wrap items-end justify-between gap-8 px-6 pb-5 pt-11 sm:px-10">
+        <div className="flex flex-col gap-2.5">
+          <h1 className="font-display text-[32px] font-bold italic uppercase leading-none text-[#0B0B0B] sm:text-4xl">
+            Contacto y cifras del sitio
+          </h1>
+          <p className="max-w-xl text-[15.5px] leading-[1.6] text-[#5A5A5A]">
+            Teléfono, mail, dirección, Instagram y las cifras que se muestran en el pie de página y el inicio. Se
+            usan en todo el sitio — WhatsApp, mapa, botones de contacto — así que un cambio acá los actualiza a
+            todos de una vez.
+          </p>
+        </div>
+        <button
+          type="submit"
+          className="inline-flex items-center gap-3.5 whitespace-nowrap rounded bg-mBlue px-6 py-[15px] font-display text-base font-semibold uppercase tracking-[2.2px] text-white transition-colors hover:bg-mCyan"
+        >
+          {savedFlash ? "Guardado ✓" : "Guardar cambios"}
+        </button>
+      </div>
+
+      <div className="grid grid-cols-1 gap-6 px-6 pb-8 sm:grid-cols-2 sm:px-10">
+        <Field label="Teléfono (como se muestra)" value={form.phoneDisplay} onChange={(v) => update("phoneDisplay", v)} placeholder="+56 9 8405 8116" />
+        <Field
+          label="Teléfono (solo dígitos, con código de país)"
+          value={form.phoneDigits}
+          onChange={(v) => update("phoneDigits", v.replace(/[^\d]/g, ""))}
+          placeholder="56984058116"
+          hint="Sin espacios ni +. Se usa para los links de llamar y WhatsApp."
+        />
+        <Field label="Email" type="email" value={form.email} onChange={(v) => update("email", v)} placeholder="contacto@gsmotos.cl" />
+        <Field label="Usuario de Instagram" value={form.instagramUser} onChange={(v) => update("instagramUser", v.replace(/^@/, ""))} placeholder="tallergsmotos" hint="Sin @." />
+        <div className="sm:col-span-2">
+          <Field label="Dirección" value={form.address} onChange={(v) => update("address", v)} placeholder="Av. Presidente Riesco 6721, Las Condes, Santiago, Chile" hint="Se usa también para el link a Google Maps." />
+        </div>
+      </div>
+
+      <div className="px-6 pb-8 sm:px-10">
+        <div className="mb-4 font-display text-xl font-bold uppercase tracking-wide text-[#0B0B0B]">Cifras del footer e inicio</div>
+        <div className="grid grid-cols-2 gap-6 sm:grid-cols-4">
+          <Field label="Años de experiencia" value={form.statYears} onChange={(v) => update("statYears", v)} placeholder="15+" />
+          <Field label="Años en BMW Motorrad" value={form.statBmwYears} onChange={(v) => update("statBmwYears", v)} placeholder="21+" />
+          <Field label="Profesionales" value={form.statPros} onChange={(v) => update("statPros", v)} placeholder="10+" />
+          <Field label="Motos atendidas" value={form.statMotos} onChange={(v) => update("statMotos", v)} placeholder="1000+" />
+        </div>
+      </div>
+
+      <div className="px-6 pb-8 sm:px-10">
+        <div className="mb-4 font-display text-xl font-bold uppercase tracking-wide text-[#0B0B0B]">Reseñas (footer)</div>
+        <div className="grid grid-cols-2 gap-6 sm:max-w-[420px]">
+          <Field label="Puntaje" value={form.ratingScore} onChange={(v) => update("ratingScore", v)} placeholder="4.9" />
+          <Field label="Cantidad de reseñas" value={form.ratingCount} onChange={(v) => update("ratingCount", v)} placeholder="200" />
+        </div>
+      </div>
+
+      <div className="px-6 pb-14 sm:px-10">
+        <div className="flex flex-col items-start gap-4 rounded-xl border border-[#E0E0E0] bg-white p-6 sm:flex-row sm:items-center sm:justify-between">
+          <div className="flex flex-col gap-1.5">
+            <div className="font-display text-lg font-semibold uppercase tracking-wide text-[#0B0B0B]">Cómo se publica</div>
+            <div className="text-[14.5px] leading-[1.6] text-[#5A5A5A]">
+              Los cambios se aplican al hacer clic en &ldquo;Guardar cambios&rdquo; — no en cada letra que escribas.
+            </div>
+          </div>
+          <button
+            type="button"
+            onClick={handleReset}
+            className="whitespace-nowrap rounded border border-mRed px-5 py-3.5 font-display text-sm font-semibold uppercase tracking-[2.2px] text-mRed transition-colors hover:bg-mRed hover:text-white"
+          >
+            Restaurar valores originales
+          </button>
+        </div>
+      </div>
+    </form>
+  );
+}
+
+const TABS = {
+  certs: CertificadosTab,
+  servicios: ServiciosTab,
+  prods: ProductosTab,
+  taller: TallerTab,
+  contacto: ContactoTab,
+};
+
+function LogoutButton() {
+  const router = useRouter();
+  const [loading, setLoading] = useState(false);
+
+  async function handleLogout() {
+    setLoading(true);
+    await fetch("/api/admin/logout", { method: "POST" }).catch(() => {});
+    router.refresh();
+  }
+
+  return (
+    <button
+      type="button"
+      onClick={handleLogout}
+      disabled={loading}
+      className="inline-flex items-center gap-3 whitespace-nowrap rounded border border-white/[0.28] px-5 py-3 font-display text-sm font-semibold uppercase tracking-[2.2px] text-white transition-colors hover:border-mRed hover:bg-mRed disabled:opacity-60"
+    >
+      {loading ? "Saliendo…" : "Cerrar sesión"}
+    </button>
+  );
+}
+
 export default function AdminPanel() {
   const [tab, setTab] = useState("certs");
+  const ActiveTab = TABS[tab];
 
   return (
     <div className="min-h-screen bg-[#F7F7F7] text-[#0B0B0B]">
@@ -404,18 +667,24 @@ export default function AdminPanel() {
           <ColorBars />
           <div className="font-display text-base uppercase tracking-[3px] text-white">Panel de administración</div>
         </div>
-        <Link
-          href="/"
-          className="inline-flex items-center gap-3 whitespace-nowrap rounded border border-white/[0.28] px-5 py-3 font-display text-sm font-semibold uppercase tracking-[2.2px] text-white transition-colors hover:border-mBlue hover:bg-mBlue"
-        >
-          <span>Ver sitio público</span>
-          <span className="font-body">→</span>
-        </Link>
+        <div className="flex items-center gap-3">
+          <Link
+            href="/"
+            className="inline-flex items-center gap-3 whitespace-nowrap rounded border border-white/[0.28] px-5 py-3 font-display text-sm font-semibold uppercase tracking-[2.2px] text-white transition-colors hover:border-mBlue hover:bg-mBlue"
+          >
+            <span>Ver sitio público</span>
+            <span className="font-body">→</span>
+          </Link>
+          <LogoutButton />
+        </div>
       </header>
 
       <div className="flex gap-0 overflow-x-auto border-b border-[#23272B] bg-[#141719] px-6 sm:px-10">
         <Tab active={tab === "certs"} onClick={() => setTab("certs")}>
           Certificados
+        </Tab>
+        <Tab active={tab === "servicios"} onClick={() => setTab("servicios")}>
+          Servicios
         </Tab>
         <Tab active={tab === "prods"} onClick={() => setTab("prods")}>
           Productos
@@ -423,9 +692,12 @@ export default function AdminPanel() {
         <Tab active={tab === "taller"} onClick={() => setTab("taller")}>
           Taller
         </Tab>
+        <Tab active={tab === "contacto"} onClick={() => setTab("contacto")}>
+          Contacto
+        </Tab>
       </div>
 
-      {tab === "certs" ? <CertificadosTab /> : tab === "prods" ? <ProductosTab /> : <TallerTab />}
+      <ActiveTab />
     </div>
   );
 }

@@ -5,6 +5,7 @@ import { Search } from "lucide-react";
 import { FaWhatsapp } from "react-icons/fa6";
 import ColorBars from "../services/ColorBars";
 import ServiceGrid from "../services/ServiceGrid";
+import { useSettings, whatsappUrl } from "@/lib/settings";
 
 // Panel oscuro debajo del hero: muestra la grilla de tarjetas de servicio de
 // la categoría elegida en el tablero, o (si la categoría es "Productos") un
@@ -17,6 +18,7 @@ import ServiceGrid from "../services/ServiceGrid";
 // cualquier ancho de pantalla.
 
 function ProductCarousel({ query, onQueryChange, products, pageLabel, resultLabel, empty, onPrev, onNext, animClass }) {
+  const s = useSettings();
   return (
     <div className="flex flex-col gap-5" style={{ animation: `${animClass} 760ms cubic-bezier(0.33,0.02,0.16,1) both` }}>
       <div className="flex items-center gap-3 rounded-[10px] border border-white/10 py-1 pl-5 pr-2.5" style={{ background: "linear-gradient(180deg, #1A1D21 0%, #0C0E10 100%)" }}>
@@ -53,7 +55,7 @@ function ProductCarousel({ query, onQueryChange, products, pageLabel, resultLabe
         <div className="flex flex-col items-center gap-2.5 rounded-xl border border-dashed border-white/[0.16] bg-white/[0.02] px-5 py-14">
           <div className="font-display text-2xl font-bold italic uppercase text-white">Sin resultados para &ldquo;{query}&rdquo;</div>
           <a
-            href={`https://wa.me/56984058116?text=${encodeURIComponent(`Hola, busco: ${query}`)}`}
+            href={whatsappUrl(s.phoneDigits, `Hola, busco: ${query}`)}
             target="_blank"
             rel="noreferrer"
             className="inline-flex items-center gap-1.5 text-sm text-mCyan underline-offset-2 hover:underline"
