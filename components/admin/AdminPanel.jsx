@@ -20,7 +20,7 @@ import ColorBars from "@/components/services/ColorBars";
 import { CERTIFICADOS } from "@/lib/certificados";
 import { setCertPhoto, useCertPhotos } from "@/lib/useCertPhotos";
 import { setFounderPhoto, useFounderPhoto } from "@/lib/founderPhoto";
-import { formatCLP, useProductos, writeProductos } from "@/lib/catalogo";
+import { formatCLP, resetProductos, useProductos, writeProductos } from "@/lib/catalogo";
 import { resetTallerItems, useTallerItems, writeTallerItems } from "@/lib/taller";
 import { menus } from "@/lib/servicesData";
 import { resetServicePhotos, servicePhotoKey, setServicePhoto, useServicePhotos } from "@/lib/servicePhotos";
@@ -548,12 +548,27 @@ function ProductosTab() {
       </div>
 
       <div className="px-6 pb-14 sm:px-10">
-        <div className="flex flex-col gap-1.5 rounded-xl border border-[#E0E0E0] bg-white p-6">
-          <div className="font-display text-lg font-semibold uppercase tracking-wide text-[#0B0B0B]">Cómo se publica</div>
-          <div className="text-[14.5px] leading-[1.6] text-[#5A5A5A]">
-            La Home muestra 4 productos por página en el orden de esta lista. Foto horizontal recomendada,
-            mínimo 1000&nbsp;px de ancho.
+        <div className="flex flex-col items-start gap-4 rounded-xl border border-[#E0E0E0] bg-white p-6 sm:flex-row sm:items-center sm:justify-between">
+          <div className="flex flex-col gap-1.5">
+            <div className="font-display text-lg font-semibold uppercase tracking-wide text-[#0B0B0B]">Cómo se publica</div>
+            <div className="text-[14.5px] leading-[1.6] text-[#5A5A5A]">
+              La Home muestra 4 productos por página en el orden de esta lista. Foto horizontal recomendada,
+              mínimo 1000&nbsp;px de ancho. &ldquo;Restaurar catálogo&rdquo; descarta cualquier edición guardada
+              acá y vuelve a mostrar el inventario real tal como está cargado en el sitio — útil si algo quedó
+              mal editado o desactualizado.
+            </div>
           </div>
+          <button
+            type="button"
+            onClick={() => {
+              if (confirm("¿Restaurar el catálogo? Se pierden los cambios hechos desde este panel (fotos, precios, stock editados a mano) y vuelve a mostrarse el inventario real tal como está cargado en el sitio.")) {
+                resetProductos();
+              }
+            }}
+            className="whitespace-nowrap rounded border border-mRed px-5 py-3.5 font-display text-sm font-semibold uppercase tracking-[2.2px] text-mRed transition-colors hover:bg-mRed hover:text-white"
+          >
+            Restaurar catálogo
+          </button>
         </div>
       </div>
     </>
