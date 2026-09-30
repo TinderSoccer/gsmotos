@@ -2,7 +2,6 @@
 
 import { useEffect, useRef } from "react";
 import Link from "next/link";
-import { Award } from "lucide-react";
 import Logo from "@/components/Logo";
 import { MobileMenuButton } from "@/components/mobile/MobileNav";
 import TableroFoto from "./TableroFoto";
@@ -86,9 +85,10 @@ export default function HeroBanner({ onSelect }) {
             href="/nosotros/christopher#certificados"
             title="Ver certificados"
             aria-label="Ver certificados"
-            className="flex h-9 w-9 flex-none items-center justify-center rounded-full border border-mCyan/60 bg-mCyan/10 text-mCyan transition-colors hover:bg-mCyan/20"
+            className="flex-none transition-transform hover:scale-105"
           >
-            <Award size={18} strokeWidth={1.8} />
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img src="/images/badges/liston-oro.svg" alt="Certificados" className="h-11 w-auto drop-shadow-[0_2px_4px_rgba(0,0,0,0.5)]" />
           </Link>
         </div>
         <div className="flex gap-1" style={{ transform: "skewX(-16deg)" }}>
@@ -152,9 +152,10 @@ export default function HeroBanner({ onSelect }) {
               href="/nosotros/christopher#certificados"
               title="Ver certificados"
               aria-label="Ver certificados"
-              className="flex h-11 w-11 flex-none items-center justify-center self-start rounded-full border border-mCyan/60 bg-mCyan/10 text-mCyan transition-colors hover:bg-mCyan/20"
+              className="flex-none self-start transition-transform hover:scale-105"
             >
-              <Award size={22} strokeWidth={1.8} />
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img src="/images/badges/liston-oro.svg" alt="Certificados" className="h-14 w-auto drop-shadow-[0_2px_5px_rgba(0,0,0,0.5)]" />
             </Link>
           </div>
           <div className="flex gap-1" style={{ transform: "skewX(-16deg)" }}>
