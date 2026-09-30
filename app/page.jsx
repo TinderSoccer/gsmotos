@@ -5,7 +5,7 @@ import SiteFooter from "@/components/SiteFooter";
 
 export default function Home() {
   return (
-    <main className="min-h-screen bg-[#0B0B0B]">
+    <main className="flex min-h-screen flex-col bg-[#0B0B0B]">
       <HeroExperience />
 
       <DarkFeatureBlock

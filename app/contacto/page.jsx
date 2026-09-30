@@ -58,7 +58,7 @@ function ContactoContent() {
   const today = new Date().toISOString().slice(0, 10);
 
   return (
-    <main className="min-h-screen bg-[#0B0B0B]">
+    <main className="flex min-h-screen flex-col bg-[#0B0B0B]">
       <MobileTopBar />
       <div className="flex items-center gap-4 px-6 pt-10 sm:px-10">
         <ColorBars size="lg" />

@@ -26,7 +26,7 @@ export default function CategoriaServiciosPage({ params }) {
   if (!menu) notFound();
 
   return (
-    <main className="min-h-screen bg-[#0B0B0B]">
+    <main className="flex min-h-screen flex-col bg-[#0B0B0B]">
       <MobileTopBar />
       <div className="flex flex-col gap-5 px-6 py-10 sm:px-10">
         <div className="flex items-center gap-4">
