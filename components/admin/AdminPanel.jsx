@@ -11,11 +11,11 @@
 // - Taller: fotos y videos de /nosotros/taller (lib/taller.js).
 // - Contacto: teléfono/mail/dirección/Instagram y cifras del sitio
 //   (lib/settings.js).
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import Logo from "@/components/Logo";
 import { useRouter } from "next/navigation";
-import { Award, ExternalLink, LogOut, PlayCircle } from "lucide-react";
+import { Award, ChevronLeft, ChevronRight, ExternalLink, LogOut, PlayCircle, Search } from "lucide-react";
 import ColorBars from "@/components/services/ColorBars";
 import { CERTIFICADOS } from "@/lib/certificados";
 import { setCertPhoto, useCertPhotos } from "@/lib/useCertPhotos";
@@ -413,9 +413,33 @@ function NewProductModal({ onClose, onCreate }) {
   );
 }
 
+const PRODUCTS_PAGE_SIZE = 20;
+
 function ProductosTab() {
   const products = useProductos();
   const [showNew, setShowNew] = useState(false);
+  const [query, setQuery] = useState("");
+  const [page, setPage] = useState(0);
+
+  // Guarda el índice real en el array completo junto a cada producto —
+  // patch/removeProduct/handleFile siguen operando sobre products (para no
+  // reescribir toda esa lógica), pero lo que se ve en pantalla es filtrado
+  // y paginado, así que ese índice no coincide con la posición visible.
+  const filtered = useMemo(() => {
+    const q = query.trim().toLowerCase();
+    const withIndex = products.map((prod, i) => ({ prod, i }));
+    if (!q) return withIndex;
+    return withIndex.filter(({ prod }) => `${prod.name} ${prod.cat} ${prod.codigo || ""}`.toLowerCase().includes(q));
+  }, [products, query]);
+
+  const pageCount = Math.max(1, Math.ceil(filtered.length / PRODUCTS_PAGE_SIZE));
+  const pageSafe = Math.min(page, pageCount - 1);
+  const pageItems = filtered.slice(pageSafe * PRODUCTS_PAGE_SIZE, pageSafe * PRODUCTS_PAGE_SIZE + PRODUCTS_PAGE_SIZE);
+
+  function handleQueryChange(v) {
+    setQuery(v);
+    setPage(0);
+  }
 
   function patch(i, changes) {
     warnIfFailed(writeProductos(products.map((p, k) => (k === i ? { ...p, ...changes } : p))));
@@ -469,8 +493,31 @@ function ProductosTab() {
         </div>
       </div>
 
-      <div className="flex flex-col gap-3 px-6 pb-8 pt-5 sm:px-10">
-        {products.map((prod, i) => (
+      <div className="px-6 pb-5 sm:px-10">
+        <div className="flex items-center gap-3 rounded-[10px] border border-[#E0E0E0] bg-white py-1 pl-5 pr-2.5">
+          <Search size={18} strokeWidth={1.8} color="#8A8A8A" style={{ flexShrink: 0 }} />
+          <input
+            type="text"
+            value={query}
+            onChange={(ev) => handleQueryChange(ev.target.value)}
+            placeholder="Busca por nombre, categoría o código…"
+            className="min-w-0 flex-1 bg-transparent py-3 font-body text-base text-[#0B0B0B] outline-none placeholder:text-[#9A9A9A]"
+          />
+          {query && (
+            <span className="whitespace-nowrap font-display text-xs uppercase tracking-wide text-[#9A9A9A]">
+              {filtered.length} resultado{filtered.length === 1 ? "" : "s"}
+            </span>
+          )}
+        </div>
+      </div>
+
+      <div className="flex flex-col gap-3 px-6 pb-5 sm:px-10">
+        {pageItems.length === 0 && (
+          <div className="rounded-xl border border-dashed border-[#D6D6D6] bg-white px-5 py-10 text-center font-display text-sm uppercase tracking-wide text-[#9A9A9A]">
+            Sin resultados para &ldquo;{query}&rdquo;
+          </div>
+        )}
+        {pageItems.map(({ prod, i }) => (
           <div
             key={i}
             className="grid grid-cols-[110px_1fr] items-center gap-4 rounded-xl border border-[#E0E0E0] bg-white p-4 shadow-[0_2px_10px_rgba(11,11,11,0.05)] sm:grid-cols-[170px_1fr_auto] sm:gap-5 sm:p-5"
@@ -547,6 +594,32 @@ function ProductosTab() {
           </div>
         ))}
       </div>
+
+      {pageCount > 1 && (
+        <div className="flex items-center justify-center gap-4 px-6 pb-8 sm:px-10">
+          <button
+            type="button"
+            onClick={() => setPage((p) => Math.max(0, p - 1))}
+            disabled={pageSafe === 0}
+            className="flex h-9 w-9 items-center justify-center rounded-full border border-[#D6D6D6] bg-white text-[#0B0B0B] transition-colors enabled:hover:border-mCyan enabled:hover:text-mCyan disabled:cursor-not-allowed disabled:opacity-40"
+            aria-label="Página anterior"
+          >
+            <ChevronLeft size={18} />
+          </button>
+          <span className="font-display text-sm uppercase tracking-wide text-[#5A5A5A]">
+            Página {pageSafe + 1} de {pageCount}
+          </span>
+          <button
+            type="button"
+            onClick={() => setPage((p) => Math.min(pageCount - 1, p + 1))}
+            disabled={pageSafe >= pageCount - 1}
+            className="flex h-9 w-9 items-center justify-center rounded-full border border-[#D6D6D6] bg-white text-[#0B0B0B] transition-colors enabled:hover:border-mCyan enabled:hover:text-mCyan disabled:cursor-not-allowed disabled:opacity-40"
+            aria-label="Página siguiente"
+          >
+            <ChevronRight size={18} />
+          </button>
+        </div>
+      )}
 
       <div className="px-6 pb-14 sm:px-10">
         <div className="flex flex-col items-start gap-4 rounded-xl border border-[#E0E0E0] bg-white p-6 sm:flex-row sm:items-center sm:justify-between">
