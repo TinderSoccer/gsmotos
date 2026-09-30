@@ -16,7 +16,7 @@ const MENU_LABELS = [
   "GSmotos",
 ];
 
-export default function TableroFoto({ onSelect, fluid = false }) {
+export default function TableroFoto({ onSelect, fluid = false, width = 440 }) {
   const audioRef = useRef(null);
 
   const getAudio = useCallback(() => {
@@ -65,7 +65,10 @@ export default function TableroFoto({ onSelect, fluid = false }) {
   }, [getAudio]);
 
   return (
-    <div className={fluid ? "relative w-full" : "relative w-[440px]"} style={{ filter: "drop-shadow(0 26px 40px rgba(0,0,0,0.55))" }}>
+    <div
+      className={fluid ? "relative w-full" : "relative"}
+      style={{ width: fluid ? undefined : `${width}px`, filter: "drop-shadow(0 26px 40px rgba(0,0,0,0.55))" }}
+    >
       {/* eslint-disable-next-line @next/next/no-img-element */}
       <img
         src="/images/tablero-bmw.png"
