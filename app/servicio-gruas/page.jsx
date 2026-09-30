@@ -77,7 +77,7 @@ export default function ServicioGruasPage() {
   const photoSlots = PHOTOS.length ? PHOTOS : [null, null, null];
 
   return (
-    <main className="bg-[#0B0B0B]">
+    <main className="min-h-screen bg-[#0B0B0B]">
       <MobileTopBar />
 
       <div className="flex items-center gap-4 px-6 pt-10 sm:px-10">

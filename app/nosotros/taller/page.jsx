@@ -11,7 +11,7 @@ export const metadata = { title: "Nuestro taller — GSmotos" };
 // taller" del hero — antes era un anchor (#taller) sin página propia.
 export default function TallerPage() {
   return (
-    <main className="bg-[#0B0B0B]">
+    <main className="min-h-screen bg-[#0B0B0B]">
       <MobileTopBar />
       <div className="flex items-center gap-4 px-6 pt-10 sm:px-10">
         <ColorBars size="lg" />

@@ -25,7 +25,7 @@ export default function ServicioDetallePage({ params }) {
   if (!menu || !card) notFound();
 
   return (
-    <main>
+    <main className="min-h-screen bg-[#0B0B0B]">
       <ServiceDetailContent card={card} backHref={`/servicios/${menu.slug}`} backLabel={menu.title} />
       <SiteFooter />
     </main>

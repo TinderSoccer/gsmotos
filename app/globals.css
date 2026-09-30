@@ -2,8 +2,11 @@
 @tailwind components;
 @tailwind utilities;
 
+/* La mayoría de las páginas son oscuras — esto es solo el respaldo que se
+   ve si el contenido de una página es más bajo que la pantalla (cada
+   página ya pone su propio bg-color con min-h-screen; esto es el plan B). */
 body {
-  background: #fff;
+  background: #0b0b0b;
 }
 
 /* Deja espacio para la barra de accesos rápidos fija (ver MobileNav.jsx),

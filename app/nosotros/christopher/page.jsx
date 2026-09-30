@@ -17,7 +17,7 @@ const HERO_PHOTO = "/images/foto-taller-c.png";
 
 export default function ChristopherPage() {
   return (
-    <main className="bg-white text-[#0B0B0B]">
+    <main className="min-h-screen bg-white text-[#0B0B0B]">
       <section className="relative h-[320px] overflow-hidden bg-[#050505] sm:h-[430px]">
         <ChristopherHeroBg defaultPhoto={HERO_PHOTO} />
         {/* Viñeta oscura solo en mobile — sin el recorte diagonal blanco (que
