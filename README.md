@@ -39,10 +39,13 @@ Proyecto Next.js + Tailwind CSS + Framer Motion para GSmotos, taller especializa
 
 ## Estado actual / pendientes conocidos
 
-- **Video del hero**: hoy usa un video de stock (`Big Buck Bunny`, de
-  test-videos.co.uk) como placeholder visible. Reemplazar el `<source>` en
-  `components/home/HeroBanner.jsx` por el material real del taller cuando
-  esté disponible.
+- **Video del hero**: ✅ resuelto — `public/videos/hero-taller.mp4` es un
+  recorte de 12s (~960KB, sin audio) de una grabación real del taller que
+  entregó el cliente. Las grabaciones originales pesaban cientos de MB a
+  más de 1GB (GoPro sin comprimir); se recortaron y comprimieron con
+  ffmpeg antes de subirlas. Quedan otras grabaciones del mismo taller sin
+  usar, disponibles para una futura galería de video en
+  `/nosotros/taller`.
 - **Tablero-menú**: ✅ resuelto — `components/home/SpeedometerDashboard.jsx`
   es un velocímetro 100% SVG/CSS (ya no depende de una imagen de referencia).
 - **Íconos de la franja de atributos**: ✅ resuelto —
