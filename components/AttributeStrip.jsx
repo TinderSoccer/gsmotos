@@ -1,32 +1,32 @@
-// Íconos de lucide-react (antes SVG dibujados a mano).
+// Antes era una grilla de 6 tarjetas (2 filas en desktop, apiladas en
+// mobile) con fondo negro plano — bastante discreta. El cliente pidió que
+// destacara y que fuera persistente al scrollear. Versión nueva: una sola
+// franja angosta, fondo claro (para que corte fuerte contra el resto del
+// sitio, que es oscuro) y `sticky` — no tapa el hero (se activa recién
+// cuando su posición natural llega al borde superior de la pantalla, así
+// que aparece al scrollear más allá del hero y se queda pegada arriba de
+// ahí en adelante). Textos acortados a una sola línea para que las 6
+// entren en una sola fila.
 import { ClipboardList, ScanLine, ShieldCheck, Target, Users, Wrench } from "lucide-react";
 
 const ATTRS = [
-  { text: "15+ años\nde experiencia", Icon: ShieldCheck },
-  { text: "Especialistas\nBMW Motorrad", Icon: Target },
-  { text: "Equipo consolidado\n+10 años trabajando juntos", Icon: Users },
-  { text: "Herramientas especiales BMW\nMotorrad y manuales técnicos", Icon: Wrench },
-  { text: "Scanner, programación,\ncodificación e integración BMW", Icon: ScanLine },
-  { text: "Órdenes de trabajo\ny trazabilidad", Icon: ClipboardList },
+  { text: "15+ años de experiencia", Icon: ShieldCheck },
+  { text: "Especialistas BMW Motorrad", Icon: Target },
+  { text: "+10 años de equipo consolidado", Icon: Users },
+  { text: "Herramientas especiales BMW", Icon: Wrench },
+  { text: "Scanner y programación BMW", Icon: ScanLine },
+  { text: "Trazabilidad total", Icon: ClipboardList },
 ];
 
 export default function AttributeStrip() {
   return (
-    <div className="grid grid-cols-1 bg-black sm:grid-cols-2 md:grid-cols-3">
-      {ATTRS.map(({ text, Icon }, i) => (
-        <div
-          key={text}
-          className="flex items-center gap-3.5 border-b border-[#1c1d20] px-6 py-5 sm:px-8 sm:py-6 md:border-r"
-          style={{
-            borderRightWidth: (i + 1) % 3 === 0 ? 0 : undefined,
-          }}
-        >
-          <span className="flex h-[34px] w-[34px] flex-shrink-0 items-center justify-center">
-            <Icon size={24} strokeWidth={1.5} color="#E9ECEF" />
-          </span>
-          <div className="whitespace-pre-line font-body text-xs font-semibold uppercase leading-relaxed tracking-wide text-white/75">
+    <div className="sticky top-0 z-30 flex items-center justify-start gap-5 overflow-x-auto border-b border-gray-200 bg-[#F4F5F6] px-4 py-3 lg:justify-center lg:gap-8 lg:px-8">
+      {ATTRS.map(({ text, Icon }) => (
+        <div key={text} className="flex flex-none items-center gap-2 whitespace-nowrap">
+          <Icon size={16} strokeWidth={1.8} className="flex-none text-mBlue" />
+          <span className="font-display text-[12.5px] font-semibold uppercase tracking-wide text-[#2A2A2A] lg:text-[13px]">
             {text}
-          </div>
+          </span>
         </div>
       ))}
     </div>
