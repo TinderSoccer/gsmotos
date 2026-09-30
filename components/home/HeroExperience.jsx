@@ -59,6 +59,7 @@ export default function HeroExperience() {
         menuHint={menu.hint}
         tick={tick}
         isProductos={isProductos}
+        isBigTrail={menu.slug === "big-trail"}
         serviceCards={menu.cards}
         query={query}
         onQueryChange={(v) => {

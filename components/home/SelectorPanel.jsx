@@ -5,6 +5,7 @@ import { ImageOff, Search } from "lucide-react";
 import { FaWhatsapp } from "react-icons/fa6";
 import ColorBars from "../services/ColorBars";
 import ServiceGrid from "../services/ServiceGrid";
+import BrandRow from "../services/BrandRow";
 import { useSettings, whatsappUrl } from "@/lib/settings";
 import { formatCLP, productConsultMessage } from "@/lib/catalogo";
 import { PLACEHOLDER_PHOTO } from "@/lib/productosData";
@@ -143,6 +144,7 @@ export default function SelectorPanel({
   menuHint,
   tick,
   isProductos,
+  isBigTrail,
   serviceCards,
   query,
   onQueryChange,
@@ -201,7 +203,10 @@ export default function SelectorPanel({
           animClass={animCards}
         />
       ) : (
-        <ServiceGrid key={animCards} cards={serviceCards} animClass={animCards} />
+        <>
+          {isBigTrail && <BrandRow />}
+          <ServiceGrid key={animCards} cards={serviceCards} animClass={animCards} />
+        </>
       )}
     </div>
   );

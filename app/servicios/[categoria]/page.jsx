@@ -1,6 +1,7 @@
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import ServiceGrid from "@/components/services/ServiceGrid";
+import BrandRow from "@/components/services/BrandRow";
 import ColorBars from "@/components/services/ColorBars";
 import SiteFooter from "@/components/SiteFooter";
 import { MobileTopBar } from "@/components/mobile/MobileNav";
@@ -38,6 +39,7 @@ export default function CategoriaServiciosPage({ params }) {
             {menu.hint}
           </div>
         </div>
+        {menu.slug === "big-trail" && <BrandRow />}
         <ServiceGrid cards={menu.cards} />
         <Link href="/" className="mt-4 w-fit font-display text-sm uppercase tracking-wide text-mCyan hover:text-mCyan/80">
           ← Volver al inicio
