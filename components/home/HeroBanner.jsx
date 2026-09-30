@@ -19,7 +19,7 @@ export default function HeroBanner({ onSelect }) {
   }, []);
 
   return (
-    <section className="relative h-auto overflow-hidden bg-[#050505] sm:h-[300px]">
+    <section className="relative h-auto overflow-hidden bg-[#050505] sm:h-[450px]">
       <video
         ref={videoRef}
         autoPlay
@@ -113,40 +113,40 @@ export default function HeroBanner({ onSelect }) {
         </div>
       </div>
 
-      {/* Hero desktop/tablet — compactado a la mitad de alto (pedido del
-          cliente: el video/tablero ocupaba demasiada pantalla y tapaba las
-          opciones de la grilla de abajo). pt-[150px] deja el bloque de
-          texto siempre debajo del logo (que vive en el header, position
-          absolute arriba) — con items-center/items-end se pisaban porque
-          a este alto el logo y el texto ocupan casi el mismo espacio
-          vertical. Se quitó la frase de cita: a esta altura no calzaba. */}
+      {/* Hero desktop/tablet — más chico que el original (580px) pero sin
+          pasarse: 450px, con el tablero grande otra vez (340px). pt-[150px]
+          deja el bloque de texto siempre debajo del logo (position
+          absolute arriba). */}
       <div className="relative z-20 hidden h-full max-w-[560px] items-start px-6 sm:flex sm:px-0 sm:pl-14">
-        <div className="flex flex-col gap-2 pt-[150px]">
-          <div className="font-display text-[12px] font-semibold uppercase tracking-[2.5px] text-ink">
+        <div className="flex flex-col gap-2.5 pt-[150px]">
+          <div className="font-display text-[15px] font-semibold uppercase tracking-[4px] text-ink">
             Especialistas en
           </div>
-          <h1 className="font-display text-[30px] font-bold italic uppercase leading-none tracking-[-0.3px] text-ink">
-            BMW Motorrad
+          <h1 className="font-display text-[46px] font-bold italic uppercase leading-[0.9] tracking-[-0.5px] text-ink">
+            BMW<br />Motorrad
           </h1>
           <div className="flex gap-1" style={{ transform: "skewX(-16deg)" }}>
-            <span className="h-1.5 w-[28px] bg-mBlue" />
-            <span className="h-1.5 w-[28px] bg-mCyan" />
-            <span className="h-1.5 w-[28px] bg-mRed" />
+            <span className="h-1.5 w-[38px] bg-mBlue" />
+            <span className="h-1.5 w-[38px] bg-mCyan" />
+            <span className="h-1.5 w-[38px] bg-mRed" />
           </div>
-          <p className="max-w-[380px] text-[12.5px] leading-snug text-[#3A3A3A]">
+          <p className="max-w-[380px] text-sm leading-snug text-[#3A3A3A]">
             15 años de experiencia entregando servicios de excelencia, con estándar profesional y tecnología de última generación.
           </p>
-          <div className="mt-1 flex flex-wrap items-center gap-4">
+          <div className="max-w-[380px] border-l-2 border-mBlue pl-2.5 font-display text-sm uppercase leading-tight tracking-wide text-ink">
+            &ldquo;Nuestra experiencia es nuestra herramienta más importante&rdquo;
+          </div>
+          <div className="mt-1.5 flex flex-wrap items-center gap-5">
             <a
               href="#servicios"
-              className="inline-flex items-center gap-2.5 bg-ink px-4 py-2 font-display text-[12.5px] font-semibold uppercase tracking-[2px] text-white transition-colors hover:bg-mBlue"
+              className="inline-flex items-center gap-3 bg-ink px-5 py-3 font-display text-sm font-semibold uppercase tracking-[2px] text-white transition-colors hover:bg-mBlue"
             >
               <span>Conocer más</span>
               <span className="font-body">→</span>
             </a>
             <Link
               href="/nosotros/taller"
-              className="inline-flex items-center gap-2 border-b-2 border-transparent pb-[2px] font-display text-[13px] font-semibold uppercase tracking-[2px] text-ink transition-colors hover:border-mBlue hover:text-mBlue"
+              className="inline-flex items-center gap-2 border-b-2 border-transparent pb-[2px] font-display text-sm font-semibold uppercase tracking-[2px] text-ink transition-colors hover:border-mBlue hover:text-mBlue"
             >
               <span>Nuestro taller</span>
               <span className="font-body text-mRed">›</span>
@@ -155,8 +155,8 @@ export default function HeroBanner({ onSelect }) {
         </div>
       </div>
 
-      <div className="absolute bottom-[-3px] right-0 z-[25] hidden lg:block">
-        <TableroFoto onSelect={onSelect} width={220} />
+      <div className="absolute bottom-0 right-0 z-[25] hidden lg:block">
+        <TableroFoto onSelect={onSelect} width={340} />
       </div>
     </section>
   );
