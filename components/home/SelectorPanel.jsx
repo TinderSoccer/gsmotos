@@ -1,12 +1,30 @@
 "use client";
 
 import Link from "next/link";
-import { Search } from "lucide-react";
+import { ImageOff, Search } from "lucide-react";
 import { FaWhatsapp } from "react-icons/fa6";
 import ColorBars from "../services/ColorBars";
 import ServiceGrid from "../services/ServiceGrid";
 import { useSettings, whatsappUrl } from "@/lib/settings";
 import { formatCLP } from "@/lib/catalogo";
+import { PLACEHOLDER_PHOTO } from "@/lib/productosData";
+
+// Foto del producto o, si todavía no tiene una propia, un aviso honesto de
+// "sin foto" — ver el mismo criterio en app/productos/page.jsx.
+function ProductPhoto({ photo, name }) {
+  if (photo === PLACEHOLDER_PHOTO) {
+    return (
+      <div className="flex h-full flex-col items-center justify-center gap-1.5 bg-[repeating-linear-gradient(135deg,#1A1D21_0_10px,#14171A_10px_20px)]">
+        <ImageOff size={20} strokeWidth={1.4} className="text-[#4A5058]" />
+        <span className="font-display text-[9px] uppercase tracking-[1.6px] text-[#5C636B] sm:text-[10.5px] sm:tracking-[2px]">Foto próximamente</span>
+      </div>
+    );
+  }
+  return (
+    // eslint-disable-next-line @next/next/no-img-element
+    <img src={photo} alt={name} className="block h-full w-full object-contain p-2.5 sm:p-3" />
+  );
+}
 
 // Panel oscuro debajo del hero: muestra la grilla de tarjetas de servicio de
 // la categoría elegida en el tablero, o (si la categoría es "Productos") un
@@ -77,8 +95,7 @@ function ProductCarousel({ query, onQueryChange, products, pageLabel, resultLabe
             >
               <Link href={`/productos?q=${encodeURIComponent(prod.name)}`} className="block">
                 <div className="relative h-[110px] overflow-hidden bg-[#14171A] sm:h-[150px]">
-                  <div className="absolute inset-0 bg-contain bg-center bg-no-repeat brightness-[1.15]" style={{ backgroundImage: `url(${prod.photo})` }} />
-                  <div className="pointer-events-none absolute inset-0" style={{ background: "linear-gradient(180deg, rgba(5,5,5,0.05) 0%, rgba(5,5,5,0.55) 100%)" }} />
+                  <ProductPhoto photo={prod.photo} name={prod.name} />
                   <div className="absolute left-3 top-3 hidden sm:block">
                     <ColorBars />
                   </div>

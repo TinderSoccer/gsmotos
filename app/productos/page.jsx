@@ -3,7 +3,7 @@
 import { Suspense, useCallback, useEffect, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import Link from "next/link";
-import { Search } from "lucide-react";
+import { ImageOff, Search } from "lucide-react";
 import { FaWhatsapp } from "react-icons/fa6";
 import ColorBars from "@/components/services/ColorBars";
 import SiteFooter from "@/components/SiteFooter";
@@ -11,6 +11,7 @@ import { MobileTopBar } from "@/components/mobile/MobileNav";
 import { menus } from "@/lib/servicesData";
 import { checkStock } from "@/lib/tallergp";
 import { formatCLP, useProductosChanged } from "@/lib/catalogo";
+import { PLACEHOLDER_PHOTO } from "@/lib/productosData";
 import { useSettings, whatsappUrl } from "@/lib/settings";
 
 // Plantilla de catálogo/listado — hoy solo la usa "Productos", pensada para
@@ -18,6 +19,26 @@ import { useSettings, whatsappUrl } from "@/lib/settings";
 // grilla de servicios. La consulta de stock viene de lib/tallergp.js
 // (mock; ver ese archivo para dónde conectar la API real de TallerGP).
 const INTRO_CARDS = menus.find((m) => m.kind === "catalog")?.cards ?? [];
+
+// Foto del producto o, si todavía no tiene una propia, un aviso honesto de
+// "sin foto" — antes se mostraba la foto genérica del taller en su lugar,
+// que quedaba repetida en decenas de productos distintos (ej. 4 mochilas
+// con la misma foto de una manga de chaqueta) y podía confundir al cliente
+// pensando que esa era la foto real del producto.
+function ProductPhoto({ photo, name }) {
+  if (photo === PLACEHOLDER_PHOTO) {
+    return (
+      <div className="flex h-full flex-col items-center justify-center gap-2 bg-[repeating-linear-gradient(135deg,#1A1D21_0_10px,#14171A_10px_20px)]">
+        <ImageOff size={24} strokeWidth={1.4} className="text-[#4A5058]" />
+        <span className="font-display text-[10.5px] uppercase tracking-[2px] text-[#5C636B]">Foto próximamente</span>
+      </div>
+    );
+  }
+  return (
+    // eslint-disable-next-line @next/next/no-img-element
+    <img src={photo} alt={name} className="block h-full w-full object-contain p-3" />
+  );
+}
 
 function StockBadge({ stock }) {
   return stock > 0 ? (
@@ -115,8 +136,7 @@ function ProductosContent() {
             {items.map((prod) => (
               <div key={prod.slug} className="flex flex-col overflow-hidden rounded-xl border border-[#1E2226] bg-[#0B0D0F] text-[#E4E7EA]">
                 <div className="relative h-[150px] overflow-hidden bg-[#14171A]">
-                  <div className="absolute inset-0 bg-contain bg-center bg-no-repeat brightness-[1.15]" style={{ backgroundImage: `url(${prod.photo})` }} />
-                  <div className="pointer-events-none absolute inset-0" style={{ background: "linear-gradient(180deg, rgba(5,5,5,0.05) 0%, rgba(5,5,5,0.55) 100%)" }} />
+                  <ProductPhoto photo={prod.photo} name={prod.name} />
                   <div className="absolute left-3 top-3">
                     <ColorBars />
                   </div>
