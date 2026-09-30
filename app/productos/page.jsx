@@ -10,7 +10,7 @@ import SiteFooter from "@/components/SiteFooter";
 import { MobileTopBar } from "@/components/mobile/MobileNav";
 import { menus } from "@/lib/servicesData";
 import { checkStock } from "@/lib/tallergp";
-import { useProductosChanged } from "@/lib/catalogo";
+import { formatCLP, useProductosChanged } from "@/lib/catalogo";
 import { useSettings, whatsappUrl } from "@/lib/settings";
 
 // Plantilla de catálogo/listado — hoy solo la usa "Productos", pensada para
@@ -124,6 +124,9 @@ function ProductosContent() {
                 <div className="flex flex-col gap-2 px-5 pb-5 pt-4.5">
                   <div className="font-display text-[13px] uppercase tracking-[2px] text-[#6E7780]">{prod.cat}</div>
                   <div className="font-display text-xl font-semibold uppercase leading-tight tracking-wide text-white">{prod.name}</div>
+                  {prod.price > 0 && (
+                    <div className="font-display text-lg font-bold text-mCyan">{formatCLP(prod.price)}</div>
+                  )}
                   <div className="mt-1">
                     <StockBadge stock={prod.stock} />
                   </div>

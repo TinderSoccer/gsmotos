@@ -20,7 +20,7 @@ import ColorBars from "@/components/services/ColorBars";
 import { CERTIFICADOS } from "@/lib/certificados";
 import { setCertPhoto, useCertPhotos } from "@/lib/useCertPhotos";
 import { setFounderPhoto, useFounderPhoto } from "@/lib/founderPhoto";
-import { useProductos, writeProductos } from "@/lib/catalogo";
+import { formatCLP, useProductos, writeProductos } from "@/lib/catalogo";
 import { resetTallerItems, useTallerItems, writeTallerItems } from "@/lib/taller";
 import { menus } from "@/lib/servicesData";
 import { resetServicePhotos, servicePhotoKey, setServicePhoto, useServicePhotos } from "@/lib/servicePhotos";
@@ -295,6 +295,8 @@ function NewProductModal({ onClose, onCreate }) {
   const [name, setName] = useState("");
   const [cat, setCat] = useState("");
   const [photo, setPhoto] = useState("");
+  const [price, setPrice] = useState("");
+  const [stock, setStock] = useState("1");
 
   async function handleFile(ev) {
     const file = ev.target.files?.[0];
@@ -307,7 +309,13 @@ function NewProductModal({ onClose, onCreate }) {
   function handleSubmit(ev) {
     ev.preventDefault();
     if (!name.trim()) return;
-    onCreate({ name: name.trim(), cat: cat.trim() || "General", photo });
+    onCreate({
+      name: name.trim(),
+      cat: cat.trim() || "General",
+      photo,
+      price: Number(price) || 0,
+      stock: Number(stock) || 0,
+    });
   }
 
   return (
@@ -359,6 +367,30 @@ function NewProductModal({ onClose, onCreate }) {
               className="rounded-md border border-[#E0E0E0] bg-[#FBFBFB] px-3.5 py-2.5 font-display text-base text-[#0B0B0B] outline-none focus:border-mCyan"
             />
           </label>
+          <div className="grid grid-cols-2 gap-3">
+            <label className="flex flex-col gap-1.5 text-sm text-[#3A3A3A]">
+              Precio (CLP)
+              <input
+                type="number"
+                min="0"
+                value={price}
+                onChange={(ev) => setPrice(ev.target.value)}
+                placeholder="25000"
+                className="rounded-md border border-[#E0E0E0] bg-[#FBFBFB] px-3.5 py-2.5 font-display text-base text-[#0B0B0B] outline-none focus:border-mCyan"
+              />
+            </label>
+            <label className="flex flex-col gap-1.5 text-sm text-[#3A3A3A]">
+              Stock
+              <input
+                type="number"
+                min="0"
+                value={stock}
+                onChange={(ev) => setStock(ev.target.value)}
+                placeholder="1"
+                className="rounded-md border border-[#E0E0E0] bg-[#FBFBFB] px-3.5 py-2.5 font-display text-base text-[#0B0B0B] outline-none focus:border-mCyan"
+              />
+            </label>
+          </div>
           <div className="mt-2 flex items-center gap-3">
             <button
               type="submit"
@@ -464,13 +496,38 @@ function ProductosTab() {
                 placeholder="Nombre del producto"
                 className="w-full rounded-md border border-[#E0E0E0] bg-[#FBFBFB] px-3.5 py-2.5 font-display text-lg font-semibold uppercase tracking-wide text-[#0B0B0B] outline-none focus:border-mCyan"
               />
-              <input
-                type="text"
-                value={prod.cat}
-                onChange={(ev) => patch(i, { cat: ev.target.value })}
-                placeholder="Categoría"
-                className="w-[180px] rounded-md border border-[#E0E0E0] bg-[#FBFBFB] px-3.5 py-2 font-display text-sm uppercase tracking-wide text-[#3A3A3A] outline-none focus:border-mCyan"
-              />
+              <div className="flex flex-wrap gap-2.5">
+                <input
+                  type="text"
+                  value={prod.cat}
+                  onChange={(ev) => patch(i, { cat: ev.target.value })}
+                  placeholder="Categoría"
+                  className="w-[180px] rounded-md border border-[#E0E0E0] bg-[#FBFBFB] px-3.5 py-2 font-display text-sm uppercase tracking-wide text-[#3A3A3A] outline-none focus:border-mCyan"
+                />
+                <label className="flex items-center gap-1.5 text-xs uppercase tracking-wide text-[#8A8A8A]">
+                  Precio
+                  <input
+                    type="number"
+                    min="0"
+                    value={prod.price ?? 0}
+                    onChange={(ev) => patch(i, { price: Number(ev.target.value) || 0 })}
+                    className="w-[110px] rounded-md border border-[#E0E0E0] bg-[#FBFBFB] px-3 py-2 font-display text-sm text-[#0B0B0B] outline-none focus:border-mCyan"
+                  />
+                </label>
+                <label className="flex items-center gap-1.5 text-xs uppercase tracking-wide text-[#8A8A8A]">
+                  Stock
+                  <input
+                    type="number"
+                    min="0"
+                    value={prod.stock ?? 0}
+                    onChange={(ev) => patch(i, { stock: Number(ev.target.value) || 0 })}
+                    className="w-[70px] rounded-md border border-[#E0E0E0] bg-[#FBFBFB] px-3 py-2 font-display text-sm text-[#0B0B0B] outline-none focus:border-mCyan"
+                  />
+                </label>
+              </div>
+              {prod.price > 0 && (
+                <div className="font-display text-sm font-semibold text-mBlue">{formatCLP(prod.price)}</div>
+              )}
             </div>
 
             <div className="col-span-2 flex gap-2.5 sm:col-span-1 sm:flex-col">

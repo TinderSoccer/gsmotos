@@ -6,6 +6,7 @@ import { FaWhatsapp } from "react-icons/fa6";
 import ColorBars from "../services/ColorBars";
 import ServiceGrid from "../services/ServiceGrid";
 import { useSettings, whatsappUrl } from "@/lib/settings";
+import { formatCLP } from "@/lib/catalogo";
 
 // Panel oscuro debajo del hero: muestra la grilla de tarjetas de servicio de
 // la categoría elegida en el tablero, o (si la categoría es "Productos") un
@@ -85,6 +86,9 @@ function ProductCarousel({ query, onQueryChange, products, pageLabel, resultLabe
                 <div className="flex flex-col gap-1.5 px-3.5 pt-3.5 sm:gap-2 sm:px-5 sm:pt-4.5">
                   <div className="font-display text-[11px] uppercase tracking-[1.6px] text-[#6E7780] sm:text-[13px] sm:tracking-[2px]">{prod.cat}</div>
                   <div className="font-display text-[15px] font-semibold uppercase leading-tight tracking-wide text-white sm:text-xl">{prod.name}</div>
+                  {prod.price > 0 && (
+                    <div className="font-display text-sm font-bold text-mCyan sm:text-base">{formatCLP(prod.price)}</div>
+                  )}
                 </div>
               </Link>
               <div className="px-3.5 pb-4 pt-1.5 sm:px-5 sm:pb-5 sm:pt-2">

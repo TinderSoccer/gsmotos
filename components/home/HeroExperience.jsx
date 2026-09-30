@@ -22,7 +22,7 @@ export default function HeroExperience() {
   const catalogue = useMemo(() => {
     const q = query.trim().toLowerCase();
     if (!q) return productos;
-    return productos.filter((p) => `${p.name} ${p.cat}`.toLowerCase().includes(q));
+    return productos.filter((p) => `${p.name} ${p.cat} ${p.aplicacion || ""}`.toLowerCase().includes(q));
   }, [productos, query]);
 
   const pageCount = Math.max(1, Math.ceil(catalogue.length / PER_PAGE));
