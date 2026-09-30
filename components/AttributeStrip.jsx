@@ -20,7 +20,7 @@ const ATTRS = [
 
 export default function AttributeStrip() {
   return (
-    <div className="sticky top-0 z-30 flex items-center justify-start gap-5 overflow-x-auto border-b border-gray-200 bg-[#F4F5F6] px-4 py-3 lg:justify-center lg:gap-8 lg:px-8">
+    <div className="sticky top-0 z-30 flex items-center justify-start gap-5 overflow-x-auto border-b border-[#B8BCC2] bg-[#C9CDD3] px-4 py-3 lg:justify-center lg:gap-8 lg:px-8">
       {ATTRS.map(({ text, Icon }) => (
         <div key={text} className="flex flex-none items-center gap-2 whitespace-nowrap">
           <Icon size={16} strokeWidth={1.8} className="flex-none text-mBlue" />
