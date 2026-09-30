@@ -36,14 +36,17 @@ function StatsTicker({ stats }) {
 
   const stat = stats[i];
   return (
-    <div className="hidden w-[210px] flex-none items-center overflow-hidden lg:flex">
+    <div className="hidden w-[260px] flex-none items-center overflow-visible lg:flex">
       <div
         key={i}
-        className="flex items-center gap-2 whitespace-nowrap rounded-full px-4 py-1.5 text-[13px] shadow-sm"
-        style={{ background: "linear-gradient(90deg, #1B5FAE, #4E9AD1)", animation: "gsmIn1 380ms ease both" }}
+        className="flex items-center gap-2.5 whitespace-nowrap rounded-full px-5 py-2.5 text-[15px] shadow-[0_6px_16px_rgba(27,95,174,0.35)]"
+        style={{
+          background: "linear-gradient(90deg, #1B5FAE, #4E9AD1)",
+          animation: "gsmBounceIn 620ms cubic-bezier(0.34,1.56,0.64,1) both",
+        }}
       >
-        <span className="h-1.5 w-1.5 flex-none animate-pulse rounded-full bg-white" />
-        <span className="font-display font-bold text-white">{stat.num}</span>
+        <span className="h-2 w-2 flex-none animate-pulse rounded-full bg-white" />
+        <span className="font-display text-base font-bold text-white">{stat.num}</span>
         <span className="text-white/85">{stat.label}</span>
       </div>
     </div>

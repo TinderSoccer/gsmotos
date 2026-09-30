@@ -34,6 +34,13 @@ body {
   from { opacity: 0; transform: translateY(26px) scale(0.94); }
   to { opacity: 1; transform: none; }
 }
+/* Entrada con rebote — usada por el carrusel de cifras de la franja fija
+   (SiteFooter.jsx). El "overshoot" (pasarse un poco y volver) lo da el
+   cubic-bezier con el segundo valor > 1, no el keyframe en sí. */
+@keyframes gsmBounceIn {
+  from { opacity: 0; transform: translateY(8px) scale(0.75); }
+  to { opacity: 1; transform: none; }
+}
 @keyframes gsmTitle1 {
   from { opacity: 0; transform: translateX(-14px); }
   to { opacity: 1; transform: none; }
