@@ -75,9 +75,13 @@ export default function HeroBanner({ onSelect }) {
         <div className="font-display text-[19px] font-semibold uppercase tracking-[5px] text-white">
           Especialistas en
         </div>
-        <h1 className="font-display text-[34px] font-bold italic uppercase leading-[0.95] tracking-[-0.4px] text-white">
-          BMW Motorrad
-        </h1>
+        <div className="flex items-center justify-center gap-3">
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img src="/images/marcas/bmw.svg" alt="BMW" className="h-11 w-11 flex-none" />
+          <h1 className="font-display text-[34px] font-bold italic uppercase leading-[0.95] tracking-[-0.4px] text-white">
+            BMW Motorrad
+          </h1>
+        </div>
         <div className="flex gap-1" style={{ transform: "skewX(-16deg)" }}>
           <span className="h-1.5 w-[30px] bg-mBlue" />
           <span className="h-1.5 w-[30px] bg-mCyan" />
@@ -129,9 +133,13 @@ export default function HeroBanner({ onSelect }) {
           <div className="font-display text-[15px] font-semibold uppercase tracking-[4px] text-white">
             Especialistas en
           </div>
-          <h1 className="font-display text-[46px] font-bold italic uppercase leading-[0.9] tracking-[-0.5px] text-white">
-            BMW<br />Motorrad
-          </h1>
+          <div className="flex items-center gap-4">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img src="/images/marcas/bmw.svg" alt="BMW" className="h-16 w-16 flex-none" />
+            <h1 className="font-display text-[46px] font-bold italic uppercase leading-[0.9] tracking-[-0.5px] text-white">
+              BMW<br />Motorrad
+            </h1>
+          </div>
           <div className="flex gap-1" style={{ transform: "skewX(-16deg)" }}>
             <span className="h-1.5 w-[38px] bg-mBlue" />
             <span className="h-1.5 w-[38px] bg-mCyan" />

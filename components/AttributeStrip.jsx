@@ -14,7 +14,7 @@ import { ClipboardList, ScanLine, ShieldCheck, Target, Users, Wrench } from "luc
 // del sitio.
 const ATTRS = [
   { text: "15+ años de experiencia", Icon: ShieldCheck, color: "#1B5FAE" },
-  { text: "Especialistas BMW Motorrad", Icon: Target, color: "#4E9AD1" },
+  { text: "Especialistas BMW Motorrad", img: "/images/marcas/bmw.svg" },
   { text: "+10 años de equipo consolidado", Icon: Users, color: "#E7002A" },
   { text: "Herramientas especiales BMW", Icon: Wrench, color: "#1B5FAE" },
   { text: "Scanner y programación BMW", Icon: ScanLine, color: "#4E9AD1" },
@@ -27,17 +27,22 @@ export default function AttributeStrip() {
       className="sticky top-0 z-30 flex items-center justify-start gap-0 overflow-x-auto border-b border-[#B0B4BA] px-4 py-2.5 lg:justify-center lg:px-8"
       style={{ background: "linear-gradient(180deg, #D2D5DA 0%, #C3C7CD 100%)" }}
     >
-      {ATTRS.map(({ text, Icon, color }, i) => (
+      {ATTRS.map(({ text, Icon, color, img }, i) => (
         <div
           key={text}
           className={`flex flex-none items-center gap-2.5 whitespace-nowrap px-4 lg:px-5 ${i > 0 ? "border-l border-[#B0B4BA]/70" : ""}`}
         >
-          <span
-            className="flex h-6 w-6 flex-none items-center justify-center rounded-full"
-            style={{ background: `${color}1A` }}
-          >
-            <Icon size={13.5} strokeWidth={2} color={color} />
-          </span>
+          {img ? (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img src={img} alt="" className="h-6 w-6 flex-none" />
+          ) : (
+            <span
+              className="flex h-6 w-6 flex-none items-center justify-center rounded-full"
+              style={{ background: `${color}1A` }}
+            >
+              <Icon size={13.5} strokeWidth={2} color={color} />
+            </span>
+          )}
           <span className="font-display text-[12.5px] font-semibold uppercase tracking-wide text-[#2A2A2A] lg:text-[13px]">
             {text}
           </span>

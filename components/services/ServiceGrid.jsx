@@ -34,8 +34,18 @@ export default function ServiceGrid({ cards, animClass }) {
                 <div className="hidden items-center gap-3 sm:flex">
                   <ColorBars />
                   <span className="whitespace-nowrap font-display text-sm uppercase tracking-[2.2px] text-[#D6DADE]">{card.kicker}</span>
+                  {card.kicker?.includes("BMW") && (
+                    // eslint-disable-next-line @next/next/no-img-element
+                    <img src="/images/marcas/bmw.svg" alt="BMW" className="h-5 w-5 flex-none" />
+                  )}
                 </div>
-                <span className="font-display text-[10.5px] uppercase tracking-[1.8px] text-[#C3C9CE] sm:hidden">{card.kicker}</span>
+                <span className="flex items-center gap-1.5 font-display text-[10.5px] uppercase tracking-[1.8px] text-[#C3C9CE] sm:hidden">
+                  {card.kicker?.includes("BMW") && (
+                    // eslint-disable-next-line @next/next/no-img-element
+                    <img src="/images/marcas/bmw.svg" alt="BMW" className="h-3.5 w-3.5 flex-none" />
+                  )}
+                  {card.kicker}
+                </span>
                 <div className="font-display text-[17px] font-bold italic uppercase leading-tight text-white sm:text-[29px]">{card.title}</div>
                 <p className="hidden max-w-[330px] text-[14.5px] leading-relaxed text-[#B9C0C7] sm:block">{card.desc}</p>
                 <div className="mt-1 hidden items-center gap-2.5 font-display text-sm uppercase tracking-wide text-mCyan sm:flex">
