@@ -54,11 +54,11 @@ export default function ServiceDetailModal({ card, onClose }) {
           <div className="font-display text-[22px] italic leading-snug text-mCyan">{card.lead}</div>
           <p className="text-[15.5px] leading-[1.75] text-[#C3C9CE]">{card.long}</p>
           <div
-            className="flex items-center gap-3.5 rounded-lg border-l-[3px] bg-mBlue/[0.1] px-4.5 py-4"
-            style={{ animation: "gsmNoteIn 460ms cubic-bezier(0.22,0.61,0.36,1) 180ms both, gsmNoteGlow 2600ms ease-in-out 900ms infinite" }}
+            className="flex items-center gap-4 rounded-lg border-l-4 bg-mBlue/[0.18] px-5 py-4.5"
+            style={{ animation: "gsmNoteIn 460ms cubic-bezier(0.22,0.61,0.36,1) 180ms both, gsmNoteGlow 2200ms ease-in-out 900ms infinite" }}
           >
-            <MessageCircle size={20} strokeWidth={1.8} className="flex-none text-mCyan" />
-            <span className="font-display text-[15px] font-semibold uppercase leading-snug tracking-wide text-white">{card.note}</span>
+            <MessageCircle size={23} strokeWidth={1.9} className="flex-none text-mCyan" />
+            <span className="font-display text-[16px] font-bold uppercase leading-snug tracking-wide text-white">{card.note}</span>
           </div>
           <div className="flex flex-wrap items-center gap-4">
             <Link
