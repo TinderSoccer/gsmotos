@@ -156,7 +156,7 @@ export default function HeroBanner({ onSelect }) {
       </div>
 
       <div className="absolute bottom-0 right-0 z-[25] hidden lg:block">
-        <TableroFoto onSelect={onSelect} width={340} />
+        <TableroFoto onSelect={onSelect} width={400} />
       </div>
     </section>
   );
