@@ -57,7 +57,10 @@ export default function HeroBanner({ onSelect }) {
       <header className="absolute inset-x-0 top-0 z-30 flex items-start justify-between px-6 py-6 sm:px-10">
         <MobileMenuButton />
         <a href="/" className="block leading-none">
-          <Logo light="mobile" className="block h-auto w-[150px] sm:w-[210px]" priority />
+          {/* Antes era "mobile" (claro en mobile, oscuro desde sm) porque
+              desktop tenía la tarjeta blanca detrás del logo — ahora todo el
+              hero es oscuro (video), así que el logo claro va siempre. */}
+          <Logo light className="block h-auto w-[150px] sm:w-[210px]" priority />
         </a>
         {/* Espaciador: mantiene el logo centrado frente al botón hamburguesa en mobile */}
         <div className="w-11 flex-none sm:hidden" />
