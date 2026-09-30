@@ -42,16 +42,16 @@ export default function HeroBanner({ onSelect }) {
         className="pointer-events-none absolute inset-0 sm:hidden"
         style={{ background: "linear-gradient(180deg, rgba(5,5,5,0.72) 0%, rgba(5,5,5,0.34) 22%, rgba(5,5,5,0.5) 58%, rgba(9,10,11,0.97) 100%)" }}
       />
-      <div className="pointer-events-none absolute inset-0" style={{ background: "linear-gradient(100deg, rgba(0,0,0,0.55) 0%, rgba(0,0,0,0.25) 38%, rgba(0,0,0,0) 62%)" }} />
-      <div className="pointer-events-none absolute inset-0" style={{ background: "linear-gradient(270deg, rgba(0,0,0,0.74) 0%, rgba(0,0,0,0.42) 34%, rgba(0,0,0,0.12) 62%, rgba(0,0,0,0) 78%)" }} />
       <div className="pointer-events-none absolute inset-0 bg-black/[0.22]" />
+      {/* Antes acá iba una tarjeta blanca sólida (clip-path diagonal) tapando
+          ~40% del video para que el texto quedara legible — el cliente pidió
+          que se viera más el video. Se reemplaza por un degradado oscuro de
+          izquierda a derecha (mismo criterio que ya se usaba en mobile: texto
+          blanco directo sobre el video, sin tarjeta), que dejar ver el video
+          incluso detrás del texto. */}
       <div
-        className="pointer-events-none absolute inset-0 hidden bg-white sm:block"
-        style={{ clipPath: "polygon(0 0, 25% 0, 38% 100%, 0 100%)" }}
-      />
-      <div
-        className="pointer-events-none absolute inset-y-0 left-0 hidden w-[56%] sm:block"
-        style={{ background: "linear-gradient(103deg, #ffffff 42%, rgba(255,255,255,0.85) 49%, rgba(255,255,255,0) 64%)" }}
+        className="pointer-events-none absolute inset-0 hidden sm:block"
+        style={{ background: "linear-gradient(90deg, rgba(5,6,7,0.88) 0%, rgba(5,6,7,0.68) 32%, rgba(5,6,7,0.3) 56%, rgba(5,6,7,0) 74%)" }}
       />
 
       <header className="absolute inset-x-0 top-0 z-30 flex items-start justify-between px-6 py-6 sm:px-10">
@@ -119,13 +119,14 @@ export default function HeroBanner({ onSelect }) {
       {/* Hero desktop/tablet — más chico que el original (580px) pero sin
           pasarse: 450px, con el tablero grande otra vez (340px). pt-[150px]
           deja el bloque de texto siempre debajo del logo (position
-          absolute arriba). */}
+          absolute arriba). Texto blanco directo sobre el video (sin tarjeta
+          blanca) — mismo criterio que mobile, para que se vea más el video. */}
       <div className="relative z-20 hidden h-full max-w-[560px] items-start px-6 sm:flex sm:px-0 sm:pl-14">
         <div className="flex flex-col gap-2.5 pt-[150px]">
-          <div className="font-display text-[15px] font-semibold uppercase tracking-[4px] text-ink">
+          <div className="font-display text-[15px] font-semibold uppercase tracking-[4px] text-white">
             Especialistas en
           </div>
-          <h1 className="font-display text-[46px] font-bold italic uppercase leading-[0.9] tracking-[-0.5px] text-ink">
+          <h1 className="font-display text-[46px] font-bold italic uppercase leading-[0.9] tracking-[-0.5px] text-white">
             BMW<br />Motorrad
           </h1>
           <div className="flex gap-1" style={{ transform: "skewX(-16deg)" }}>
@@ -133,23 +134,23 @@ export default function HeroBanner({ onSelect }) {
             <span className="h-1.5 w-[38px] bg-mCyan" />
             <span className="h-1.5 w-[38px] bg-mRed" />
           </div>
-          <p className="max-w-[380px] text-sm leading-snug text-[#3A3A3A]">
+          <p className="max-w-[380px] text-sm leading-snug text-[#C3C9CE]">
             15 años de experiencia entregando servicios de excelencia, con estándar profesional y tecnología de última generación.
           </p>
-          <div className="max-w-[380px] border-l-2 border-mBlue pl-2.5 font-display text-sm uppercase leading-tight tracking-wide text-ink">
+          <div className="max-w-[380px] border-l-2 border-mBlue pl-2.5 font-display text-sm uppercase leading-tight tracking-wide text-white">
             &ldquo;Nuestra experiencia es nuestra herramienta más importante&rdquo;
           </div>
           <div className="mt-1.5 flex flex-wrap items-center gap-5">
             <a
               href="#servicios"
-              className="inline-flex items-center gap-3 bg-ink px-5 py-3 font-display text-sm font-semibold uppercase tracking-[2px] text-white transition-colors hover:bg-mBlue"
+              className="inline-flex items-center gap-3 bg-mBlue px-5 py-3 font-display text-sm font-semibold uppercase tracking-[2px] text-white transition-colors hover:bg-mCyan"
             >
               <span>Conocer más</span>
               <span className="font-body">→</span>
             </a>
             <Link
               href="/nosotros/taller"
-              className="inline-flex items-center gap-2 border-b-2 border-transparent pb-[2px] font-display text-sm font-semibold uppercase tracking-[2px] text-ink transition-colors hover:border-mBlue hover:text-mBlue"
+              className="inline-flex items-center gap-2 border-b-2 border-transparent pb-[2px] font-display text-sm font-semibold uppercase tracking-[2px] text-white transition-colors hover:border-mCyan hover:text-mCyan"
             >
               <span>Nuestro taller</span>
               <span className="font-body text-mRed">›</span>
