@@ -1,4 +1,5 @@
 import { Barlow_Condensed, Barlow } from "next/font/google";
+import { SpeedInsights } from "@vercel/speed-insights/next";
 import { MobileChrome } from "@/components/mobile/MobileNav";
 import "./globals.css";
 
@@ -26,6 +27,7 @@ export default function RootLayout({ children }) {
     <html lang="es" className={`${barlowCondensed.variable} ${barlow.variable}`}>
       <body className="font-body">
         <MobileChrome>{children}</MobileChrome>
+        <SpeedInsights />
       </body>
     </html>
   );
