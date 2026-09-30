@@ -10,7 +10,7 @@ import SiteFooter from "@/components/SiteFooter";
 import { MobileTopBar } from "@/components/mobile/MobileNav";
 import { menus } from "@/lib/servicesData";
 import { checkStock } from "@/lib/tallergp";
-import { formatCLP, useProductosChanged } from "@/lib/catalogo";
+import { formatCLP, productConsultMessage, useProductosChanged } from "@/lib/catalogo";
 import { PLACEHOLDER_PHOTO } from "@/lib/productosData";
 import { useSettings, whatsappUrl } from "@/lib/settings";
 
@@ -169,7 +169,7 @@ function ProductosContent() {
                     <StockBadge stock={prod.stock} />
                   </div>
                   <a
-                    href={whatsappUrl(s.phoneDigits, `Hola, quiero consultar por: ${prod.name} (${prod.cat})`)}
+                    href={whatsappUrl(s.phoneDigits, productConsultMessage(prod))}
                     target="_blank"
                     rel="noreferrer"
                     className="mt-2 inline-flex items-center justify-center gap-2 rounded border border-mCyan px-4 py-2.5 font-display text-[13px] font-semibold uppercase tracking-wide text-white transition-colors hover:bg-mCyan/[0.16]"

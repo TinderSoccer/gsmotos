@@ -6,7 +6,7 @@ import { FaWhatsapp } from "react-icons/fa6";
 import ColorBars from "../services/ColorBars";
 import ServiceGrid from "../services/ServiceGrid";
 import { useSettings, whatsappUrl } from "@/lib/settings";
-import { formatCLP } from "@/lib/catalogo";
+import { formatCLP, productConsultMessage } from "@/lib/catalogo";
 import { PLACEHOLDER_PHOTO } from "@/lib/productosData";
 
 // Foto del producto o, si todavía no tiene una propia, un aviso honesto de
@@ -120,7 +120,7 @@ function ProductCarousel({ query, onQueryChange, products, pageLabel, resultLabe
               </Link>
               <div className="px-3.5 pb-4 pt-1.5 sm:px-5 sm:pb-5 sm:pt-2">
                 <a
-                  href={whatsappUrl(s.phoneDigits, `Hola, quiero consultar por: ${prod.name} (${prod.cat})`)}
+                  href={whatsappUrl(s.phoneDigits, productConsultMessage(prod))}
                   target="_blank"
                   rel="noreferrer"
                   className="inline-flex items-center gap-2 font-display text-[12.5px] uppercase tracking-wide text-mCyan hover:text-mCyan/80 sm:text-[13.5px]"
