@@ -2,6 +2,7 @@
 
 import { useEffect, useRef } from "react";
 import Link from "next/link";
+import { Award } from "lucide-react";
 import Logo from "@/components/Logo";
 import { MobileMenuButton } from "@/components/mobile/MobileNav";
 import TableroFoto from "./TableroFoto";
@@ -81,6 +82,14 @@ export default function HeroBanner({ onSelect }) {
           <h1 className="font-display text-[34px] font-bold italic uppercase leading-[0.95] tracking-[-0.4px] text-white">
             BMW Motorrad
           </h1>
+          <Link
+            href="/nosotros/christopher#certificados"
+            title="Ver certificados"
+            aria-label="Ver certificados"
+            className="flex h-9 w-9 flex-none items-center justify-center rounded-full border border-mCyan/60 bg-mCyan/10 text-mCyan transition-colors hover:bg-mCyan/20"
+          >
+            <Award size={18} strokeWidth={1.8} />
+          </Link>
         </div>
         <div className="flex gap-1" style={{ transform: "skewX(-16deg)" }}>
           <span className="h-1.5 w-[30px] bg-mBlue" />
@@ -139,6 +148,14 @@ export default function HeroBanner({ onSelect }) {
             <h1 className="font-display text-[46px] font-bold italic uppercase leading-[0.9] tracking-[-0.5px] text-white">
               BMW<br />Motorrad
             </h1>
+            <Link
+              href="/nosotros/christopher#certificados"
+              title="Ver certificados"
+              aria-label="Ver certificados"
+              className="flex h-11 w-11 flex-none items-center justify-center self-start rounded-full border border-mCyan/60 bg-mCyan/10 text-mCyan transition-colors hover:bg-mCyan/20"
+            >
+              <Award size={22} strokeWidth={1.8} />
+            </Link>
           </div>
           <div className="flex gap-1" style={{ transform: "skewX(-16deg)" }}>
             <span className="h-1.5 w-[38px] bg-mBlue" />

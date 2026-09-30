@@ -20,7 +20,7 @@ const BRANDS = [
 
 export default function BrandRow() {
   return (
-    <div className="flex flex-wrap items-center justify-center gap-x-10 gap-y-6 py-2 sm:justify-between sm:gap-x-6">
+    <div className="flex flex-wrap items-center justify-center gap-x-10 gap-y-6 py-2">
       {BRANDS.map(({ name, img, forceWhite }) => (
         // eslint-disable-next-line @next/next/no-img-element
         <img

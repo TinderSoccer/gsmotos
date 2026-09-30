@@ -119,7 +119,7 @@ export default function ChristopherPage() {
         </div>
       </section>
 
-      <section className="flex flex-col gap-7 bg-white px-6 py-14 sm:px-10">
+      <section id="certificados" className="flex flex-col gap-7 bg-white px-6 py-14 sm:px-10">
         <div className="flex flex-wrap items-center gap-4">
           <ColorBars />
           <h2 className="font-display text-[28px] font-bold italic uppercase leading-none text-[#0B0B0B] sm:text-[32px]">
