@@ -15,6 +15,7 @@ const EMPTY_FORM = { name: "", phone: "", model: "", note: "", date: "", time: "
 // que no tenga que volver a escribir lo que ya dijo con el botón que tocó.
 const MOTIVO_NOTE = {
   traslado: "Necesito el servicio de traslado de mi moto.",
+  gruas: "Necesito coordinar el servicio de grúa para mi moto.",
 };
 
 // Formulario de agendamiento — sin carrito ni pago online, solo reserva de

@@ -98,13 +98,13 @@ export default function HeroBanner({ onSelect }) {
           <span className="font-body">→</span>
         </Link>
         <div className="flex w-full max-w-[300px] gap-2.5">
-          <a
-            href="#servicios"
+          <Link
+            href="/servicio-gruas"
             className="flex flex-1 items-center justify-center gap-2.5 whitespace-nowrap rounded border border-white/30 px-2 py-3 font-display text-[13.5px] font-semibold uppercase tracking-[1.6px] text-white"
           >
-            <span>Conocer más</span>
+            <span>Servicio de Grúas</span>
             <span className="font-body">→</span>
-          </a>
+          </Link>
           <Link
             href="/nosotros/taller"
             className="flex flex-1 items-center justify-center gap-2.5 whitespace-nowrap rounded border border-white/30 px-2 py-3 font-display text-[13.5px] font-semibold uppercase tracking-[1.6px] text-white"
@@ -144,13 +144,13 @@ export default function HeroBanner({ onSelect }) {
             &ldquo;Nuestra experiencia es nuestra herramienta más importante&rdquo;
           </div>
           <div className="mt-1.5 flex flex-wrap items-center gap-5">
-            <a
-              href="#servicios"
+            <Link
+              href="/servicio-gruas"
               className="inline-flex items-center gap-3 bg-mBlue px-5 py-3 font-display text-sm font-semibold uppercase tracking-[2px] text-white transition-colors hover:bg-mCyan"
             >
-              <span>Conocer más</span>
+              <span>Servicio de Grúas</span>
               <span className="font-body">→</span>
-            </a>
+            </Link>
             <Link
               href="/nosotros/taller"
               className="inline-flex items-center gap-2 border-b-2 border-transparent pb-[2px] font-display text-sm font-semibold uppercase tracking-[2px] text-white transition-colors hover:border-mCyan hover:text-mCyan"
