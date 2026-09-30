@@ -814,10 +814,19 @@ function ContactoTab() {
       </div>
 
       <div className="px-6 pb-8 sm:px-10">
-        <div className="mb-4 font-display text-xl font-bold uppercase tracking-wide text-[#0B0B0B]">Reseñas (footer)</div>
+        <div className="mb-4 font-display text-xl font-bold uppercase tracking-wide text-[#0B0B0B]">Reseñas (franja fija)</div>
         <div className="grid grid-cols-2 gap-6 sm:max-w-[420px]">
           <Field label="Puntaje" value={form.ratingScore} onChange={(v) => update("ratingScore", v)} placeholder="4.9" />
           <Field label="Cantidad de reseñas" value={form.ratingCount} onChange={(v) => update("ratingCount", v)} placeholder="200" />
+        </div>
+        <div className="mt-6 sm:max-w-[420px]">
+          <Field
+            label="Link de reseñas (Google Business)"
+            value={form.reviewsUrl}
+            onChange={(v) => update("reviewsUrl", v)}
+            placeholder="https://g.page/r/.../review"
+            hint="El QR y el puntaje de la franja apuntan acá. Vacío = usa el link de Maps por dirección."
+          />
         </div>
       </div>
 
