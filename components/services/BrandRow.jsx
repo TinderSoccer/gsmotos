@@ -2,28 +2,34 @@
 // public/images/marcas/, mismo criterio de sourcing que el logo de BMW:
 // Wikimedia Commons, versión oficial). El cliente confirmó autorización
 // para usar estos logos igual que el de BMW.
+//
+// Sin tarjeta blanca ni nombre debajo (el nombre ya sale arriba, en el
+// hint de la categoría — se repetía). Honda (negro) y Triumph (azul casi
+// negro) necesitan el filtro a blanco: son logos de un solo color sólido
+// pensados para fondo claro, y directo sobre el fondo oscuro del sitio
+// casi no se ven — brightness(0) invert(1) los vuelve blancos sólidos
+// conservando la silueta exacta, sin depender de conseguir un archivo
+// "versión clara" aparte para cada marca.
 const BRANDS = [
   { name: "Ducati", img: "/images/marcas/ducati.svg" },
   { name: "KTM", img: "/images/marcas/ktm.svg" },
-  { name: "Triumph", img: "/images/marcas/triumph.svg" },
-  { name: "Honda", img: "/images/marcas/honda.svg" },
+  { name: "Triumph", img: "/images/marcas/triumph.svg", forceWhite: true },
+  { name: "Honda", img: "/images/marcas/honda.svg", forceWhite: true },
   { name: "Yamaha", img: "/images/marcas/yamaha.svg" },
 ];
 
 export default function BrandRow() {
   return (
-    <div className="grid grid-cols-3 gap-2.5 sm:grid-cols-5 sm:gap-3.5">
-      {BRANDS.map(({ name, img }) => (
-        <div
+    <div className="flex flex-wrap items-center justify-center gap-x-10 gap-y-6 py-2 sm:justify-between sm:gap-x-6">
+      {BRANDS.map(({ name, img, forceWhite }) => (
+        // eslint-disable-next-line @next/next/no-img-element
+        <img
           key={name}
-          className="flex flex-col items-center justify-center gap-2 rounded-xl border border-[#1E2226] bg-white px-3 py-4"
-        >
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src={img} alt={name} className="h-8 w-auto max-w-[80%] object-contain" />
-          <span className="font-display text-[11px] font-semibold uppercase tracking-wide text-[#3A3A3A]">
-            {name}
-          </span>
-        </div>
+          src={img}
+          alt={name}
+          className="h-11 w-auto max-w-[140px] flex-none object-contain sm:h-14"
+          style={forceWhite ? { filter: "brightness(0) invert(1)" } : undefined}
+        />
       ))}
     </div>
   );
