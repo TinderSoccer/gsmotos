@@ -13,11 +13,37 @@
 // El <div> vacío de arriba reserva el mismo alto en el flujo normal de la
 // página, para que el contenido de más abajo no quede tapado detrás de
 // la franja fija.
+import { useEffect, useState } from "react";
 import { Mail, MapPin, Phone } from "lucide-react";
 import { FaInstagram, FaWhatsapp } from "react-icons/fa6";
 import { instagramUrl, mapsUrl, qrCodeUrl, reviewsUrlFor, useSettings, whatsappUrl } from "@/lib/settings";
 
 const BAR_HEIGHT = 68;
+const TICKER_MS = 3200;
+
+// Las 4 cifras no entraban juntas en la franja sin achicar todo lo demás
+// (o esconderlas hasta anchos muy grandes) — en vez de mostrarlas todas a
+// la vez, rotan de a una en el mismo espacio, como un cartel publicitario.
+// Ancho fijo (no auto) para que no salte el resto de la franja cada vez
+// que cambia el texto.
+function StatsTicker({ stats }) {
+  const [i, setI] = useState(0);
+
+  useEffect(() => {
+    const id = setInterval(() => setI((v) => (v + 1) % stats.length), TICKER_MS);
+    return () => clearInterval(id);
+  }, [stats.length]);
+
+  const stat = stats[i];
+  return (
+    <div className="hidden w-[188px] flex-none items-baseline gap-1.5 overflow-hidden whitespace-nowrap border-l border-gray-300 pl-7 text-[13px] lg:flex">
+      <span key={i} className="flex items-baseline gap-1.5" style={{ animation: "gsmBack 420ms ease both" }}>
+        <span className="font-display font-bold text-mBlue">{stat.num}</span>
+        <span className="text-[#6A6A6A]">{stat.label}</span>
+      </span>
+    </div>
+  );
+}
 
 export default function SiteFooter() {
   const s = useSettings();
@@ -29,6 +55,17 @@ export default function SiteFooter() {
     { label: s.email, href: `mailto:${s.email}`, Icon: Mail },
     { label: "Ubicación", href: mapsUrl(s.address), external: true, Icon: MapPin },
     { label: `@${s.instagramUser}`, href: instagramUrl(s.instagramUser), external: true, Icon: FaInstagram },
+  ];
+
+  // Las cifras (años de experiencia, profesionales, motos atendidas) —
+  // vivían en el footer viejo, el cliente pidió que volvieran a salir en
+  // la franja. Rotan de a una (ver StatsTicker) en vez de mostrarse las 4
+  // juntas, así entran desde un ancho más chico (lg) sin apretar el resto.
+  const stats = [
+    { num: s.statYears, label: "años de experiencia" },
+    { num: s.statBmwYears, label: "años en BMW Motorrad" },
+    { num: s.statPros, label: "profesionales" },
+    { num: s.statMotos, label: "motos atendidas" },
   ];
 
   return (
@@ -50,6 +87,8 @@ export default function SiteFooter() {
             <span className="hidden whitespace-nowrap font-medium lg:inline">{label}</span>
           </a>
         ))}
+
+        <StatsTicker stats={stats} />
 
         <a
           href={reviewsUrl}
