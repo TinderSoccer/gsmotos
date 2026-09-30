@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { MessageCircle } from "lucide-react";
 import { FaInstagram, FaWhatsapp } from "react-icons/fa6";
 import ColorBars from "./ColorBars";
 import { useServicePhoto } from "@/lib/servicePhotos";
@@ -51,16 +52,13 @@ export default function ServiceDetailModal({ card, onClose }) {
 
         <div className="flex flex-col gap-5 overflow-y-auto px-6 pb-8 pt-6 sm:px-[34px]">
           <div className="font-display text-[22px] italic leading-snug text-mCyan">{card.lead}</div>
-          <p className="text-[15.5px] leading-[1.75] text-[#C3C9CE]">
-            {card.long}{card.longHighlight && (
-              <>
-                {" "}
-                <strong className="font-semibold text-white">{card.longHighlight}</strong>
-              </>
-            )}
-          </p>
-          <div className="flex items-center gap-3.5 border-l-[3px] border-mRed bg-white/[0.04] px-4.5 py-4">
-            <span className="font-display text-[15px] uppercase leading-snug tracking-wide text-[#E4E7EA]">{card.note}</span>
+          <p className="text-[15.5px] leading-[1.75] text-[#C3C9CE]">{card.long}</p>
+          <div
+            className="flex items-center gap-3.5 rounded-lg border-l-[3px] bg-mBlue/[0.1] px-4.5 py-4"
+            style={{ animation: "gsmNoteIn 460ms cubic-bezier(0.22,0.61,0.36,1) 180ms both, gsmNoteGlow 2600ms ease-in-out 900ms infinite" }}
+          >
+            <MessageCircle size={20} strokeWidth={1.8} className="flex-none text-mCyan" />
+            <span className="font-display text-[15px] font-semibold uppercase leading-snug tracking-wide text-white">{card.note}</span>
           </div>
           <div className="flex flex-wrap items-center gap-4">
             <Link
