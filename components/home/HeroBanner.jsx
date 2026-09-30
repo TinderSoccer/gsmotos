@@ -29,8 +29,11 @@ export default function HeroBanner({ onSelect }) {
         preload="auto"
         className="absolute inset-0 block h-full w-full object-cover"
       >
-        {/* Video de stock temporal — reemplazar por material real del taller apenas esté disponible */}
-        <source src="https://test-videos.co.uk/vids/bigbuckbunny/mp4/h264/720/Big_Buck_Bunny_720_10s_2MB.mp4" type="video/mp4" />
+        {/* Video real del taller (recortado y comprimido de la grabación completa
+            que entregó el cliente — ver public/videos/hero-taller.mp4, ~960KB,
+            1280px, 12s en loop, sin audio). Reemplaza el video de stock que se
+            usaba de placeholder. */}
+        <source src="/videos/hero-taller.mp4" type="video/mp4" />
       </video>
 
       {/* Viñeta oscura pareja, de arriba a abajo — la usa el hero mobile para
