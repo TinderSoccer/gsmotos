@@ -62,9 +62,21 @@ export default function SiteFooter() {
           <span className="hidden whitespace-nowrap text-[#6A6A6A] lg:inline">({s.ratingCount} reseñas)</span>
         </a>
 
-        <a href={reviewsUrl} target="_blank" rel="noreferrer" className="flex flex-none items-center gap-2" title="Escanea para ver o dejar una reseña">
+        <a
+          href={reviewsUrl}
+          target="_blank"
+          rel="noreferrer"
+          className="relative flex flex-none items-center gap-2 hover:z-50"
+          title="Escanea para ver o dejar una reseña"
+        >
           {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src={qrCodeUrl(reviewsUrl, 88)} alt="Código QR — ver reseñas" className="h-11 w-11 flex-none" width={44} height={44} />
+          <img
+            src={qrCodeUrl(reviewsUrl, 160)}
+            alt="Código QR — ver reseñas"
+            className="h-14 w-14 flex-none origin-bottom-right rounded bg-white shadow-sm transition-transform duration-200 ease-out hover:scale-[3] hover:shadow-xl"
+            width={56}
+            height={56}
+          />
         </a>
       </footer>
     </>
