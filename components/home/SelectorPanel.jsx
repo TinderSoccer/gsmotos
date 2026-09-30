@@ -14,15 +14,24 @@ import { PLACEHOLDER_PHOTO } from "@/lib/productosData";
 function ProductPhoto({ photo, name }) {
   if (photo === PLACEHOLDER_PHOTO) {
     return (
-      <div className="flex h-full flex-col items-center justify-center gap-1.5 bg-[repeating-linear-gradient(135deg,#1A1D21_0_10px,#14171A_10px_20px)]">
-        <ImageOff size={20} strokeWidth={1.4} className="text-[#4A5058]" />
-        <span className="font-display text-[9px] uppercase tracking-[1.6px] text-[#5C636B] sm:text-[10.5px] sm:tracking-[2px]">Foto próximamente</span>
+      <div className="flex h-full flex-col items-center justify-center gap-1.5 bg-[repeating-linear-gradient(135deg,#EDEBE7_0_10px,#E4E1DB_10px_20px)]">
+        <ImageOff size={20} strokeWidth={1.4} className="text-[#A6A099]" />
+        <span className="font-display text-[9px] uppercase tracking-[1.6px] text-[#8C857C] sm:text-[10.5px] sm:tracking-[2px]">Foto próximamente</span>
       </div>
     );
   }
   return (
     // eslint-disable-next-line @next/next/no-img-element
     <img src={photo} alt={name} className="block h-full w-full object-contain p-2.5 sm:p-3" />
+  );
+}
+
+function EstadoBadge({ estado }) {
+  if (estado !== "usado") return null;
+  return (
+    <span className="absolute right-2 top-2 hidden rounded-sm border border-white/15 bg-[#0B0B0B]/85 px-1.5 py-0.5 font-display text-[9px] font-semibold uppercase tracking-[1.5px] text-white sm:block">
+      Usado
+    </span>
   );
 }
 
@@ -94,17 +103,18 @@ function ProductCarousel({ query, onQueryChange, products, pageLabel, resultLabe
               className="group flex w-[46%] flex-none snap-start flex-col overflow-hidden rounded-xl border border-[#1E2226] bg-[#0B0D0F] text-[#E4E7EA] transition-all sm:w-auto sm:hover:-translate-y-1 sm:hover:border-mCyan"
             >
               <Link href={`/productos?q=${encodeURIComponent(prod.name)}`} className="block">
-                <div className="relative h-[110px] overflow-hidden bg-[#14171A] sm:h-[150px]">
+                <div className="relative h-[110px] overflow-hidden bg-[#EFEDE9] sm:h-[150px]">
                   <ProductPhoto photo={prod.photo} name={prod.name} />
                   <div className="absolute left-3 top-3 hidden sm:block">
                     <ColorBars />
                   </div>
+                  <EstadoBadge estado={prod.estado} />
                 </div>
                 <div className="flex flex-col gap-1.5 px-3.5 pt-3.5 sm:gap-2 sm:px-5 sm:pt-4.5">
                   <div className="font-display text-[11px] uppercase tracking-[1.6px] text-[#6E7780] sm:text-[13px] sm:tracking-[2px]">{prod.cat}</div>
                   <div className="font-display text-[15px] font-semibold uppercase leading-tight tracking-wide text-white sm:text-xl">{prod.name}</div>
                   {prod.price > 0 && (
-                    <div className="font-display text-sm font-bold text-mCyan sm:text-base">{formatCLP(prod.price)}</div>
+                    <div className="font-display text-base font-bold text-white sm:text-lg">{formatCLP(prod.price)}</div>
                   )}
                 </div>
               </Link>

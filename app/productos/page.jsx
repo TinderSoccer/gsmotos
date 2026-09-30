@@ -28,15 +28,24 @@ const INTRO_CARDS = menus.find((m) => m.kind === "catalog")?.cards ?? [];
 function ProductPhoto({ photo, name }) {
   if (photo === PLACEHOLDER_PHOTO) {
     return (
-      <div className="flex h-full flex-col items-center justify-center gap-2 bg-[repeating-linear-gradient(135deg,#1A1D21_0_10px,#14171A_10px_20px)]">
-        <ImageOff size={24} strokeWidth={1.4} className="text-[#4A5058]" />
-        <span className="font-display text-[10.5px] uppercase tracking-[2px] text-[#5C636B]">Foto próximamente</span>
+      <div className="flex h-full flex-col items-center justify-center gap-2 bg-[repeating-linear-gradient(135deg,#EDEBE7_0_10px,#E4E1DB_10px_20px)]">
+        <ImageOff size={24} strokeWidth={1.4} className="text-[#A6A099]" />
+        <span className="font-display text-[10.5px] uppercase tracking-[2px] text-[#8C857C]">Foto próximamente</span>
       </div>
     );
   }
   return (
     // eslint-disable-next-line @next/next/no-img-element
     <img src={photo} alt={name} className="block h-full w-full object-contain p-3" />
+  );
+}
+
+function EstadoBadge({ estado }) {
+  if (estado !== "usado") return null;
+  return (
+    <span className="absolute right-3 top-3 rounded-sm border border-white/15 bg-[#0B0B0B]/85 px-2 py-1 font-display text-[10px] font-semibold uppercase tracking-[1.5px] text-white">
+      Usado
+    </span>
   );
 }
 
@@ -134,20 +143,29 @@ function ProductosContent() {
         ) : (
           <div className="grid grid-cols-1 gap-3.5 sm:grid-cols-2 lg:grid-cols-4">
             {items.map((prod) => (
-              <div key={prod.slug} className="flex flex-col overflow-hidden rounded-xl border border-[#1E2226] bg-[#0B0D0F] text-[#E4E7EA]">
-                <div className="relative h-[150px] overflow-hidden bg-[#14171A]">
+              <div
+                key={prod.slug}
+                className="flex flex-col overflow-hidden rounded-xl border border-[#1E2226] bg-[#0B0D0F] text-[#E4E7EA] shadow-[0_10px_28px_rgba(0,0,0,0.4)]"
+              >
+                <div className="relative h-[160px] overflow-hidden bg-[#EFEDE9]">
                   <ProductPhoto photo={prod.photo} name={prod.name} />
                   <div className="absolute left-3 top-3">
                     <ColorBars />
                   </div>
+                  <EstadoBadge estado={prod.estado} />
                 </div>
-                <div className="flex flex-col gap-2 px-5 pb-5 pt-4.5">
-                  <div className="font-display text-[13px] uppercase tracking-[2px] text-[#6E7780]">{prod.cat}</div>
+                <div className="flex flex-col gap-1.5 px-5 pb-5 pt-4">
+                  <div className="font-display text-[12px] uppercase tracking-[2px] text-[#6E7780]">{prod.cat}</div>
                   <div className="font-display text-xl font-semibold uppercase leading-tight tracking-wide text-white">{prod.name}</div>
-                  {prod.price > 0 && (
-                    <div className="font-display text-lg font-bold text-mCyan">{formatCLP(prod.price)}</div>
+                  {prod.aplicacion && (
+                    <div className="font-display text-[11.5px] uppercase tracking-wide text-mCyan/85">
+                      Compatible: {prod.aplicacion}
+                    </div>
                   )}
-                  <div className="mt-1">
+                  {prod.price > 0 && (
+                    <div className="mt-0.5 font-display text-xl font-bold text-white">{formatCLP(prod.price)}</div>
+                  )}
+                  <div className="mt-0.5">
                     <StockBadge stock={prod.stock} />
                   </div>
                   <a
