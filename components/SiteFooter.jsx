@@ -35,7 +35,7 @@ export default function SiteFooter() {
     <>
       <div aria-hidden style={{ height: BAR_HEIGHT }} className="hidden sm:block" />
       <footer
-        className="fixed inset-x-0 bottom-0 z-40 hidden items-center justify-center gap-4 overflow-x-auto border-t border-gray-200 bg-[#F4F5F6] px-4 sm:flex lg:gap-7 lg:px-6"
+        className="fixed inset-x-0 bottom-0 z-40 hidden items-center justify-center gap-4 border-t border-gray-200 bg-[#F4F5F6] px-4 sm:flex lg:gap-7 lg:px-6"
         style={{ height: BAR_HEIGHT }}
       >
         {items.map(({ label, href, external, Icon, color }) => (
