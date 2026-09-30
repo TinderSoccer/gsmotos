@@ -77,7 +77,7 @@ function ProductCarousel({ query, onQueryChange, products, pageLabel, resultLabe
             >
               <Link href={`/productos?q=${encodeURIComponent(prod.name)}`} className="block">
                 <div className="relative h-[110px] overflow-hidden bg-[#14171A] sm:h-[150px]">
-                  <div className="absolute inset-0 bg-cover bg-center brightness-[1.15]" style={{ backgroundImage: `url(${prod.photo})` }} />
+                  <div className="absolute inset-0 bg-contain bg-center bg-no-repeat brightness-[1.15]" style={{ backgroundImage: `url(${prod.photo})` }} />
                   <div className="pointer-events-none absolute inset-0" style={{ background: "linear-gradient(180deg, rgba(5,5,5,0.05) 0%, rgba(5,5,5,0.55) 100%)" }} />
                   <div className="absolute left-3 top-3 hidden sm:block">
                     <ColorBars />

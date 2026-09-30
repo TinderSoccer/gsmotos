@@ -115,7 +115,7 @@ function ProductosContent() {
             {items.map((prod) => (
               <div key={prod.slug} className="flex flex-col overflow-hidden rounded-xl border border-[#1E2226] bg-[#0B0D0F] text-[#E4E7EA]">
                 <div className="relative h-[150px] overflow-hidden bg-[#14171A]">
-                  <div className="absolute inset-0 bg-cover bg-center brightness-[1.15]" style={{ backgroundImage: `url(${prod.photo})` }} />
+                  <div className="absolute inset-0 bg-contain bg-center bg-no-repeat brightness-[1.15]" style={{ backgroundImage: `url(${prod.photo})` }} />
                   <div className="pointer-events-none absolute inset-0" style={{ background: "linear-gradient(180deg, rgba(5,5,5,0.05) 0%, rgba(5,5,5,0.55) 100%)" }} />
                   <div className="absolute left-3 top-3">
                     <ColorBars />
