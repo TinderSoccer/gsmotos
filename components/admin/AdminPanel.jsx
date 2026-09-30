@@ -20,6 +20,7 @@ import ColorBars from "@/components/services/ColorBars";
 import { CERTIFICADOS } from "@/lib/certificados";
 import { setCertPhoto, useCertPhotos } from "@/lib/useCertPhotos";
 import { setFounderPhoto, useFounderPhoto } from "@/lib/founderPhoto";
+import { setLogo, useLogo } from "@/lib/logo";
 import { formatCLP, resetProductos, useProductos, writeProductos } from "@/lib/catalogo";
 import { resetTallerItems, useTallerItems, writeTallerItems } from "@/lib/taller";
 import { menus } from "@/lib/servicesData";
@@ -733,6 +734,54 @@ function Field({ label, value, onChange, placeholder, hint, type = "text" }) {
   );
 }
 
+function LogoUpload() {
+  const logo = useLogo();
+
+  async function handleFile(ev) {
+    const file = ev.target.files?.[0];
+    ev.target.value = "";
+    if (!file) return;
+    const dataUrl = await readImageFile(file, { maxSize: 900, format: "png" });
+    warnIfFailed(setLogo(dataUrl));
+  }
+
+  return (
+    <div className="mx-6 mb-8 flex flex-col gap-4 rounded-xl border border-[#E0E0E0] bg-white p-5 sm:mx-10 sm:flex-row sm:items-center sm:gap-6">
+      <div className="relative flex h-[90px] w-full flex-none items-center justify-center overflow-hidden rounded-lg border border-[#E4E4E4] bg-[#1A1A1A] sm:w-[220px]">
+        {logo ? (
+          // eslint-disable-next-line @next/next/no-img-element
+          <img src={logo} alt="Logo actual" className="block h-full max-w-full object-contain p-3" />
+        ) : (
+          <div className="flex h-full w-full items-center justify-center font-display text-[11px] uppercase tracking-wide text-[#8A8A8A]">
+            Logo actual del sitio
+          </div>
+        )}
+      </div>
+      <div className="flex flex-1 flex-col gap-2">
+        <div className="font-display text-lg font-semibold uppercase tracking-wide text-[#0B0B0B]">Logo del sitio</div>
+        <p className="text-sm leading-[1.5] text-[#5A5A5A]">
+          Reemplaza el logo en todo el sitio (encabezado, hero, panel). Sube un archivo con{" "}
+          <strong>fondo transparente</strong> (PNG) para que se vea bien tanto en fondos claros como oscuros.
+        </p>
+        <div className="mt-1 flex items-center gap-2.5">
+          <label className="flex cursor-pointer items-center justify-center gap-2.5 whitespace-nowrap rounded bg-mBlue px-4 py-2.5 font-display text-sm font-semibold uppercase tracking-wide text-white transition-colors hover:bg-mCyan">
+            <span>{logo ? "Reemplazar logo" : "Subir logo"}</span>
+            <input type="file" accept="image/*" className="hidden" onChange={handleFile} />
+          </label>
+          <button
+            type="button"
+            onClick={() => setLogo("")}
+            disabled={!logo}
+            className="rounded border border-[#D6D6D6] bg-white px-4 py-2.5 font-display text-sm font-semibold uppercase tracking-wide text-[#0B0B0B] transition-colors enabled:hover:border-mRed enabled:hover:text-mRed disabled:cursor-not-allowed disabled:text-[#B4B4B4]"
+          >
+            Usar el original
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 function ContactoTab() {
   const s = useSettings();
   const [form, setForm] = useState(s);
@@ -786,6 +835,8 @@ function ContactoTab() {
           {savedFlash ? "Guardado ✓" : "Guardar cambios"}
         </button>
       </div>
+
+      <LogoUpload />
 
       <div className="grid grid-cols-1 gap-6 px-6 pb-8 sm:grid-cols-2 sm:px-10">
         <Field label="Teléfono (como se muestra)" value={form.phoneDisplay} onChange={(v) => update("phoneDisplay", v)} placeholder="+56 9 8405 8116" />

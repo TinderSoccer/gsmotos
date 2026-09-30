@@ -1,4 +1,7 @@
+"use client";
+
 import Image from "next/image";
+import { useLogo } from "@/lib/logo";
 
 // Dos archivos de logo, con proporciones distintas — cada uno con su propio
 // tamaño intrínseco para que next/image no lo estire:
@@ -12,6 +15,16 @@ const DARK = { src: "/images/logo-gsmotos.png", width: 300, height: 200 };
 const LIGHT = { src: "/images/logo-gsmotos-claro.png", width: 315, height: 150 };
 
 export default function Logo({ className = "", light = true, priority = false, alt = "GSmotos — gsmotos.cl" }) {
+  // Logo propio subido desde /administracion (lib/logo.js) — un solo
+  // archivo que reemplaza a los dos de abajo en todos lados (fondo claro
+  // u oscuro), por eso ahí se le pide al cliente una imagen con fondo
+  // transparente. Mientras no haya uno, sigue el comportamiento normal.
+  const custom = useLogo();
+  if (custom) {
+    // eslint-disable-next-line @next/next/no-img-element
+    return <img src={custom} alt={alt} className={className} />;
+  }
+
   // "mobile": claro bajo el breakpoint `sm`, oscuro desde `sm` — para el
   // hero de Home y de Christopher, donde el recorte diagonal blanco deja
   // al logo sobre fondo claro desde tablet/desktop (ahí el oscuro se
