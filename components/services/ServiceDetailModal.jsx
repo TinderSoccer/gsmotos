@@ -51,7 +51,14 @@ export default function ServiceDetailModal({ card, onClose }) {
 
         <div className="flex flex-col gap-5 overflow-y-auto px-6 pb-8 pt-6 sm:px-[34px]">
           <div className="font-display text-[22px] italic leading-snug text-mCyan">{card.lead}</div>
-          <p className="text-[15.5px] leading-[1.75] text-[#C3C9CE]">{card.long}</p>
+          <p className="text-[15.5px] leading-[1.75] text-[#C3C9CE]">
+            {card.long}{card.longHighlight && (
+              <>
+                {" "}
+                <strong className="font-semibold text-white">{card.longHighlight}</strong>
+              </>
+            )}
+          </p>
           <div className="flex items-center gap-3.5 border-l-[3px] border-mRed bg-white/[0.04] px-4.5 py-4">
             <span className="font-display text-[15px] uppercase leading-snug tracking-wide text-[#E4E7EA]">{card.note}</span>
           </div>
