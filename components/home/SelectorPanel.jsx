@@ -31,13 +31,17 @@ function ProductPhoto({ photo, name }) {
 
 // Antes solo se marcaba "Usado" (si no, no decía nada) y además quedaba
 // oculto en mobile ("hidden sm:block") — a pedido del cliente ahora
-// siempre dice el estado, en todos los anchos.
+// siempre dice el estado, en todos los anchos. "Usado" va a la izquierda
+// y más destacado (rojo de marca, más grande) que "Nuevo": es el dato que
+// más le importa notar a alguien mirando el catálogo.
 function EstadoBadge({ estado }) {
   const usado = estado === "usado";
   return (
     <span
-      className="absolute right-2 top-2 rounded-sm border border-white/15 px-1.5 py-0.5 font-display text-[9px] font-semibold uppercase tracking-[1.5px] text-white"
-      style={{ background: usado ? "rgba(11,11,11,0.85)" : "rgba(27,95,174,0.9)" }}
+      className={`absolute left-2 top-2 rounded-sm border border-white/15 font-display font-bold uppercase tracking-[1.5px] text-white ${
+        usado ? "px-2 py-1 text-[10px] shadow-[0_2px_8px_rgba(231,0,42,0.5)]" : "px-1.5 py-0.5 text-[9px]"
+      }`}
+      style={{ background: usado ? "#E7002A" : "rgba(27,95,174,0.9)" }}
     >
       {usado ? "Usado" : "Nuevo"}
     </span>

@@ -42,12 +42,17 @@ function ProductPhoto({ photo, name }) {
 
 // Antes solo se marcaba "Usado" (si no, no decía nada) — a pedido del
 // cliente ahora siempre dice el estado, para que nunca quede ambiguo.
+// "Usado" va a la izquierda y más destacado (rojo de marca, más grande)
+// que "Nuevo": es el dato que más le importa notar a alguien mirando el
+// catálogo.
 function EstadoBadge({ estado }) {
   const usado = estado === "usado";
   return (
     <span
-      className="absolute right-3 top-3 rounded-sm border border-white/15 px-2 py-1 font-display text-[10px] font-semibold uppercase tracking-[1.5px] text-white"
-      style={{ background: usado ? "rgba(11,11,11,0.85)" : "rgba(27,95,174,0.9)" }}
+      className={`absolute left-3 top-3 rounded-sm border border-white/15 font-display font-bold uppercase tracking-[1.5px] text-white ${
+        usado ? "px-2.5 py-1.5 text-[11px] shadow-[0_2px_8px_rgba(231,0,42,0.5)]" : "px-2 py-1 text-[10px]"
+      }`}
+      style={{ background: usado ? "#E7002A" : "rgba(27,95,174,0.9)" }}
     >
       {usado ? "Usado" : "Nuevo"}
     </span>

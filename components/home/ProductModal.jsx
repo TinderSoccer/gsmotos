@@ -47,8 +47,10 @@ export default function ProductModal({ prod, onClose }) {
             </div>
           )}
           <span
-            className="absolute right-3 top-3 rounded-sm border border-white/15 px-2 py-1 font-display text-[10px] font-semibold uppercase tracking-[1.5px] text-white"
-            style={{ background: usado ? "rgba(11,11,11,0.85)" : "rgba(27,95,174,0.9)" }}
+            className={`absolute left-3 top-3 rounded-sm border border-white/15 font-display font-bold uppercase tracking-[1.5px] text-white ${
+              usado ? "px-2.5 py-1.5 text-[11px] shadow-[0_2px_8px_rgba(231,0,42,0.5)]" : "px-2 py-1 text-[10px]"
+            }`}
+            style={{ background: usado ? "#E7002A" : "rgba(27,95,174,0.9)" }}
           >
             {usado ? "Usado" : "Nuevo"}
           </span>
