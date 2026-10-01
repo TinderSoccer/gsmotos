@@ -34,10 +34,16 @@ export default function NeumaticosUsos({ agendarHref }) {
             key={slot}
             type="button"
             onClick={() => setOpenSlot(slot)}
-            className="group flex w-[42%] flex-none snap-start flex-col overflow-hidden rounded-lg border border-[#1E2226] bg-[#0B0D0F] text-left transition-all hover:-translate-y-1 hover:border-mCyan sm:w-auto"
+            className="group relative aspect-[3/4] w-[42%] flex-none snap-start overflow-hidden rounded-lg border border-[#1E2226] text-left transition-all hover:-translate-y-1 hover:border-mCyan sm:w-auto"
           >
-            <SlotImage src={photos[slot]} alt={`Neumático para uso ${title.toLowerCase()}`} Icon={Icon} className="aspect-[3/4] w-full" />
-            <h3 className="px-2 py-2 text-center font-display text-[12px] font-bold uppercase text-white">{title}</h3>
+            <SlotImage src={photos[slot]} alt={`Neumático para uso ${title.toLowerCase()}`} Icon={Icon} fill className="h-full w-full" />
+            <div
+              className="pointer-events-none absolute inset-0"
+              style={{ background: "linear-gradient(180deg, rgba(5,5,5,0) 45%, rgba(5,5,5,0.85) 100%)" }}
+            />
+            <h3 className="absolute inset-x-0 bottom-0 px-2 py-2.5 text-center font-display text-[13px] font-bold uppercase text-white [text-shadow:0_1px_4px_rgba(0,0,0,0.6)]">
+              {title}
+            </h3>
           </button>
         ))}
       </div>

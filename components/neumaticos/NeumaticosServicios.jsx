@@ -32,12 +32,18 @@ export default function NeumaticosServicios({ agendarHref }) {
             key={slot}
             type="button"
             onClick={() => setOpenSlot(slot)}
-            className="flex flex-col overflow-hidden rounded-lg border border-[#1E2226] bg-[#0B0D0F] text-left transition-colors hover:border-mCyan"
+            className="group relative aspect-square overflow-hidden rounded-lg border border-[#1E2226] text-left transition-colors hover:border-mCyan"
           >
-            <SlotImage src={photos[slot]} alt={title} Icon={Icon} className="aspect-square w-full" />
-            <div className="flex items-center justify-between gap-1.5 px-2.5 py-2">
-              <h3 className="font-display text-[11px] font-bold uppercase leading-tight text-white">{title}</h3>
-              <ChevronRight size={13} strokeWidth={2} className="flex-none text-mCyan" aria-hidden="true" />
+            <SlotImage src={photos[slot]} alt={title} Icon={Icon} fill className="h-full w-full" />
+            <div
+              className="pointer-events-none absolute inset-0"
+              style={{ background: "linear-gradient(180deg, rgba(5,5,5,0) 45%, rgba(5,5,5,0.85) 100%)" }}
+            />
+            <div className="absolute inset-x-0 bottom-0 flex items-center justify-between gap-1.5 px-2.5 py-2">
+              <h3 className="font-display text-[13px] font-bold uppercase leading-tight text-white [text-shadow:0_1px_4px_rgba(0,0,0,0.6)]">
+                {title}
+              </h3>
+              <ChevronRight size={14} strokeWidth={2.2} className="flex-none text-white" aria-hidden="true" />
             </div>
           </button>
         ))}

@@ -54,13 +54,19 @@ export default function NeumaticosPage() {
           cuadrados son solo 2 por fila, así que con MÁS ancho terminan
           gigantes — con menos ancho quedan del mismo orden de tamaño que
           las tarjetas verticales de al lado (3 por fila, panel más
-          ancho), en vez de dominarlas. */}
+          ancho), en vez de dominarlas.
+          El banner final ("¿Listo para rodar?") ya no va abajo de las dos
+          columnas: vive apilado bajo "Tipos de uso", que es más corto que
+          "Servicios" — así ocupa el espacio que quedaba vacío ahí en vez
+          de agregar una sección más y obligar a hacer scroll para verlo. */}
       <section className="grid grid-cols-1 items-start gap-6 px-6 py-6 sm:px-10 lg:grid-cols-[0.85fr_1.15fr] lg:gap-6 lg:py-8">
         <NeumaticosServicios agendarHref={AGENDAR_HREF} />
-        <NeumaticosUsos agendarHref={AGENDAR_HREF} />
+        <div className="flex flex-col gap-6">
+          <NeumaticosUsos agendarHref={AGENDAR_HREF} />
+          <NeumaticosCta agendarHref={AGENDAR_HREF} />
+        </div>
       </section>
 
-      <NeumaticosCta agendarHref={AGENDAR_HREF} />
       <NeumaticosMobileBar agendarHref={AGENDAR_HREF} />
 
       <SiteFooter />

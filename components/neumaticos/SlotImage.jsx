@@ -9,10 +9,13 @@
 // hermano más alto) lo decide cada lugar que lo usa vía `className` — así
 // una misma tarjeta puede ser aspect-ratio fijo en mobile y "flex-1" en
 // desktop (ver NeumaticosUsos.jsx) sin que este componente tenga que saber
-// de esos casos.
-export default function SlotImage({ src, alt, Icon, priority = false, className = "" }) {
+// de esos casos. `fill`: para cuando el título va superpuesto sobre la
+// imagen (en vez de en una franja aparte debajo) — el contenedor pasa a
+// `absolute inset-0` y es el elemento padre (con `position:relative` y su
+// propio aspect-ratio) el que define el tamaño real.
+export default function SlotImage({ src, alt, Icon, priority = false, fill = false, className = "" }) {
   return (
-    <div className={`relative overflow-hidden bg-[#14171A] ${className}`}>
+    <div className={`${fill ? "absolute inset-0" : "relative"} overflow-hidden bg-[#14171A] ${className}`}>
       {src ? (
         // eslint-disable-next-line @next/next/no-img-element
         <img
