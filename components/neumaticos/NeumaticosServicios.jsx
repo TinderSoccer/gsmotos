@@ -18,7 +18,7 @@ export default function NeumaticosServicios({ agendarHref }) {
   const openCard = NEUMATICOS_SERVICIOS.find((c) => c.slot === openSlot) || null;
 
   return (
-    <div className="flex flex-col gap-3 rounded-xl border border-[#1E2226] bg-white/[0.02] p-3.5 sm:p-4">
+    <div className="flex flex-col gap-2.5 rounded-xl border border-[#1E2226] bg-white/[0.02] p-3 sm:p-3.5">
       <div>
         <div className="flex items-center gap-3.5">
           <ColorBars />

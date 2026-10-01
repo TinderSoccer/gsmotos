@@ -36,30 +36,30 @@ export default function NeumaticosCta({ agendarHref }) {
         <h2 className="font-display text-lg font-bold italic uppercase leading-[1.05] text-white">{NEUMATICOS_CTA.title}</h2>
         <p className="text-[12.5px] leading-[1.45] text-[#B9C0C7]">{NEUMATICOS_CTA.subtitle}</p>
       </div>
-      <div className="flex flex-col items-stretch gap-2">
+      <div className="flex flex-col items-stretch gap-2 sm:flex-row sm:flex-wrap">
         <Link
           href={agendarHref}
-          className="inline-flex items-center justify-center gap-2.5 whitespace-nowrap rounded border border-mBlue bg-mBlue px-4 py-2.5 font-display text-[12.5px] font-semibold uppercase tracking-[1.6px] text-white transition-colors hover:border-mCyan hover:bg-mCyan"
+          className="inline-flex flex-1 basis-0 items-center justify-center gap-2 whitespace-nowrap rounded border border-mBlue bg-mBlue px-3 py-2.5 font-display text-[11.5px] font-semibold uppercase tracking-[1.3px] text-white transition-colors hover:border-mCyan hover:bg-mCyan sm:min-w-[130px]"
         >
-          <Calendar size={14} strokeWidth={2} aria-hidden="true" />
+          <Calendar size={13} strokeWidth={2} aria-hidden="true" />
           <span>Agendar</span>
         </Link>
         <a
           href={comprarHref}
           target="_blank"
           rel="noopener noreferrer"
-          className="inline-flex items-center justify-center gap-2.5 whitespace-nowrap rounded border border-mCyan px-4 py-2.5 font-display text-[12.5px] font-semibold uppercase tracking-[1.6px] text-white transition-colors hover:bg-mCyan/15 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-mCyan"
+          className="inline-flex flex-1 basis-0 items-center justify-center gap-2 whitespace-nowrap rounded border border-mCyan px-3 py-2.5 font-display text-[11.5px] font-semibold uppercase tracking-[1.3px] text-white transition-colors hover:bg-mCyan/15 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-mCyan sm:min-w-[150px]"
         >
-          <ShoppingCart size={14} strokeWidth={2} aria-hidden="true" />
+          <ShoppingCart size={13} strokeWidth={2} aria-hidden="true" />
           <span>Compra tu neumático</span>
         </a>
         <a
           href={asesoriaHref}
           target="_blank"
           rel="noopener noreferrer"
-          className="inline-flex items-center justify-center gap-2.5 whitespace-nowrap rounded border border-mCyan px-4 py-2.5 font-display text-[12.5px] font-semibold uppercase tracking-[1.6px] text-white transition-colors hover:bg-mCyan/15 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-mCyan"
+          className="inline-flex flex-1 basis-0 items-center justify-center gap-2 whitespace-nowrap rounded border border-mCyan px-3 py-2.5 font-display text-[11.5px] font-semibold uppercase tracking-[1.3px] text-white transition-colors hover:bg-mCyan/15 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-mCyan sm:min-w-[160px]"
         >
-          <MessageCircle size={14} strokeWidth={2} aria-hidden="true" />
+          <MessageCircle size={13} strokeWidth={2} aria-hidden="true" />
           <span>Asesórate con nosotros</span>
         </a>
       </div>

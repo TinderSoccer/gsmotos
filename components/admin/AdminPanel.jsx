@@ -319,9 +319,9 @@ function NeumaticosTab() {
             Fotos de Neumáticos & Vulcanización
           </h1>
           <p className="max-w-xl text-[15.5px] leading-[1.6] text-[#5A5A5A]">
-            Las 4 tarjetas de servicio y los 3 tipos de uso de /servicios/neumaticos. Dos de los tipos de uso traen
-            una foto de referencia (banco libre) mientras no subas la tuya; el resto, sin foto propia, se muestra
-            con un respaldo de color — nunca queda vacío ni roto.
+            Las 4 tarjetas de servicio y los 3 tipos de uso de /servicios/neumaticos. Todas traen una foto de
+            referencia (banco libre) mientras no subas la tuya propia — esa, cuando exista, siempre tiene
+            prioridad.
           </p>
         </div>
         <div className="flex flex-col items-end gap-0.5">
