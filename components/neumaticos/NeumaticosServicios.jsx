@@ -46,10 +46,14 @@ export default function NeumaticosServicios({ agendarHref }) {
               className="pointer-events-none absolute inset-0"
               style={{ background: "linear-gradient(180deg, rgba(5,5,5,0) 40%, rgba(5,5,5,0.9) 100%)" }}
             />
-            <div className="absolute inset-x-0 bottom-0 flex items-center justify-between gap-1.5 px-3.5 py-3">
-              <h3 className="font-display text-lg font-bold italic uppercase leading-tight text-white [text-shadow:0_1px_4px_rgba(0,0,0,0.6)]">
-                {title}
-              </h3>
+            <div className="absolute inset-x-0 bottom-0 flex items-end justify-between gap-1.5 px-3.5 py-3">
+              <div className="flex min-w-0 items-center gap-1.5 sm:gap-2">
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img src="/images/marcas/bmw.svg" alt="BMW" className="h-3.5 w-3.5 flex-none sm:h-4 sm:w-4" />
+                <h3 className="font-display text-base font-bold italic uppercase leading-tight text-white [text-shadow:0_1px_4px_rgba(0,0,0,0.6)] sm:text-lg">
+                  {title}
+                </h3>
+              </div>
               <ChevronRight size={18} strokeWidth={2.2} className="flex-none text-mCyan" aria-hidden="true" />
             </div>
           </button>
