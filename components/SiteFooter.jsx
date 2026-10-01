@@ -14,40 +14,61 @@
 // página, para que el contenido de más abajo no quede tapado detrás de
 // la franja fija.
 import { useEffect, useState } from "react";
-import { Mail, MapPin, Phone } from "lucide-react";
+import { ClipboardList, Mail, MapPin, Phone, ScanLine, ShieldCheck, Users, Wrench } from "lucide-react";
 import { FaInstagram, FaWhatsapp } from "react-icons/fa6";
 import { instagramUrl, mapsUrl, qrCodeUrl, reviewsUrlFor, useSettings, whatsappUrl } from "@/lib/settings";
 
 const BAR_HEIGHT = 68;
 const TICKER_MS = 3200;
 
-// Las 4 cifras no entraban juntas en la franja sin achicar todo lo demás
-// (o esconderlas hasta anchos muy grandes) — en vez de mostrarlas todas a
-// la vez, rotan de a una en el mismo espacio, como un cartel publicitario.
-// Ancho fijo (no auto) para que no salte el resto de la franja cada vez
-// que cambia el texto.
-function StatsTicker({ stats }) {
+// Antes esto vivía en una franja gris aparte, arriba de la página
+// (AttributeStrip.jsx, `sticky` — solo aparecía al scrollear más allá del
+// hero). El cliente pidió que quedara integrado con "la pestaña blanca"
+// (esta franja, la única realmente persistente: `fixed`, visible desde
+// que carga la página) — se suman como slides del mismo carrusel que ya
+// rotaba las cifras, en vez de un bloque aparte.
+const ATTR_BADGES = [
+  { text: "Especialistas BMW Motorrad", Icon: ShieldCheck },
+  { text: "+10 años de equipo consolidado", Icon: Users, color: "#E7002A" },
+  { text: "Herramientas especiales BMW", Icon: Wrench, color: "#1B5FAE" },
+  { text: "Scanner y programación BMW", Icon: ScanLine, color: "#4E9AD1" },
+  { text: "Trazabilidad total", Icon: ClipboardList, color: "#E7002A" },
+];
+
+// Las cifras y los atributos no entraban juntos en la franja sin achicar
+// todo lo demás (o esconderlos hasta anchos muy grandes) — en vez de
+// mostrarlos todos a la vez, rotan de a uno en el mismo espacio, como un
+// cartel publicitario. Ancho fijo (no auto) para que no salte el resto de
+// la franja cada vez que cambia el slide.
+function StatsTicker({ items }) {
   const [i, setI] = useState(0);
 
   useEffect(() => {
-    const id = setInterval(() => setI((v) => (v + 1) % stats.length), TICKER_MS);
+    const id = setInterval(() => setI((v) => (v + 1) % items.length), TICKER_MS);
     return () => clearInterval(id);
-  }, [stats.length]);
+  }, [items.length]);
 
-  const stat = stats[i];
+  const item = items[i];
   return (
-    <div className="hidden w-[260px] flex-none items-center overflow-visible lg:flex">
+    <div className="hidden w-[300px] flex-none items-center overflow-visible lg:flex">
       <div
         key={i}
-        className="flex items-center gap-2.5 whitespace-nowrap rounded-full px-5 py-2.5 text-[15px] shadow-[0_6px_16px_rgba(27,95,174,0.35)]"
+        className="flex items-center gap-2.5 whitespace-nowrap rounded-full px-5 py-2.5 text-[14px] shadow-[0_6px_16px_rgba(27,95,174,0.35)]"
         style={{
           background: "linear-gradient(90deg, #1B5FAE, #4E9AD1)",
           animation: "gsmBounceIn 620ms cubic-bezier(0.34,1.56,0.64,1) both",
         }}
       >
-        <span className="h-2 w-2 flex-none animate-pulse rounded-full bg-white" />
-        <span className="font-display text-base font-bold text-white">{stat.num}</span>
-        <span className="text-white/85">{stat.label}</span>
+        {item.num ? (
+          <>
+            <span className="h-2 w-2 flex-none animate-pulse rounded-full bg-white" />
+            <span className="font-display text-base font-bold text-white">{item.num}</span>
+            <span className="text-white/85">{item.label}</span>
+          </>
+        ) : (
+          <item.Icon size={17} strokeWidth={2} className="flex-none text-white" />
+        )}
+        {!item.num && <span className="font-display font-semibold uppercase tracking-wide text-white">{item.text}</span>}
       </div>
     </div>
   );
@@ -75,6 +96,7 @@ export default function SiteFooter() {
     { num: s.statPros, label: "profesionales" },
     { num: s.statMotos, label: "motos atendidas" },
   ];
+  const tickerItems = [...stats, ...ATTR_BADGES];
 
   return (
     <>
@@ -96,7 +118,7 @@ export default function SiteFooter() {
           </a>
         ))}
 
-        <StatsTicker stats={stats} />
+        <StatsTicker items={tickerItems} />
 
         <a
           href={reviewsUrl}

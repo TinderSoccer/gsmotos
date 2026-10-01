@@ -1,5 +1,4 @@
 import HeroExperience from "@/components/home/HeroExperience";
-import AttributeStrip from "@/components/AttributeStrip";
 import SiteFooter from "@/components/SiteFooter";
 
 export default function Home() {
@@ -7,7 +6,6 @@ export default function Home() {
     <main className="flex min-h-screen flex-col bg-[#0B0B0B]">
       <HeroExperience />
 
-      <AttributeStrip />
       <SiteFooter />
     </main>
   );
