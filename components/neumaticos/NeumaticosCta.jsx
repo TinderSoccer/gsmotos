@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { Calendar, MessageCircle, ShoppingCart } from "lucide-react";
+import { Calendar, MessageCircle } from "lucide-react";
 import { NEUMATICOS_CTA } from "@/lib/neumaticosContent";
 import { useSettings, whatsappUrl } from "@/lib/settings";
 
@@ -16,14 +16,15 @@ import { useSettings, whatsappUrl } from "@/lib/settings";
 // Mismo panel con borde que los otros dos bloques, para que las 3 piezas
 // se vean como un mismo sistema.
 //
-// Tres acciones, cada una para una intención distinta: "Agendar" va al
-// sistema de reservas real del sitio (/contacto, con ?motivo=neumaticos);
-// "Comprar" y "Asesórate" abren WhatsApp con un mensaje precargado propio
-// — mismo número centralizado en lib/settings.js (editable desde
-// /administracion → Contacto).
+// Dos acciones: "Agendar" va al sistema de reservas real del sitio
+// (/contacto, con ?motivo=neumaticos); "Asesórate" abre WhatsApp con un
+// mensaje precargado — mismo número centralizado en lib/settings.js
+// (editable desde /administracion → Contacto). Antes había un tercer
+// botón "Compra tu neumático" que también abría WhatsApp — el cliente
+// notó que era redundante con "Asesórate" (mismo destino) y pidió
+// sacarlo.
 export default function NeumaticosCta({ agendarHref }) {
   const s = useSettings();
-  const comprarHref = whatsappUrl(s.phoneDigits, NEUMATICOS_CTA.comprarMessage);
   const asesoriaHref = whatsappUrl(s.phoneDigits, NEUMATICOS_CTA.asesoriaMessage);
 
   return (
@@ -50,26 +51,15 @@ export default function NeumaticosCta({ agendarHref }) {
         <span className="font-body" aria-hidden="true">→</span>
       </Link>
 
-      <div className="flex flex-col items-stretch gap-2.5 sm:flex-row">
-        <a
-          href={comprarHref}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="inline-flex flex-1 items-center justify-center gap-2 whitespace-nowrap rounded border border-mCyan px-4 py-2.5 font-display text-[13px] font-semibold uppercase tracking-[1.5px] text-white transition-colors hover:bg-mCyan/15 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-mCyan"
-        >
-          <ShoppingCart size={14} strokeWidth={2} aria-hidden="true" />
-          <span>Compra tu neumático</span>
-        </a>
-        <a
-          href={asesoriaHref}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="inline-flex flex-1 items-center justify-center gap-2 whitespace-nowrap rounded border border-mCyan px-4 py-2.5 font-display text-[13px] font-semibold uppercase tracking-[1.5px] text-white transition-colors hover:bg-mCyan/15 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-mCyan"
-        >
-          <MessageCircle size={14} strokeWidth={2} aria-hidden="true" />
-          <span>Asesórate con nosotros</span>
-        </a>
-      </div>
+      <a
+        href={asesoriaHref}
+        target="_blank"
+        rel="noopener noreferrer"
+        className="inline-flex w-full items-center justify-center gap-2 whitespace-nowrap rounded border border-mCyan px-4 py-2.5 font-display text-[13px] font-semibold uppercase tracking-[1.5px] text-white transition-colors hover:bg-mCyan/15 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-mCyan sm:w-fit"
+      >
+        <MessageCircle size={14} strokeWidth={2} aria-hidden="true" />
+        <span>Asesórate con nosotros</span>
+      </a>
     </section>
   );
 }
