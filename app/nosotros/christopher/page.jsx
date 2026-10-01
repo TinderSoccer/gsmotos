@@ -79,17 +79,17 @@ export default function ChristopherPage() {
             trabajar: entender primero la motocicleta, después intervenirla.
           </p>
           <p className="text-[15.5px] leading-[1.75] text-[#3A3A3A]">
-            Se formó como Técnico en Mecánica Automotriz en Duoc UC y pasó cinco años especializándose dentro de
+            Se formó como Técnico en Mecánica Automotriz en Duoc UC y pasó siete años especializándose dentro de
             BMW Chile, donde conoció desde adentro los procedimientos, las herramientas especiales y el estándar
             de trabajo de la marca. Esa etapa definió el modo en que hoy se trabaja en GSmotos: con información
             técnica, diagnóstico y trazabilidad.
           </p>
           <p className="text-[15.5px] leading-[1.75] text-[#3A3A3A]">
             En febrero de 2011 fundó GSmotos, un taller pensado para quienes buscan atención especializada en
-            motocicletas de alta cilindrada. Nunca dejó el taller: durante siete años combinó el trabajo diario
-            con la docencia en Mecánica de Motocicletas en Duoc UC, formando a nuevos técnicos mientras seguía
-            atendiendo motos. La formación no se detiene: inmovilizadores en 2024, certificación como soldador
-            calificado en 2025.
+            motocicletas de alta cilindrada. Nunca dejó el taller: durante ocho años combinó el trabajo diario
+            con la docencia en Mecánica de Motocicletas en Duoc UC y AIEP, formando a nuevos técnicos mientras
+            seguía atendiendo motos. La formación no se detiene: inmovilizadores en 2024, certificación como
+            soldador calificado en 2025.
           </p>
           <p className="text-[15.5px] leading-[1.75] text-[#3A3A3A]">
             No solamente trabaja con motocicletas: vive y respira motocicletas.
