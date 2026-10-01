@@ -8,6 +8,7 @@
 // - Productos: catálogo que alimenta el buscador de la Home y /productos
 //   (lib/catalogo.js).
 // - Servicios: foto propia por cada servicio (lib/servicePhotos.js).
+// - Neumáticos: fotos de la página /servicios/neumaticos (lib/neumaticosPhotos.js).
 // - Taller: fotos y videos de /nosotros/taller (lib/taller.js).
 // - Contacto: teléfono/mail/dirección/Instagram y cifras del sitio
 //   (lib/settings.js).
@@ -25,6 +26,8 @@ import { formatCLP, resetProductos, useProductos, writeProductos } from "@/lib/c
 import { resetTallerItems, useTallerItems, writeTallerItems } from "@/lib/taller";
 import { menus } from "@/lib/servicesData";
 import { resetServicePhotos, servicePhotoKey, setServicePhoto, useServicePhotos } from "@/lib/servicePhotos";
+import { NEUMATICOS_PHOTO_SLOTS } from "@/lib/neumaticosContent";
+import { resetNeumaticosPhotos, setNeumaticosPhoto, useNeumaticosPhotos } from "@/lib/neumaticosPhotos";
 import { DEFAULT_SETTINGS, resetSettings, useSettings, writeSettings } from "@/lib/settings";
 import { readImageFile } from "@/lib/readImage";
 
@@ -285,6 +288,110 @@ function ServiciosTab() {
             className="whitespace-nowrap rounded border border-mRed px-5 py-3.5 font-display text-sm font-semibold uppercase tracking-[2.2px] text-mRed transition-colors hover:bg-mRed hover:text-white"
           >
             Restaurar todas a la foto genérica
+          </button>
+        </div>
+      </div>
+    </>
+  );
+}
+
+// Fotos de /servicios/neumaticos (imagen principal + 4 servicios + 3 tipos
+// de uso) — mismo patrón que ServiciosTab, pero con respaldo en degradado
+// (no hay "foto genérica" previa para estos slots, son nuevos) en vez de
+// una imagen de ejemplo. Ver lib/neumaticosPhotos.js.
+function NeumaticosTab() {
+  const overrides = useNeumaticosPhotos();
+  const customCount = Object.keys(overrides).length;
+
+  async function handleFile(slot, ev) {
+    const file = ev.target.files?.[0];
+    ev.target.value = "";
+    if (!file) return;
+    const dataUrl = await readImageFile(file, { maxSize: 1600, quality: 0.85 });
+    warnIfFailed(setNeumaticosPhoto(slot, dataUrl));
+  }
+
+  return (
+    <>
+      <div className="flex flex-wrap items-end justify-between gap-8 px-6 pb-5 pt-11 sm:px-10">
+        <div className="flex flex-col gap-2.5">
+          <h1 className="font-display text-[32px] font-bold italic uppercase leading-none text-[#0B0B0B] sm:text-4xl">
+            Fotos de Neumáticos & Vulcanización
+          </h1>
+          <p className="max-w-xl text-[15.5px] leading-[1.6] text-[#5A5A5A]">
+            Imagen principal, las 4 tarjetas de servicio y los 3 tipos de uso de /servicios/neumaticos. Mientras un
+            espacio no tenga foto propia, se muestra con un respaldo de color — nunca queda vacío ni roto.
+          </p>
+        </div>
+        <div className="flex flex-col items-end gap-0.5">
+          <div className="font-display text-[32px] font-bold italic leading-none text-mBlue">{customCount}</div>
+          <div className="font-display text-[13px] uppercase tracking-[2px] text-[#8A8A8A]">de {NEUMATICOS_PHOTO_SLOTS.length} con foto</div>
+        </div>
+      </div>
+
+      <div className="px-6 pb-10 sm:px-10">
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+          {NEUMATICOS_PHOTO_SLOTS.map(({ slot, label }) => {
+            const photo = overrides[slot];
+            return (
+              <div key={slot} className="flex flex-col overflow-hidden rounded-xl border border-[#E0E0E0] bg-white shadow-[0_2px_10px_rgba(11,11,11,0.06)]">
+                <div className="relative h-[150px] overflow-hidden border-b border-[#E0E0E0] bg-[#F2F2F2]">
+                  {photo ? (
+                    // eslint-disable-next-line @next/next/no-img-element
+                    <img src={photo} alt={label} className="block h-full w-full object-cover" />
+                  ) : (
+                    <div
+                      className="flex h-full w-full items-center justify-center font-display text-[11px] uppercase tracking-[2px] text-white/80"
+                      style={{ background: "linear-gradient(135deg, #1B5FAE 0%, #4E9AD1 100%)" }}
+                    >
+                      Sin foto propia
+                    </div>
+                  )}
+                  <div
+                    className="absolute left-3 top-3 rounded-[3px] px-3 py-1.5 font-display text-[11px] uppercase tracking-[2px] text-white"
+                    style={{ background: photo ? "#1B5FAE" : "#7A7A7A" }}
+                  >
+                    {photo ? "Foto propia" : "Respaldo de color"}
+                  </div>
+                </div>
+                <div className="flex flex-col gap-2.5 px-4 pb-4 pt-3.5">
+                  <div className="font-display text-base font-semibold uppercase leading-tight text-[#0B0B0B]">{label}</div>
+                  <div className="flex items-center gap-2.5">
+                    <label className="flex flex-1 cursor-pointer items-center justify-center gap-2.5 whitespace-nowrap rounded bg-mBlue px-4 py-2.5 font-display text-sm font-semibold uppercase tracking-wide text-white transition-colors hover:bg-mCyan">
+                      <span>{photo ? "Reemplazar" : "Subir foto"}</span>
+                      <input type="file" accept="image/*" className="hidden" onChange={(ev) => handleFile(slot, ev)} />
+                    </label>
+                    <button
+                      type="button"
+                      onClick={() => setNeumaticosPhoto(slot, "")}
+                      disabled={!photo}
+                      className="rounded border border-[#D6D6D6] bg-white px-4 py-2.5 font-display text-sm font-semibold uppercase tracking-wide text-[#0B0B0B] transition-colors enabled:hover:border-mRed enabled:hover:text-mRed disabled:cursor-not-allowed disabled:text-[#B4B4B4]"
+                    >
+                      Quitar
+                    </button>
+                  </div>
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      </div>
+
+      <div className="px-6 pb-14 sm:px-10">
+        <div className="flex flex-col items-start gap-4 rounded-xl border border-[#E0E0E0] bg-white p-6 sm:flex-row sm:items-center sm:justify-between">
+          <div className="flex flex-col gap-1.5">
+            <div className="font-display text-lg font-semibold uppercase tracking-wide text-[#0B0B0B]">Cómo se publica</div>
+            <div className="text-[14.5px] leading-[1.6] text-[#5A5A5A]">
+              Los cambios se reflejan de inmediato en /servicios/neumaticos. Foto horizontal recomendada, mínimo
+              1000&nbsp;px de ancho.
+            </div>
+          </div>
+          <button
+            type="button"
+            onClick={() => resetNeumaticosPhotos()}
+            className="whitespace-nowrap rounded border border-mRed px-5 py-3.5 font-display text-sm font-semibold uppercase tracking-[2.2px] text-mRed transition-colors hover:bg-mRed hover:text-white"
+          >
+            Quitar todas las fotos propias
           </button>
         </div>
       </div>
@@ -978,6 +1085,7 @@ function ContactoTab() {
 const TABS = {
   certs: CertificadosTab,
   servicios: ServiciosTab,
+  neumaticos: NeumaticosTab,
   prods: ProductosTab,
   taller: TallerTab,
   contacto: ContactoTab,
@@ -1041,6 +1149,9 @@ export default function AdminPanel() {
         </Tab>
         <Tab active={tab === "servicios"} onClick={() => setTab("servicios")}>
           Servicios
+        </Tab>
+        <Tab active={tab === "neumaticos"} onClick={() => setTab("neumaticos")}>
+          Neumáticos
         </Tab>
         <Tab active={tab === "prods"} onClick={() => setTab("prods")}>
           Productos

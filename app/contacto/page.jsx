@@ -16,6 +16,7 @@ const EMPTY_FORM = { name: "", phone: "", model: "", note: "", date: "", time: "
 const MOTIVO_NOTE = {
   traslado: "Necesito el servicio de traslado de mi moto.",
   gruas: "Necesito coordinar el servicio de grúa para mi moto.",
+  neumaticos: "Quiero agendar un servicio de neumáticos (montaje, balanceo o vulcanización).",
 };
 
 // Formulario de agendamiento — sin carrito ni pago online, solo reserva de

@@ -7,11 +7,12 @@ import SiteFooter from "@/components/SiteFooter";
 import { MobileTopBar } from "@/components/mobile/MobileNav";
 import { menus } from "@/lib/servicesData";
 
-// Plantilla de listado reutilizada por las 3 categorías de servicio
-// (Servicios BMW Motorrad, Neumáticos & Vulcanización, Otras marcas Big
-// Trail) — una sola página por tipo de contenido, no una por cada ítem
-// del menú.
-const SERVICE_MENUS = menus.filter((m) => m.kind === "service");
+// Plantilla de listado genérica, reutilizada por "Servicios BMW Motorrad"
+// y "Otras marcas Big Trail". "Neumáticos & Vulcanización" queda excluida
+// a propósito: tiene su propia página a medida en
+// app/servicios/neumaticos/page.jsx (ruta estática, con prioridad sobre
+// esta dinámica para ese mismo segmento) — no la necesita.
+const SERVICE_MENUS = menus.filter((m) => m.kind === "service" && m.slug !== "neumaticos");
 
 export function generateStaticParams() {
   return SERVICE_MENUS.map((m) => ({ categoria: m.slug }));
