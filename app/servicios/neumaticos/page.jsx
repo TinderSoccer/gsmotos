@@ -6,7 +6,7 @@ import NeumaticosHero from "@/components/neumaticos/NeumaticosHero";
 import NeumaticosServicios from "@/components/neumaticos/NeumaticosServicios";
 import NeumaticosUsos from "@/components/neumaticos/NeumaticosUsos";
 import NeumaticosCta from "@/components/neumaticos/NeumaticosCta";
-import NeumaticosMobileBar from "@/components/neumaticos/NeumaticosMobileBar";
+import NeumaticosStickyAgendar from "@/components/neumaticos/NeumaticosStickyAgendar";
 
 // Página propia de "Neumáticos & Vulcanización" — reemplaza, para esta
 // categoría, a la plantilla genérica de app/servicios/[categoria]/page.jsx
@@ -67,7 +67,13 @@ export default function NeumaticosPage() {
         </div>
       </section>
 
-      <NeumaticosMobileBar agendarHref={AGENDAR_HREF} />
+      {/* Reserva el alto del botón flotante "Agendar" (mobile, siempre fijo
+          arriba de MobileTabBar) para que al llegar al final del scroll no
+          quede tapando el último botón del banner — en desktop no hace
+          falta, ahí es un botón chico en la esquina, no una barra ancha. */}
+      <div aria-hidden className="h-16 sm:hidden" />
+
+      <NeumaticosStickyAgendar agendarHref={AGENDAR_HREF} />
 
       <SiteFooter />
     </main>
