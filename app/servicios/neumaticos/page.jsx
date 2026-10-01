@@ -62,7 +62,7 @@ export default function NeumaticosPage() {
         <NeumaticosServicios agendarHref={AGENDAR_HREF} />
         <div className="flex flex-col gap-8">
           <NeumaticosUsos agendarHref={AGENDAR_HREF} />
-          <NeumaticosCta agendarHref={AGENDAR_HREF} />
+          <NeumaticosCta />
         </div>
       </section>
 
