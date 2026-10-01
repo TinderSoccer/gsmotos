@@ -29,7 +29,7 @@ export default function NeumaticosCta({ agendarHref }) {
   return (
     <section
       id="neumaticos-cta"
-      className="flex flex-col gap-3 rounded-xl border border-mBlue/40 p-4 sm:p-5"
+      className="flex flex-col gap-2.5 rounded-xl border border-mBlue/40 p-3.5 sm:p-4"
       style={{ background: "linear-gradient(145deg, rgba(27,95,174,0.16) 0%, rgba(11,13,15,0.4) 70%)" }}
     >
       <div className="flex flex-col gap-1">

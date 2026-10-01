@@ -319,8 +319,9 @@ function NeumaticosTab() {
             Fotos de Neumáticos & Vulcanización
           </h1>
           <p className="max-w-xl text-[15.5px] leading-[1.6] text-[#5A5A5A]">
-            Imagen principal, las 4 tarjetas de servicio y los 3 tipos de uso de /servicios/neumaticos. Mientras un
-            espacio no tenga foto propia, se muestra con un respaldo de color — nunca queda vacío ni roto.
+            Las 4 tarjetas de servicio y los 3 tipos de uso de /servicios/neumaticos. Dos de los tipos de uso traen
+            una foto de referencia (banco libre) mientras no subas la tuya; el resto, sin foto propia, se muestra
+            con un respaldo de color — nunca queda vacío ni roto.
           </p>
         </div>
         <div className="flex flex-col items-end gap-0.5">
@@ -331,14 +332,15 @@ function NeumaticosTab() {
 
       <div className="px-6 pb-10 sm:px-10">
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          {NEUMATICOS_PHOTO_SLOTS.map(({ slot, label }) => {
+          {NEUMATICOS_PHOTO_SLOTS.map(({ slot, label, defaultPhoto }) => {
             const photo = overrides[slot];
+            const shown = photo || defaultPhoto;
             return (
               <div key={slot} className="flex flex-col overflow-hidden rounded-xl border border-[#E0E0E0] bg-white shadow-[0_2px_10px_rgba(11,11,11,0.06)]">
                 <div className="relative h-[150px] overflow-hidden border-b border-[#E0E0E0] bg-[#F2F2F2]">
-                  {photo ? (
+                  {shown ? (
                     // eslint-disable-next-line @next/next/no-img-element
-                    <img src={photo} alt={label} className="block h-full w-full object-cover" />
+                    <img src={shown} alt={label} className="block h-full w-full object-cover" />
                   ) : (
                     <div
                       className="flex h-full w-full items-center justify-center font-display text-[11px] uppercase tracking-[2px] text-white/80"
@@ -349,9 +351,9 @@ function NeumaticosTab() {
                   )}
                   <div
                     className="absolute left-3 top-3 rounded-[3px] px-3 py-1.5 font-display text-[11px] uppercase tracking-[2px] text-white"
-                    style={{ background: photo ? "#1B5FAE" : "#7A7A7A" }}
+                    style={{ background: photo ? "#1B5FAE" : defaultPhoto ? "#5A6B7A" : "#7A7A7A" }}
                   >
-                    {photo ? "Foto propia" : "Respaldo de color"}
+                    {photo ? "Foto propia" : defaultPhoto ? "Foto de referencia" : "Respaldo de color"}
                   </div>
                 </div>
                 <div className="flex flex-col gap-2.5 px-4 pb-4 pt-3.5">

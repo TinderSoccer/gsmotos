@@ -18,7 +18,7 @@ export default function NeumaticosServicios({ agendarHref }) {
   const openCard = NEUMATICOS_SERVICIOS.find((c) => c.slot === openSlot) || null;
 
   return (
-    <div className="flex flex-col gap-4 rounded-xl border border-[#1E2226] bg-white/[0.02] p-4 sm:p-5">
+    <div className="flex flex-col gap-3 rounded-xl border border-[#1E2226] bg-white/[0.02] p-3.5 sm:p-4">
       <div>
         <div className="flex items-center gap-3.5">
           <ColorBars />
@@ -27,14 +27,14 @@ export default function NeumaticosServicios({ agendarHref }) {
         <p className="mt-1 text-[12px] text-[#6E7780]">{NEUMATICOS_SERVICIOS_HINT}</p>
       </div>
       <div className="grid grid-cols-2 gap-3">
-        {NEUMATICOS_SERVICIOS.map(({ slot, Icon, title }) => (
+        {NEUMATICOS_SERVICIOS.map(({ slot, Icon, title, defaultPhoto }) => (
           <button
             key={slot}
             type="button"
             onClick={() => setOpenSlot(slot)}
             className="group relative aspect-square overflow-hidden rounded-lg border border-[#1E2226] text-left transition-colors hover:border-mCyan"
           >
-            <SlotImage src={photos[slot]} alt={title} Icon={Icon} fill className="h-full w-full" />
+            <SlotImage src={photos[slot] || defaultPhoto} alt={title} Icon={Icon} fill className="h-full w-full" />
             <div
               className="pointer-events-none absolute inset-0"
               style={{ background: "linear-gradient(180deg, rgba(5,5,5,0) 45%, rgba(5,5,5,0.85) 100%)" }}
@@ -51,7 +51,7 @@ export default function NeumaticosServicios({ agendarHref }) {
 
       <NeumaticosServiceModal
         card={openCard}
-        photo={openCard ? photos[openCard.slot] : null}
+        photo={openCard ? photos[openCard.slot] || openCard.defaultPhoto : null}
         agendarHref={agendarHref}
         onClose={() => setOpenSlot(null)}
       />

@@ -21,7 +21,7 @@ export default function NeumaticosUsos({ agendarHref }) {
   const openCard = NEUMATICOS_USOS.find((c) => c.slot === openSlot) || null;
 
   return (
-    <div className="flex flex-col gap-3 rounded-xl border border-[#1E2226] bg-white/[0.02] p-4 sm:p-5">
+    <div className="flex flex-col gap-2.5 rounded-xl border border-[#1E2226] bg-white/[0.02] p-3.5 sm:p-4">
       <div className="flex items-center gap-3.5">
         <ColorBars />
         <h2 className="font-display text-lg font-bold uppercase tracking-wide text-white">Tipos de uso</h2>
@@ -29,14 +29,14 @@ export default function NeumaticosUsos({ agendarHref }) {
       <p className="max-w-sm text-[12.5px] leading-snug text-[#B9C0C7]">{NEUMATICOS_USOS_TITLE}</p>
 
       <div className="-mx-4 flex snap-x snap-mandatory gap-3 overflow-x-auto px-4 pb-1 sm:mx-0 sm:grid sm:grid-cols-3 sm:gap-3 sm:overflow-visible sm:px-0 sm:pb-0">
-        {NEUMATICOS_USOS.map(({ slot, Icon, title }) => (
+        {NEUMATICOS_USOS.map(({ slot, Icon, title, defaultPhoto }) => (
           <button
             key={slot}
             type="button"
             onClick={() => setOpenSlot(slot)}
             className="group relative aspect-[3/4] w-[42%] flex-none snap-start overflow-hidden rounded-lg border border-[#1E2226] text-left transition-all hover:-translate-y-1 hover:border-mCyan sm:w-auto"
           >
-            <SlotImage src={photos[slot]} alt={`Neumático para uso ${title.toLowerCase()}`} Icon={Icon} fill className="h-full w-full" />
+            <SlotImage src={photos[slot] || defaultPhoto} alt={`Neumático para uso ${title.toLowerCase()}`} Icon={Icon} fill className="h-full w-full" />
             <div
               className="pointer-events-none absolute inset-0"
               style={{ background: "linear-gradient(180deg, rgba(5,5,5,0) 45%, rgba(5,5,5,0.85) 100%)" }}
@@ -50,7 +50,7 @@ export default function NeumaticosUsos({ agendarHref }) {
 
       <NeumaticosServiceModal
         card={openCard}
-        photo={openCard ? photos[openCard.slot] : null}
+        photo={openCard ? photos[openCard.slot] || openCard.defaultPhoto : null}
         agendarHref={agendarHref}
         onClose={() => setOpenSlot(null)}
       />
