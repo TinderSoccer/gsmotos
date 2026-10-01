@@ -18,7 +18,7 @@ const HERO_PHOTO = "/images/foto-taller-c.png";
 export default function ChristopherPage() {
   return (
     <main className="flex min-h-screen flex-col bg-white text-[#0B0B0B]">
-      <section className="relative h-[320px] overflow-hidden bg-[#050505] sm:h-[430px]">
+      <section className="relative h-[180px] overflow-hidden bg-[#050505] sm:h-[230px]">
         <ChristopherHeroBg defaultPhoto={HERO_PHOTO} />
         {/* Viñeta oscura solo en mobile — sin el recorte diagonal blanco (que
             arranca en sm), el texto blanco quedaba directo sobre la foto,
@@ -36,30 +36,30 @@ export default function ChristopherPage() {
           style={{ background: "linear-gradient(103deg, #ffffff 50%, rgba(255,255,255,0.86) 57%, rgba(255,255,255,0) 72%)" }}
         />
 
-        <header className="absolute inset-x-0 top-0 z-30 flex items-center justify-between gap-3 px-6 py-6 sm:px-10">
+        <header className="absolute inset-x-0 top-0 z-30 flex items-center justify-between gap-3 px-6 py-3 sm:px-10 sm:py-4">
           <MobileMenuButton />
           <Link href="/" className="block leading-none">
-            <Logo light="mobile" className="block h-auto w-[110px] sm:w-[210px]" />
+            <Logo light="mobile" className="block h-auto w-[82px] sm:w-[150px]" />
           </Link>
           <Link
             href="/"
             aria-label="Volver al inicio"
-            className="inline-flex items-center gap-3.5 rounded border border-white/40 bg-black/40 px-4 py-3 font-display text-[13px] font-semibold uppercase tracking-[2.2px] text-white transition-colors hover:border-mBlue hover:bg-mBlue sm:px-5 sm:text-sm"
+            className="inline-flex items-center gap-3.5 rounded border border-white/40 bg-black/40 px-3 py-2 font-display text-[12px] font-semibold uppercase tracking-[2.2px] text-white transition-colors hover:border-mBlue hover:bg-mBlue sm:px-5 sm:py-3 sm:text-sm"
           >
             <span className="font-body">←</span>
             <span className="hidden sm:inline">Volver al inicio</span>
           </Link>
         </header>
 
-        <div className="relative z-20 flex h-full max-w-[560px] flex-col justify-center gap-4 px-6 sm:px-10">
-          <div className="flex items-center gap-3.5">
+        <div className="relative z-20 flex h-full max-w-[560px] flex-col justify-end gap-1.5 px-6 pb-4 sm:px-10 sm:pb-6">
+          <div className="flex items-center gap-2.5">
             <ColorBars />
-            <span className="font-display text-sm uppercase tracking-[2.6px] text-white sm:text-[#0B0B0B]">Fundador GSmotos</span>
+            <span className="font-display text-xs uppercase tracking-[2.2px] text-white sm:text-[#0B0B0B]">Fundador GSmotos</span>
           </div>
-          <div className="font-display text-[44px] font-bold italic uppercase leading-[0.94] text-white sm:text-[64px] sm:text-[#0B0B0B]">
+          <div className="font-display text-[26px] font-bold italic uppercase leading-[0.94] text-white sm:text-[38px] sm:text-[#0B0B0B]">
             Christopher
           </div>
-          <div className="max-w-[470px] font-display text-base leading-[1.35] tracking-wide text-white/85 sm:text-xl sm:text-[#3A3A3A]">
+          <div className="max-w-[470px] font-display text-[13px] leading-[1.35] tracking-wide text-white/85 sm:text-base sm:text-[#3A3A3A]">
             Técnico en Mecánica Automotriz · Especialista BMW Motorrad · Docente de Mecánica de Motocicletas
           </div>
         </div>
