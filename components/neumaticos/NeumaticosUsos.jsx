@@ -1,6 +1,5 @@
 "use client";
 
-import { CircleDashed } from "lucide-react";
 import { FaWhatsapp } from "react-icons/fa6";
 import ColorBars from "@/components/services/ColorBars";
 import SlotImage from "./SlotImage";
@@ -8,33 +7,43 @@ import { NEUMATICOS_USOS, NEUMATICOS_USOS_TITLE, usoWhatsappMessage } from "@/li
 import { useNeumaticosPhotos } from "@/lib/neumaticosPhotos";
 import { useSettings, whatsappUrl } from "@/lib/settings";
 
-// Tres tarjetas: fila en tablet (sm:grid-cols-3), carrusel horizontal con
-// scroll-snap en móvil, y columna angosta cuando este bloque queda al
-// costado de la grilla de servicios en desktop (ver app/servicios/
-// neumaticos/page.jsx, lg:grid-cols-[1.3fr_1fr]) — en esa columna más
-// angosta 3-en-fila no entra bien, así que vuelve a apilarse (lg:grid-cols-1).
+// Mismo panel con borde que NeumaticosServicios, a la misma altura (grid
+// `items-stretch` del contenedor en app/servicios/neumaticos/page.jsx).
+// Las 3 tarjetas de uso: en mobile/tablet, imagen con proporción fija
+// (aspect-[3/4]) — fila con scroll-snap en mobile, 3 columnas en tablet.
+// En desktop (lg), en vez de una proporción fija, la imagen usa
+// `flex-1` y la tarjeta `flex h-full flex-col`: así la imagen crece para
+// llenar exactamente el alto disponible del panel (el mismo alto que
+// "Servicios", por el stretch de arriba) en vez de quedar un bloque
+// enorme con una proporción fija que no tiene relación con el resto —
+// que era la causa real del desbalance que se veía antes.
 export default function NeumaticosUsos() {
   const photos = useNeumaticosPhotos();
   const s = useSettings();
 
   return (
-    <div className="flex flex-col gap-5">
+    <div className="flex h-full flex-col gap-5 rounded-xl border border-[#1E2226] bg-white/[0.02] p-5 sm:p-6">
       <div className="flex items-center gap-3.5">
         <ColorBars />
         <h2 className="font-display text-xl font-bold uppercase tracking-wide text-white">Tipos de uso</h2>
       </div>
       <p className="max-w-sm text-[15px] leading-snug text-[#B9C0C7]">{NEUMATICOS_USOS_TITLE}</p>
 
-      <div className="-mx-6 flex snap-x snap-mandatory gap-3.5 overflow-x-auto px-6 pb-1 sm:mx-0 sm:grid sm:grid-cols-3 sm:gap-4 sm:overflow-visible sm:px-0 sm:pb-0 lg:grid-cols-1">
-        {NEUMATICOS_USOS.map(({ slot, title, desc, whatsappUso }) => (
+      <div className="-mx-6 flex snap-x snap-mandatory gap-3.5 overflow-x-auto px-6 pb-1 sm:mx-0 sm:grid sm:grid-cols-3 sm:gap-4 sm:overflow-visible sm:px-0 sm:pb-0 lg:flex-1">
+        {NEUMATICOS_USOS.map(({ slot, Icon, title, desc, whatsappUso }) => (
           <div
             key={slot}
-            className="group flex w-[72%] flex-none snap-start flex-col overflow-hidden rounded-xl border border-[#1E2226] bg-white/[0.02] transition-all hover:-translate-y-1 hover:border-mCyan sm:w-auto"
+            className="group flex w-[72%] flex-none snap-start flex-col overflow-hidden rounded-lg border border-[#1E2226] bg-[#0B0D0F] transition-all hover:-translate-y-1 hover:border-mCyan sm:w-auto lg:h-full"
           >
-            <SlotImage src={photos[slot]} alt={`Neumático para uso ${title.toLowerCase()}`} Icon={CircleDashed} aspect="4/3" />
-            <div className="flex flex-1 flex-col gap-2 p-4">
+            <SlotImage
+              src={photos[slot]}
+              alt={`Neumático para uso ${title.toLowerCase()}`}
+              Icon={Icon}
+              className="aspect-[3/4] w-full lg:aspect-auto lg:min-h-[140px] lg:flex-1"
+            />
+            <div className="flex flex-none flex-col gap-2 p-4">
               <h3 className="font-display text-base font-bold uppercase text-white">{title}</h3>
-              <p className="flex-1 text-[13px] leading-snug text-[#B9C0C7]">{desc}</p>
+              <p className="text-[13px] leading-snug text-[#B9C0C7]">{desc}</p>
               <a
                 href={whatsappUrl(s.phoneDigits, usoWhatsappMessage(whatsappUso))}
                 target="_blank"

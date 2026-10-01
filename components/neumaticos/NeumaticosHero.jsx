@@ -13,8 +13,11 @@ export default function NeumaticosHero({ agendarHref }) {
   const photos = useNeumaticosPhotos();
 
   return (
-    <section id="neumaticos-hero" className="flex flex-col gap-8 px-6 pt-8 sm:px-10 sm:pt-10 lg:flex-row lg:items-center lg:gap-14 lg:pt-14">
-      <div className="flex flex-col gap-4 lg:max-w-[540px] lg:flex-none">
+    <section
+      id="neumaticos-hero"
+      className="grid grid-cols-1 gap-8 px-6 pt-8 sm:px-10 sm:pt-10 lg:grid-cols-[1.15fr_0.85fr] lg:items-center lg:gap-14 lg:pt-14"
+    >
+      <div className="flex flex-col gap-4">
         <div className="flex items-center gap-4">
           <ColorBars size="lg" />
           <h1 className="font-display text-[28px] font-bold italic uppercase leading-[1.02] text-white sm:text-4xl lg:text-[42px]">
@@ -42,9 +45,8 @@ export default function NeumaticosHero({ agendarHref }) {
         src={photos.hero}
         alt="Trabajo de neumáticos y vulcanización en el taller GSmotos"
         Icon={Disc}
-        aspect="4/3"
         priority
-        className="w-full rounded-xl border border-[#1E2226] lg:flex-1"
+        className="aspect-[4/3] w-full rounded-xl border border-[#1E2226] lg:aspect-[4/5]"
       />
     </section>
   );

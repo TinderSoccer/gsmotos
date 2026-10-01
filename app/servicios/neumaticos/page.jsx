@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Logo from "@/components/Logo";
 import SiteFooter from "@/components/SiteFooter";
 import { MobileTopBar } from "@/components/mobile/MobileNav";
 import NeumaticosHero from "@/components/neumaticos/NeumaticosHero";
@@ -34,22 +35,27 @@ export default function NeumaticosPage() {
     <main className="flex min-h-screen flex-col bg-[#0B0B0B]">
       <MobileTopBar />
 
+      {/* MobileTopBar ya trae el logo bajo `sm` — este header es la misma
+          idea para tablet/desktop, donde esta página (a diferencia del
+          hero de Home) no tiene un header propio con logo. */}
+      <div className="hidden items-center justify-between px-6 pt-6 sm:flex sm:px-10">
+        <Link href="/" className="block leading-none" aria-label="Volver al inicio">
+          <Logo className="block h-auto w-[150px]" />
+        </Link>
+        <Link href="/" className="font-display text-sm uppercase tracking-wide text-mCyan hover:text-mCyan/80">
+          ← Volver al inicio
+        </Link>
+      </div>
+
       <NeumaticosHero agendarHref={AGENDAR_HREF} />
 
-      <section className="grid grid-cols-1 gap-10 px-6 py-12 sm:px-10 lg:grid-cols-[1.3fr_1fr] lg:gap-10 lg:py-16">
+      <section className="grid grid-cols-1 items-stretch gap-10 px-6 py-12 sm:px-10 lg:grid-cols-2 lg:gap-10 lg:py-16">
         <NeumaticosServicios />
         <NeumaticosUsos />
       </section>
 
       <NeumaticosCta agendarHref={AGENDAR_HREF} />
       <NeumaticosMobileBar agendarHref={AGENDAR_HREF} />
-
-      <Link
-        href="/"
-        className="hidden px-6 py-6 font-display text-sm uppercase tracking-wide text-mCyan hover:text-mCyan/80 sm:block sm:px-10"
-      >
-        ← Volver al inicio
-      </Link>
 
       <SiteFooter />
     </main>
