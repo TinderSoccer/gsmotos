@@ -112,7 +112,15 @@ export default function ChristopherPage() {
                     <div className="font-display text-[13px] uppercase tracking-[1.6px] text-[#6A6A6A]">{item.label}</div>
                   )}
                 </div>
-                <div className="text-[15.5px] leading-[1.6] text-[#3A3A3A]">{item.text}</div>
+                {item.items ? (
+                  <ul className="flex flex-col gap-1 text-[15.5px] leading-[1.6] text-[#3A3A3A]">
+                    {item.items.map((line) => (
+                      <li key={line}>{line}</li>
+                    ))}
+                  </ul>
+                ) : (
+                  <div className="text-[15.5px] leading-[1.6] text-[#3A3A3A]">{item.text}</div>
+                )}
               </div>
             ))}
           </div>
