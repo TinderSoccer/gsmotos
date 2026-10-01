@@ -21,11 +21,27 @@ export default function HeroExperience() {
   const isProductos = menu.kind === "catalog";
   const productos = useProductos();
 
+  // "Destacados de esta semana" (sin búsqueda activa) muestra solo productos
+  // usados, en orden aleatorio — a diferencia de una búsqueda puntual, que
+  // sí busca en todo el catálogo (nuevo y usado) sin importar la condición.
+  // El shuffle se hace en un efecto (no al renderizar) para que el primer
+  // render en el servidor y en el cliente coincidan y no haya parpadeo de
+  // hidratación; el orden se vuelve a mezclar si el catálogo cambia.
+  const [usadosDestacados, setUsadosDestacados] = useState([]);
+  useEffect(() => {
+    const list = productos.filter((p) => p.estado === "usado");
+    for (let i = list.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [list[i], list[j]] = [list[j], list[i]];
+    }
+    setUsadosDestacados(list);
+  }, [productos]);
+
   const catalogue = useMemo(() => {
     const q = query.trim().toLowerCase();
-    if (!q) return productos;
+    if (!q) return usadosDestacados;
     return productos.filter((p) => `${p.name} ${p.cat} ${p.aplicacion || ""}`.toLowerCase().includes(q));
-  }, [productos, query]);
+  }, [productos, usadosDestacados, query]);
 
   const pageCount = Math.max(1, Math.ceil(catalogue.length / PER_PAGE));
   const page = ((prodPage % pageCount) + pageCount) % pageCount;

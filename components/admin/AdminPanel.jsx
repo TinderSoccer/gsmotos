@@ -408,6 +408,7 @@ function NewProductModal({ onClose, onCreate }) {
   const [photo, setPhoto] = useState("");
   const [price, setPrice] = useState("");
   const [stock, setStock] = useState("1");
+  const [estado, setEstado] = useState("nuevo");
 
   async function handleFile(ev) {
     const file = ev.target.files?.[0];
@@ -426,6 +427,7 @@ function NewProductModal({ onClose, onCreate }) {
       photo,
       price: Number(price) || 0,
       stock: Number(stock) || 0,
+      estado,
     });
   }
 
@@ -501,6 +503,26 @@ function NewProductModal({ onClose, onCreate }) {
                 className="rounded-md border border-[#E0E0E0] bg-[#FBFBFB] px-3.5 py-2.5 font-display text-base text-[#0B0B0B] outline-none focus:border-mCyan"
               />
             </label>
+          </div>
+          <div className="flex flex-col gap-1.5 text-sm text-[#3A3A3A]">
+            Estado
+            <div className="flex overflow-hidden rounded-md border border-[#E0E0E0]">
+              {[
+                { value: "nuevo", label: "Nuevo" },
+                { value: "usado", label: "Usado" },
+              ].map((opt) => (
+                <button
+                  key={opt.value}
+                  type="button"
+                  onClick={() => setEstado(opt.value)}
+                  className={`flex-1 py-2.5 font-display text-sm font-semibold uppercase tracking-wide transition-colors ${
+                    estado === opt.value ? "bg-mBlue text-white" : "bg-[#FBFBFB] text-[#5A5A5A] hover:bg-[#F0F0F0]"
+                  }`}
+                >
+                  {opt.label}
+                </button>
+              ))}
+            </div>
           </div>
           <div className="mt-2 flex items-center gap-3">
             <button
@@ -682,6 +704,23 @@ function ProductosTab() {
                     className="w-[70px] rounded-md border border-[#E0E0E0] bg-[#FBFBFB] px-3 py-2 font-display text-sm text-[#0B0B0B] outline-none focus:border-mCyan"
                   />
                 </label>
+                <div className="flex overflow-hidden rounded-md border border-[#E0E0E0]">
+                  {[
+                    { value: "nuevo", label: "Nuevo" },
+                    { value: "usado", label: "Usado" },
+                  ].map((opt) => (
+                    <button
+                      key={opt.value}
+                      type="button"
+                      onClick={() => patch(i, { estado: opt.value })}
+                      className={`px-3 py-2 font-display text-xs font-semibold uppercase tracking-wide transition-colors ${
+                        (prod.estado || "nuevo") === opt.value ? "bg-mBlue text-white" : "bg-[#FBFBFB] text-[#5A5A5A] hover:bg-[#F0F0F0]"
+                      }`}
+                    >
+                      {opt.label}
+                    </button>
+                  ))}
+                </div>
               </div>
               {prod.price > 0 && (
                 <div className="font-display text-sm font-semibold text-mBlue">{formatCLP(prod.price)}</div>
