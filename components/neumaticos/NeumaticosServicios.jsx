@@ -35,9 +35,9 @@ export default function NeumaticosServicios({ agendarHref }) {
             className="flex flex-col overflow-hidden rounded-lg border border-[#1E2226] bg-[#0B0D0F] text-left transition-colors hover:border-mCyan"
           >
             <SlotImage src={photos[slot]} alt={title} Icon={Icon} className="aspect-square w-full" />
-            <div className="flex items-center justify-between gap-1.5 px-3 py-2.5">
-              <h3 className="font-display text-[12.5px] font-bold uppercase leading-tight text-white">{title}</h3>
-              <ChevronRight size={15} strokeWidth={2} className="flex-none text-mCyan" aria-hidden="true" />
+            <div className="flex items-center justify-between gap-1.5 px-2.5 py-2">
+              <h3 className="font-display text-[11px] font-bold uppercase leading-tight text-white">{title}</h3>
+              <ChevronRight size={13} strokeWidth={2} className="flex-none text-mCyan" aria-hidden="true" />
             </div>
           </button>
         ))}

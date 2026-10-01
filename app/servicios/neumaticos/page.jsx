@@ -49,9 +49,15 @@ export default function NeumaticosPage() {
 
       <NeumaticosHero agendarHref={AGENDAR_HREF} />
 
-      <section className="grid grid-cols-1 items-stretch gap-6 px-6 py-6 sm:px-10 lg:grid-cols-[1.15fr_0.85fr] lg:gap-6 lg:py-8">
+      {/* Servicios queda con menos ancho que Tipos de uso (0.85fr/1.15fr,
+          al revés de lo que podría parecer intuitivo) a propósito: sus
+          cuadrados son solo 2 por fila, así que con MÁS ancho terminan
+          gigantes — con menos ancho quedan del mismo orden de tamaño que
+          las tarjetas verticales de al lado (3 por fila, panel más
+          ancho), en vez de dominarlas. */}
+      <section className="grid grid-cols-1 items-start gap-6 px-6 py-6 sm:px-10 lg:grid-cols-[0.85fr_1.15fr] lg:gap-6 lg:py-8">
         <NeumaticosServicios agendarHref={AGENDAR_HREF} />
-        <NeumaticosUsos />
+        <NeumaticosUsos agendarHref={AGENDAR_HREF} />
       </section>
 
       <NeumaticosCta agendarHref={AGENDAR_HREF} />
