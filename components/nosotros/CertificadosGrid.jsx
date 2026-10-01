@@ -1,8 +1,10 @@
 "use client";
 
+import { useState } from "react";
 import { Award } from "lucide-react";
 import { CERTIFICADOS } from "@/lib/certificados";
 import { useCertPhotos } from "@/lib/useCertPhotos";
+import CertificadoModal from "./CertificadoModal";
 
 // Grilla de certificados de Christopher. Cada tarjeta trae una foto real
 // del certificado (`defaultPhoto`, archivo del proyecto — ver
@@ -13,17 +15,29 @@ import { useCertPhotos } from "@/lib/useCertPhotos";
 // muestra el placeholder "Certificado pendiente". En mobile va en 2
 // columnas compactas (en vez de 1 columna con tarjetas de 240px) para que
 // los placeholders vacíos no dominen la página entera con bloques grises.
+//
+// Al hacer clic en una tarjeta con foto se abre un popup (CertificadoModal)
+// con la imagen en grande — las tarjetas sin foto ("pendiente") no abren
+// nada, no hay nada que mostrar en grande.
 export default function CertificadosGrid() {
   const photos = useCertPhotos();
+  const [openSlot, setOpenSlot] = useState(null);
+  const openCert = CERTIFICADOS.find((c) => c.slot === openSlot) || null;
+  const openPhoto = openCert ? photos[openCert.slot] || openCert.defaultPhoto : null;
 
   return (
+    <>
     <div className="grid grid-cols-2 gap-2.5 sm:grid-cols-2 sm:gap-3.5 lg:grid-cols-3">
       {CERTIFICADOS.map((cert) => {
         const photo = photos[cert.slot] || cert.defaultPhoto;
         return (
-          <div
+          <button
             key={cert.slot}
-            className="group flex flex-col overflow-hidden rounded-xl border border-[#E0E0E0] bg-white shadow-[0_2px_10px_rgba(11,11,11,0.06)] transition-all hover:-translate-y-1 hover:border-mCyan hover:shadow-[0_14px_30px_rgba(11,11,11,0.12)]"
+            type="button"
+            onClick={() => photo && setOpenSlot(cert.slot)}
+            className={`group flex flex-col overflow-hidden rounded-xl border border-[#E0E0E0] bg-white text-left shadow-[0_2px_10px_rgba(11,11,11,0.06)] transition-all hover:-translate-y-1 hover:border-mCyan hover:shadow-[0_14px_30px_rgba(11,11,11,0.12)] ${
+              photo ? "cursor-pointer" : "cursor-default"
+            }`}
           >
             <div className="relative h-[130px] overflow-hidden border-b border-[#E0E0E0] bg-[#F2F2F2] sm:h-[240px]">
               {photo ? (
@@ -51,9 +65,11 @@ export default function CertificadosGrid() {
               </div>
               <div className="hidden text-[14.5px] leading-[1.55] text-[#5A5A5A] sm:block">{cert.desc}</div>
             </div>
-          </div>
+          </button>
         );
       })}
     </div>
+    <CertificadoModal cert={openCert} photo={openPhoto} onClose={() => setOpenSlot(null)} />
+    </>
   );
 }
