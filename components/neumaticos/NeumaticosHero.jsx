@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { Disc } from "lucide-react";
+import { Calendar, Disc } from "lucide-react";
 import ColorBars from "@/components/services/ColorBars";
 import SlotImage from "./SlotImage";
 import { NEUMATICOS_HERO } from "@/lib/neumaticosContent";
@@ -15,7 +15,7 @@ export default function NeumaticosHero({ agendarHref }) {
   return (
     <section
       id="neumaticos-hero"
-      className="grid grid-cols-1 gap-8 px-6 pt-8 sm:px-10 sm:pt-10 lg:grid-cols-[1.15fr_0.85fr] lg:items-center lg:gap-14 lg:pt-14"
+      className="grid grid-cols-1 gap-8 px-6 pt-8 sm:px-10 sm:pt-10 lg:grid-cols-[1.3fr_0.7fr] lg:items-center lg:gap-14 lg:pt-14"
     >
       <div className="flex flex-col gap-4">
         <div className="flex items-center gap-4">
@@ -37,6 +37,7 @@ export default function NeumaticosHero({ agendarHref }) {
           href={agendarHref}
           className="mt-1 inline-flex w-fit items-center gap-3 whitespace-nowrap rounded border border-mBlue px-6 py-4 font-display text-[15px] font-semibold uppercase tracking-[2px] text-white transition-colors hover:bg-mBlue/10 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-mCyan"
         >
+          <Calendar size={16} strokeWidth={2} aria-hidden="true" />
           <span>Agendar hora</span>
         </Link>
       </div>
@@ -46,7 +47,7 @@ export default function NeumaticosHero({ agendarHref }) {
         alt="Trabajo de neumáticos y vulcanización en el taller GSmotos"
         Icon={Disc}
         priority
-        className="aspect-[4/3] w-full rounded-xl border border-[#1E2226] lg:aspect-[4/5]"
+        className="aspect-[4/3] w-full rounded-xl border border-[#1E2226] lg:aspect-square"
       />
     </section>
   );
