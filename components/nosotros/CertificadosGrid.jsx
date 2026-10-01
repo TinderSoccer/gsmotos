@@ -4,19 +4,22 @@ import { Award } from "lucide-react";
 import { CERTIFICADOS } from "@/lib/certificados";
 import { useCertPhotos } from "@/lib/useCertPhotos";
 
-// Grilla de certificados de Christopher — fotos administradas desde
-// /administracion y guardadas en localStorage (ver lib/certificados.js).
-// Mientras no se suba una imagen, muestra el placeholder "Certificado
-// pendiente", igual que en el diseño original. En mobile va en 2 columnas
-// compactas (en vez de 1 columna con tarjetas de 240px) para que los 6
-// placeholders vacíos no dominen la página entera con bloques grises.
+// Grilla de certificados de Christopher. Cada tarjeta trae una foto real
+// del certificado (`defaultPhoto`, archivo del proyecto — ver
+// lib/certificados.js) que se publica para todos los visitantes; una foto
+// subida desde /administracion (localStorage, ver lib/useCertPhotos.js)
+// siempre tiene prioridad sobre esa foto por defecto si existe. Solo si
+// no hay ninguna de las dos (caso de "cert-2", que no es un diploma) se
+// muestra el placeholder "Certificado pendiente". En mobile va en 2
+// columnas compactas (en vez de 1 columna con tarjetas de 240px) para que
+// los placeholders vacíos no dominen la página entera con bloques grises.
 export default function CertificadosGrid() {
   const photos = useCertPhotos();
 
   return (
     <div className="grid grid-cols-2 gap-2.5 sm:grid-cols-2 sm:gap-3.5 lg:grid-cols-3">
       {CERTIFICADOS.map((cert) => {
-        const photo = photos[cert.slot];
+        const photo = photos[cert.slot] || cert.defaultPhoto;
         return (
           <div
             key={cert.slot}

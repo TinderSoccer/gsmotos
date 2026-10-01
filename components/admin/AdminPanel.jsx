@@ -120,8 +120,8 @@ function FounderHeroPhoto() {
 }
 
 function CertificadosTab() {
-  const photos = useCertPhotos();
-  const count = CERTIFICADOS.filter((c) => photos[c.slot]).length;
+  const overrides = useCertPhotos();
+  const count = CERTIFICADOS.filter((c) => overrides[c.slot] || c.defaultPhoto).length;
 
   async function handleFile(slot, ev) {
     const file = ev.target.files?.[0];
@@ -139,8 +139,8 @@ function CertificadosTab() {
             Certificados de Christopher
           </h1>
           <p className="max-w-xl text-[15.5px] leading-[1.6] text-[#5A5A5A]">
-            Sube, reemplaza o elimina la imagen de cada certificado. Los cambios se publican de inmediato en la
-            página del fundador.
+            Cada certificado ya trae la foto real escaneada. Sube una imagen acá solo si quieres reemplazarla; "Quitar"
+            vuelve a mostrar esa foto original.
           </p>
         </div>
         <div className="flex flex-col items-end gap-0.5">
@@ -155,21 +155,22 @@ function CertificadosTab() {
 
       <div className="grid grid-cols-1 gap-4 px-6 pb-14 pt-5 sm:grid-cols-2 sm:px-10 lg:grid-cols-3">
         {CERTIFICADOS.map((cert) => {
-          const photo = photos[cert.slot];
+          const photo = overrides[cert.slot];
+          const shown = photo || cert.defaultPhoto;
           return (
             <div key={cert.slot} className="flex flex-col overflow-hidden rounded-xl border border-[#E0E0E0] bg-white shadow-[0_2px_10px_rgba(11,11,11,0.06)]">
               <div className="relative h-[250px] overflow-hidden border-b border-[#E0E0E0] bg-[#F2F2F2]">
-                {photo ? (
+                {shown ? (
                   // eslint-disable-next-line @next/next/no-img-element
-                  <img src={photo} alt={cert.title} className="block h-full w-full object-contain" />
+                  <img src={shown} alt={cert.title} className="block h-full w-full object-contain" />
                 ) : (
                   <PlaceholderIcon label="Sin imagen" />
                 )}
                 <div
                   className="absolute left-3 top-3 rounded-[3px] px-3 py-1.5 font-display text-[12.5px] uppercase tracking-[2px] text-white"
-                  style={{ background: photo ? "#1B5FAE" : "#7A7A7A" }}
+                  style={{ background: photo ? "#1B5FAE" : cert.defaultPhoto ? "#5A6B7A" : "#7A7A7A" }}
                 >
-                  {photo ? "Publicado" : "Pendiente"}
+                  {photo ? "Foto propia" : cert.defaultPhoto ? "Publicado" : "Pendiente"}
                 </div>
               </div>
               <div className="flex flex-col gap-2.5 px-[22px] pb-[22px] pt-5">
