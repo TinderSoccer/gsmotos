@@ -32,9 +32,16 @@ export default function NeumaticosServicios({ agendarHref }) {
             key={slot}
             type="button"
             onClick={() => setOpenSlot(slot)}
-            className="group relative aspect-square overflow-hidden rounded-lg border border-[#1E2226] text-left transition-colors hover:border-mCyan"
+            className="group relative aspect-square overflow-hidden rounded-lg border border-[#1E2226] text-left transition-all hover:-translate-y-1 hover:border-mCyan"
           >
-            <SlotImage src={photos[slot] || defaultPhoto} alt={title} Icon={Icon} fill className="h-full w-full" />
+            <SlotImage
+              src={photos[slot] || defaultPhoto}
+              alt={title}
+              Icon={Icon}
+              fill
+              sizes="(max-width: 639px) 45vw, (max-width: 1023px) 22vw, 260px"
+              className="h-full w-full"
+            />
             <div
               className="pointer-events-none absolute inset-0"
               style={{ background: "linear-gradient(180deg, rgba(5,5,5,0) 40%, rgba(5,5,5,0.9) 100%)" }}

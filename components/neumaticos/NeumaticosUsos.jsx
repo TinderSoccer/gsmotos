@@ -36,7 +36,14 @@ export default function NeumaticosUsos({ agendarHref }) {
             onClick={() => setOpenSlot(slot)}
             className="group relative aspect-[3/4] w-[42%] flex-none snap-start overflow-hidden rounded-lg border border-[#1E2226] text-left transition-all hover:-translate-y-1 hover:border-mCyan sm:w-auto"
           >
-            <SlotImage src={photos[slot] || defaultPhoto} alt={`Neumático para uso ${title.toLowerCase()}`} Icon={Icon} fill className="h-full w-full" />
+            <SlotImage
+              src={photos[slot] || defaultPhoto}
+              alt={`Neumático para uso ${title.toLowerCase()}`}
+              Icon={Icon}
+              fill
+              sizes="(max-width: 639px) 42vw, (max-width: 1023px) 30vw, 300px"
+              className="h-full w-full"
+            />
             <div
               className="pointer-events-none absolute inset-0"
               style={{ background: "linear-gradient(180deg, rgba(5,5,5,0) 40%, rgba(5,5,5,0.9) 100%)" }}

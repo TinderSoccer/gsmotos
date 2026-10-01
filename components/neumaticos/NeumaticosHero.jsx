@@ -22,11 +22,11 @@ export default function NeumaticosHero({ agendarHref }) {
       </div>
       <p className="font-display text-xl italic leading-snug text-mCyan sm:text-2xl">{NEUMATICOS_HERO.lead}</p>
       {NEUMATICOS_HERO.paragraphs.map((p) => (
-        <p key={p} className="max-w-3xl text-[15px] leading-[1.6] text-[#B9C0C7]">
+        <p key={p} className="max-w-4xl text-[15px] leading-[1.6] text-[#B9C0C7]">
           {p}
         </p>
       ))}
-      <p className="max-w-3xl border-l-[3px] border-mBlue pl-4 font-display text-lg italic leading-snug text-white sm:text-xl">
+      <p className="max-w-4xl border-l-[3px] border-mBlue pl-4 font-display text-lg italic leading-snug text-white sm:text-xl">
         {NEUMATICOS_HERO.quote}
       </p>
       <Link
