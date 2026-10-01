@@ -153,7 +153,7 @@ export default function ChristopherPage() {
       <section className="flex flex-col items-start gap-6 bg-[#EDEDED] px-6 py-11 sm:flex-row sm:items-center sm:justify-between sm:px-10 sm:py-[50px]">
         <div className="flex max-w-xl flex-col gap-2.5">
           <div className="font-display text-2xl font-bold italic uppercase leading-[1.05] text-[#0B0B0B] sm:text-[30px]">
-            ¿Quieres que Christopher revise tu moto?
+            ¿Quieres agendar tu moto en GSmotos?
           </div>
           <div className="text-[15.5px] leading-[1.6] text-[#3A3A3A]">
             Av. Presidente Riesco 6721, Las Condes, Santiago · +56 9 8405 8116 · contacto@gsmotos.cl
