@@ -18,8 +18,8 @@ import { ClipboardList, Mail, MapPin, Phone, ScanLine, ShieldCheck, Users, Wrenc
 import { FaInstagram, FaWhatsapp } from "react-icons/fa6";
 import { instagramUrl, mapsUrl, qrCodeUrl, reviewsUrlFor, useSettings, whatsappUrl } from "@/lib/settings";
 
-const BAR_HEIGHT = 68;
-const TICKER_MS = 3200;
+const BAR_HEIGHT = 80;
+const TICKER_MS = 3400;
 
 // Antes esto vivía en una franja gris aparte, arriba de la página
 // (AttributeStrip.jsx, `sticky` — solo aparecía al scrollear más allá del
@@ -35,14 +35,16 @@ const ATTR_BADGES = [
   { text: "Trazabilidad total", Icon: ClipboardList, color: "#E7002A" },
 ];
 
-// Las cifras y los atributos no entraban juntos en la franja sin achicar
-// todo lo demás — en vez de mostrarlos todos a la vez, rotan de a uno en
-// el mismo espacio, como un cartel publicitario. Visible desde `sm` (no
-// solo `lg`): el cliente pidió que quedara integrado con la franja
-// blanca y esta ya es visible desde `sm` — si el ticker solo aparecía en
-// pantallas grandes, en la práctica no se veía integrado con nada. Ancho
-// fijo y texto con `truncate` por breakpoint para que quepa incluso con
-// las frases más largas (p. ej. "Herramientas especiales BMW").
+// Esto es lo que más le importa destacar al cliente de toda la franja —
+// no puede ser una píldora más entre los demás íconos. Es el elemento
+// más grande, más grueso y con más contraste de la franja (glow en loop,
+// igual criterio que el cuadro de nota del detalle de servicio), y le
+// gana ancho a los demás ítems (labels de contacto ocultos salvo
+// WhatsApp, reseñas sin el conteo). Visible desde `sm` (no solo `lg`):
+// si solo aparecía en pantallas grandes, en la práctica no se veía
+// integrado con nada en tablet. Ancho fijo y texto con `truncate` por
+// breakpoint para que quepa incluso con las frases más largas (p. ej.
+// "Herramientas especiales BMW").
 function StatsTicker({ items }) {
   const [i, setI] = useState(0);
 
@@ -53,26 +55,28 @@ function StatsTicker({ items }) {
 
   const item = items[i];
   return (
-    <div className="flex w-[118px] flex-none items-center sm:w-[150px] md:w-[210px] lg:w-[300px]">
+    <div className="flex w-[150px] flex-none items-center sm:w-[210px] md:w-[270px] lg:w-[330px] xl:w-[345px]">
       <div
         key={i}
-        className="flex w-full items-center gap-1.5 overflow-hidden rounded-full px-3 py-2 text-[10.5px] shadow-[0_6px_16px_rgba(27,95,174,0.35)] sm:gap-2 sm:px-3.5 md:gap-2.5 md:px-4 md:text-[12px] lg:px-5 lg:py-2.5 lg:text-[14px]"
+        className="flex w-full items-center gap-2 overflow-hidden rounded-full px-3.5 py-2.5 text-[11.5px] sm:gap-2.5 sm:px-4 sm:py-3 sm:text-[13px] md:gap-3 md:px-5 md:text-[14px] lg:text-[15px] xl:px-6 xl:py-3.5 xl:text-[17px]"
         style={{
           background: "linear-gradient(90deg, #1B5FAE, #4E9AD1)",
-          animation: "gsmBounceIn 620ms cubic-bezier(0.34,1.56,0.64,1) both",
+          animation:
+            "gsmBounceIn 620ms cubic-bezier(0.34,1.56,0.64,1) both, gsmNoteGlow 2200ms ease-in-out 700ms infinite",
         }}
       >
         {item.num ? (
           <>
-            <span className="h-1.5 w-1.5 flex-none animate-pulse rounded-full bg-white md:h-2 md:w-2" />
-            <span className="flex-none font-display font-bold text-white">{item.num}</span>
-            <span className="truncate text-white/85">{item.label}</span>
+            <span className="h-2 w-2 flex-none animate-pulse rounded-full bg-white md:h-2.5 md:w-2.5" />
+            <span className="flex-none font-display font-extrabold text-white">{item.num}</span>
+            <span className="truncate font-semibold text-white/90">{item.label}</span>
           </>
         ) : (
           <>
-            <item.Icon size={14} strokeWidth={2} className="flex-none text-white md:hidden" />
-            <item.Icon size={17} strokeWidth={2} className="hidden flex-none text-white md:block" />
-            <span className="truncate font-display font-semibold uppercase tracking-wide text-white">{item.text}</span>
+            <item.Icon size={16} strokeWidth={2.2} className="flex-none text-white sm:hidden" />
+            <item.Icon size={20} strokeWidth={2.1} className="hidden flex-none text-white sm:block md:hidden" />
+            <item.Icon size={23} strokeWidth={2} className="hidden flex-none text-white md:block" />
+            <span className="truncate font-display font-extrabold uppercase tracking-wide text-white">{item.text}</span>
           </>
         )}
       </div>
@@ -108,7 +112,7 @@ export default function SiteFooter() {
     <>
       <div aria-hidden style={{ height: BAR_HEIGHT }} className="hidden sm:block" />
       <footer
-        className="fixed inset-x-0 bottom-0 z-40 hidden items-center justify-center gap-2 border-t border-gray-200 bg-[#F4F5F6] px-2.5 sm:flex md:gap-3.5 md:px-4 lg:gap-7 lg:px-6"
+        className="fixed inset-x-0 bottom-0 z-40 hidden items-center justify-center gap-2 border-t border-gray-200 bg-[#F4F5F6] px-2.5 sm:flex md:gap-3 lg:gap-4 xl:gap-5 xl:px-6"
         style={{ height: BAR_HEIGHT }}
       >
         {items.map(({ label, href, external, Icon, color }) => (
@@ -120,7 +124,7 @@ export default function SiteFooter() {
             className="flex flex-none items-center gap-2 text-[13px] text-[#3A3A3A] transition-colors hover:text-mCyan"
           >
             <Icon size={16} strokeWidth={1.8} color={color || "#3A3A3A"} />
-            <span className="hidden whitespace-nowrap font-medium lg:inline">{label}</span>
+            <span className="hidden whitespace-nowrap font-medium xl:inline">{label}</span>
           </a>
         ))}
 
@@ -130,11 +134,11 @@ export default function SiteFooter() {
           href={reviewsUrl}
           target="_blank"
           rel="noreferrer"
-          className="flex flex-none items-center gap-1.5 border-l border-gray-300 pl-2 text-[12px] text-[#3A3A3A] transition-colors hover:text-mCyan sm:gap-2 md:pl-4 md:text-[13px] lg:pl-7"
+          className="flex flex-none items-center gap-1.5 border-l border-gray-300 pl-2 text-[12px] text-[#3A3A3A] transition-colors hover:text-mCyan sm:gap-2 md:pl-4 md:text-[13px] xl:pl-7"
         >
           <span className="font-display font-bold">{s.ratingScore}</span>
           <span className="tracking-wide text-amber-400">★★★★★</span>
-          <span className="hidden whitespace-nowrap text-[#6A6A6A] lg:inline">({s.ratingCount} reseñas)</span>
+          <span className="hidden whitespace-nowrap text-[#6A6A6A] xl:inline">({s.ratingCount} reseñas)</span>
         </a>
 
         <a
