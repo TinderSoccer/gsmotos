@@ -38,9 +38,9 @@ export default function NeumaticosPage() {
       {/* MobileTopBar ya trae el logo bajo `sm` — este header es la misma
           idea para tablet/desktop, donde esta página (a diferencia del
           hero de Home) no tiene un header propio con logo. */}
-      <div className="hidden items-center justify-between px-6 pt-6 sm:flex sm:px-10">
+      <div className="hidden items-center justify-between px-6 pt-3 sm:flex sm:px-10 lg:pt-4">
         <Link href="/" className="block leading-none" aria-label="Volver al inicio">
-          <Logo className="block h-auto w-[150px]" />
+          <Logo className="block h-auto w-[120px]" />
         </Link>
         <Link href="/" className="font-display text-sm uppercase tracking-wide text-mCyan hover:text-mCyan/80">
           ← Volver al inicio
@@ -49,8 +49,8 @@ export default function NeumaticosPage() {
 
       <NeumaticosHero agendarHref={AGENDAR_HREF} />
 
-      <section className="grid grid-cols-1 items-start gap-10 px-6 py-12 sm:px-10 lg:grid-cols-[1.15fr_0.85fr] lg:gap-10 lg:py-16">
-        <NeumaticosServicios />
+      <section className="grid grid-cols-1 items-start gap-6 px-6 py-6 sm:px-10 lg:grid-cols-[1.15fr_0.85fr] lg:gap-6 lg:py-8">
+        <NeumaticosServicios agendarHref={AGENDAR_HREF} />
         <NeumaticosUsos />
       </section>
 
