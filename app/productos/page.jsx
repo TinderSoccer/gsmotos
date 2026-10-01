@@ -154,9 +154,6 @@ function ProductosContent() {
               >
                 <div className="relative h-[160px] overflow-hidden bg-[#EFEDE9]">
                   <ProductPhoto photo={prod.photo} name={prod.name} />
-                  <div className="absolute left-3 top-3">
-                    <ColorBars />
-                  </div>
                   <EstadoBadge estado={prod.estado} />
                 </div>
                 <div className="flex flex-col gap-1.5 px-5 pb-5 pt-4">

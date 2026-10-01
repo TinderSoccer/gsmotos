@@ -1,13 +1,15 @@
 "use client";
 
+import { useState } from "react";
 import Link from "next/link";
 import { ImageOff, Search } from "lucide-react";
 import { FaWhatsapp } from "react-icons/fa6";
 import ColorBars from "../services/ColorBars";
 import ServiceGrid from "../services/ServiceGrid";
 import BrandRow from "../services/BrandRow";
+import ProductModal from "./ProductModal";
 import { useSettings, whatsappUrl } from "@/lib/settings";
-import { formatCLP, productConsultMessage } from "@/lib/catalogo";
+import { formatCLP } from "@/lib/catalogo";
 import { PLACEHOLDER_PHOTO } from "@/lib/productosData";
 
 // Foto del producto o, si todavía no tiene una propia, un aviso honesto de
@@ -27,13 +29,14 @@ function ProductPhoto({ photo, name }) {
   );
 }
 
-// Antes solo se marcaba "Usado" (si no, no decía nada) — a pedido del
-// cliente ahora siempre dice el estado, para que nunca quede ambiguo.
+// Antes solo se marcaba "Usado" (si no, no decía nada) y además quedaba
+// oculto en mobile ("hidden sm:block") — a pedido del cliente ahora
+// siempre dice el estado, en todos los anchos.
 function EstadoBadge({ estado }) {
   const usado = estado === "usado";
   return (
     <span
-      className="absolute right-2 top-2 hidden rounded-sm border border-white/15 px-1.5 py-0.5 font-display text-[9px] font-semibold uppercase tracking-[1.5px] text-white sm:block"
+      className="absolute right-2 top-2 rounded-sm border border-white/15 px-1.5 py-0.5 font-display text-[9px] font-semibold uppercase tracking-[1.5px] text-white"
       style={{ background: usado ? "rgba(11,11,11,0.85)" : "rgba(27,95,174,0.9)" }}
     >
       {usado ? "Usado" : "Nuevo"}
@@ -53,6 +56,7 @@ function EstadoBadge({ estado }) {
 
 function ProductCarousel({ query, onQueryChange, products, pageLabel, resultLabel, empty, onPrev, onNext, animClass }) {
   const s = useSettings();
+  const [openProduct, setOpenProduct] = useState(null);
   return (
     <div className="flex flex-col gap-5" style={{ animation: `${animClass} 760ms cubic-bezier(0.33,0.02,0.16,1) both` }}>
       <div className="flex items-center gap-3 rounded-[10px] border border-white/10 py-1 pl-5 pr-2.5" style={{ background: "linear-gradient(180deg, #1A1D21 0%, #0C0E10 100%)" }}>
@@ -108,12 +112,9 @@ function ProductCarousel({ query, onQueryChange, products, pageLabel, resultLabe
               key={prod.slug}
               className="group flex w-[46%] flex-none snap-start flex-col overflow-hidden rounded-xl border border-[#1E2226] bg-[#0B0D0F] text-[#E4E7EA] transition-all sm:w-auto sm:hover:-translate-y-1 sm:hover:border-mCyan"
             >
-              <Link href={`/productos?q=${encodeURIComponent(prod.name)}`} className="block">
+              <button type="button" onClick={() => setOpenProduct(prod)} className="block w-full text-left">
                 <div className="relative h-[110px] overflow-hidden bg-[#EFEDE9] sm:h-[150px]">
                   <ProductPhoto photo={prod.photo} name={prod.name} />
-                  <div className="absolute left-3 top-3 hidden sm:block">
-                    <ColorBars />
-                  </div>
                   <EstadoBadge estado={prod.estado} />
                 </div>
                 <div className="flex flex-col gap-1.5 px-3.5 pt-3.5 sm:gap-2 sm:px-5 sm:pt-4.5">
@@ -123,23 +124,21 @@ function ProductCarousel({ query, onQueryChange, products, pageLabel, resultLabe
                     <div className="font-display text-base font-bold text-white sm:text-lg">{formatCLP(prod.price)}</div>
                   )}
                 </div>
-              </Link>
-              <div className="px-3.5 pb-4 pt-1.5 sm:px-5 sm:pb-5 sm:pt-2">
-                <a
-                  href={whatsappUrl(s.phoneDigits, productConsultMessage(prod))}
-                  target="_blank"
-                  rel="noreferrer"
-                  className="inline-flex items-center gap-2 font-display text-[12.5px] uppercase tracking-wide text-mCyan hover:text-mCyan/80 sm:text-[13.5px]"
-                >
-                  <FaWhatsapp size={14} color="#25D366" />
-                  Consultar
-                  <span className="font-body">→</span>
-                </a>
-              </div>
+              </button>
+              <button
+                type="button"
+                onClick={() => setOpenProduct(prod)}
+                className="flex items-center gap-2 px-3.5 pb-4 pt-1.5 font-display text-[12.5px] uppercase tracking-wide text-mCyan hover:text-mCyan/80 sm:px-5 sm:pb-5 sm:pt-2 sm:text-[13.5px]"
+              >
+                <FaWhatsapp size={14} color="#25D366" />
+                Consultar
+                <span className="font-body">→</span>
+              </button>
             </div>
           ))}
         </div>
       )}
+      <ProductModal prod={openProduct} onClose={() => setOpenProduct(null)} />
     </div>
   );
 }
