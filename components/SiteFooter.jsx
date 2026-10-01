@@ -36,10 +36,13 @@ const ATTR_BADGES = [
 ];
 
 // Las cifras y los atributos no entraban juntos en la franja sin achicar
-// todo lo demás (o esconderlos hasta anchos muy grandes) — en vez de
-// mostrarlos todos a la vez, rotan de a uno en el mismo espacio, como un
-// cartel publicitario. Ancho fijo (no auto) para que no salte el resto de
-// la franja cada vez que cambia el slide.
+// todo lo demás — en vez de mostrarlos todos a la vez, rotan de a uno en
+// el mismo espacio, como un cartel publicitario. Visible desde `sm` (no
+// solo `lg`): el cliente pidió que quedara integrado con la franja
+// blanca y esta ya es visible desde `sm` — si el ticker solo aparecía en
+// pantallas grandes, en la práctica no se veía integrado con nada. Ancho
+// fijo y texto con `truncate` por breakpoint para que quepa incluso con
+// las frases más largas (p. ej. "Herramientas especiales BMW").
 function StatsTicker({ items }) {
   const [i, setI] = useState(0);
 
@@ -50,10 +53,10 @@ function StatsTicker({ items }) {
 
   const item = items[i];
   return (
-    <div className="hidden w-[300px] flex-none items-center overflow-visible lg:flex">
+    <div className="flex w-[118px] flex-none items-center sm:w-[150px] md:w-[210px] lg:w-[300px]">
       <div
         key={i}
-        className="flex items-center gap-2.5 whitespace-nowrap rounded-full px-5 py-2.5 text-[14px] shadow-[0_6px_16px_rgba(27,95,174,0.35)]"
+        className="flex w-full items-center gap-1.5 overflow-hidden rounded-full px-3 py-2 text-[10.5px] shadow-[0_6px_16px_rgba(27,95,174,0.35)] sm:gap-2 sm:px-3.5 md:gap-2.5 md:px-4 md:text-[12px] lg:px-5 lg:py-2.5 lg:text-[14px]"
         style={{
           background: "linear-gradient(90deg, #1B5FAE, #4E9AD1)",
           animation: "gsmBounceIn 620ms cubic-bezier(0.34,1.56,0.64,1) both",
@@ -61,14 +64,17 @@ function StatsTicker({ items }) {
       >
         {item.num ? (
           <>
-            <span className="h-2 w-2 flex-none animate-pulse rounded-full bg-white" />
-            <span className="font-display text-base font-bold text-white">{item.num}</span>
-            <span className="text-white/85">{item.label}</span>
+            <span className="h-1.5 w-1.5 flex-none animate-pulse rounded-full bg-white md:h-2 md:w-2" />
+            <span className="flex-none font-display font-bold text-white">{item.num}</span>
+            <span className="truncate text-white/85">{item.label}</span>
           </>
         ) : (
-          <item.Icon size={17} strokeWidth={2} className="flex-none text-white" />
+          <>
+            <item.Icon size={14} strokeWidth={2} className="flex-none text-white md:hidden" />
+            <item.Icon size={17} strokeWidth={2} className="hidden flex-none text-white md:block" />
+            <span className="truncate font-display font-semibold uppercase tracking-wide text-white">{item.text}</span>
+          </>
         )}
-        {!item.num && <span className="font-display font-semibold uppercase tracking-wide text-white">{item.text}</span>}
       </div>
     </div>
   );
@@ -102,7 +108,7 @@ export default function SiteFooter() {
     <>
       <div aria-hidden style={{ height: BAR_HEIGHT }} className="hidden sm:block" />
       <footer
-        className="fixed inset-x-0 bottom-0 z-40 hidden items-center justify-center gap-4 border-t border-gray-200 bg-[#F4F5F6] px-4 sm:flex lg:gap-7 lg:px-6"
+        className="fixed inset-x-0 bottom-0 z-40 hidden items-center justify-center gap-2 border-t border-gray-200 bg-[#F4F5F6] px-2.5 sm:flex md:gap-3.5 md:px-4 lg:gap-7 lg:px-6"
         style={{ height: BAR_HEIGHT }}
       >
         {items.map(({ label, href, external, Icon, color }) => (
@@ -124,9 +130,9 @@ export default function SiteFooter() {
           href={reviewsUrl}
           target="_blank"
           rel="noreferrer"
-          className="flex flex-none items-center gap-2 border-l border-gray-300 pl-4 text-[13px] text-[#3A3A3A] transition-colors hover:text-mCyan lg:pl-7"
+          className="flex flex-none items-center gap-1.5 border-l border-gray-300 pl-2 text-[12px] text-[#3A3A3A] transition-colors hover:text-mCyan sm:gap-2 md:pl-4 md:text-[13px] lg:pl-7"
         >
-          <span className="font-display text-sm font-bold">{s.ratingScore}</span>
+          <span className="font-display font-bold">{s.ratingScore}</span>
           <span className="tracking-wide text-amber-400">★★★★★</span>
           <span className="hidden whitespace-nowrap text-[#6A6A6A] lg:inline">({s.ratingCount} reseñas)</span>
         </a>
@@ -142,7 +148,7 @@ export default function SiteFooter() {
           <img
             src={qrCodeUrl(reviewsUrl, 160)}
             alt="Código QR — ver reseñas"
-            className="h-14 w-14 flex-none origin-bottom-right rounded bg-white shadow-sm transition-transform duration-200 ease-out hover:scale-[3] hover:shadow-xl"
+            className="h-10 w-10 flex-none origin-bottom-right rounded bg-white shadow-sm transition-transform duration-200 ease-out hover:scale-[3] hover:shadow-xl md:h-14 md:w-14"
             width={56}
             height={56}
           />
