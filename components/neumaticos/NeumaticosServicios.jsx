@@ -26,7 +26,7 @@ export default function NeumaticosServicios({ agendarHref }) {
         </div>
         <p className="mt-1 text-[12px] text-[#6E7780]">{NEUMATICOS_SERVICIOS_HINT}</p>
       </div>
-      <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
+      <div className="grid grid-cols-2 gap-3">
         {NEUMATICOS_SERVICIOS.map(({ slot, Icon, title }) => (
           <button
             key={slot}
@@ -34,10 +34,10 @@ export default function NeumaticosServicios({ agendarHref }) {
             onClick={() => setOpenSlot(slot)}
             className="flex flex-col overflow-hidden rounded-lg border border-[#1E2226] bg-[#0B0D0F] text-left transition-colors hover:border-mCyan"
           >
-            <SlotImage src={photos[slot]} alt={title} Icon={Icon} className="aspect-[4/3] w-full" />
-            <div className="flex items-center justify-between gap-1.5 px-2.5 py-2">
-              <h3 className="font-display text-[11.5px] font-bold uppercase leading-tight text-white">{title}</h3>
-              <ChevronRight size={14} strokeWidth={2} className="flex-none text-mCyan" aria-hidden="true" />
+            <SlotImage src={photos[slot]} alt={title} Icon={Icon} className="aspect-square w-full" />
+            <div className="flex items-center justify-between gap-1.5 px-3 py-2.5">
+              <h3 className="font-display text-[12.5px] font-bold uppercase leading-tight text-white">{title}</h3>
+              <ChevronRight size={15} strokeWidth={2} className="flex-none text-mCyan" aria-hidden="true" />
             </div>
           </button>
         ))}

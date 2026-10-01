@@ -49,7 +49,7 @@ export default function NeumaticosPage() {
 
       <NeumaticosHero agendarHref={AGENDAR_HREF} />
 
-      <section className="grid grid-cols-1 items-start gap-6 px-6 py-6 sm:px-10 lg:grid-cols-[1.15fr_0.85fr] lg:gap-6 lg:py-8">
+      <section className="grid grid-cols-1 items-stretch gap-6 px-6 py-6 sm:px-10 lg:grid-cols-[1.15fr_0.85fr] lg:gap-6 lg:py-8">
         <NeumaticosServicios agendarHref={AGENDAR_HREF} />
         <NeumaticosUsos />
       </section>
