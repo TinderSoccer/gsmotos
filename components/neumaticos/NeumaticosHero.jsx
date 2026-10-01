@@ -13,27 +13,27 @@ import { NEUMATICOS_HERO } from "@/lib/neumaticosContent";
 // texto, solo con una línea lateral para distinguirla, nada más.
 export default function NeumaticosHero({ agendarHref }) {
   return (
-    <section id="neumaticos-hero" className="flex flex-col gap-2 px-6 pt-3 sm:px-10 sm:pt-3 lg:pt-3">
-      <div className="flex items-center gap-3.5">
+    <section id="neumaticos-hero" className="flex flex-col gap-3.5 px-6 pt-8 sm:px-10 sm:pt-10">
+      <div className="flex items-center gap-4">
         <ColorBars size="lg" />
-        <h1 className="font-display text-[22px] font-bold italic uppercase leading-[1.02] text-white sm:text-[26px] lg:text-[28px]">
+        <h1 className="font-display text-[32px] font-bold italic uppercase leading-none text-white sm:text-4xl">
           {NEUMATICOS_HERO.title}
         </h1>
       </div>
-      <p className="font-display text-lg italic leading-snug text-mCyan sm:text-xl">{NEUMATICOS_HERO.lead}</p>
+      <p className="font-display text-xl italic leading-snug text-mCyan sm:text-2xl">{NEUMATICOS_HERO.lead}</p>
       {NEUMATICOS_HERO.paragraphs.map((p) => (
-        <p key={p} className="text-[13.5px] leading-[1.55] text-[#B9C0C7]">
+        <p key={p} className="max-w-3xl text-[15px] leading-[1.6] text-[#B9C0C7]">
           {p}
         </p>
       ))}
-      <p className="border-l-[3px] border-mBlue pl-3 font-display text-base italic leading-snug text-white sm:text-lg">
+      <p className="max-w-3xl border-l-[3px] border-mBlue pl-4 font-display text-lg italic leading-snug text-white sm:text-xl">
         {NEUMATICOS_HERO.quote}
       </p>
       <Link
         href={agendarHref}
-        className="mt-0.5 inline-flex w-fit items-center gap-2.5 whitespace-nowrap rounded border border-mBlue px-5 py-2 font-display text-[12.5px] font-semibold uppercase tracking-[1.8px] text-white transition-colors hover:bg-mBlue/10 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-mCyan"
+        className="mt-1 inline-flex w-fit items-center gap-3 whitespace-nowrap rounded bg-mBlue px-7 py-4 font-display text-[15px] font-semibold uppercase tracking-[2.2px] text-white transition-colors hover:bg-mCyan"
       >
-        <Calendar size={13} strokeWidth={2} aria-hidden="true" />
+        <Calendar size={17} strokeWidth={2} aria-hidden="true" />
         <span>Agendar hora</span>
       </Link>
     </section>

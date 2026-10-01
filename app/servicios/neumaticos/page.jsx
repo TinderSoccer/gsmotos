@@ -38,9 +38,9 @@ export default function NeumaticosPage() {
       {/* MobileTopBar ya trae el logo bajo `sm` — este header es la misma
           idea para tablet/desktop, donde esta página (a diferencia del
           hero de Home) no tiene un header propio con logo. */}
-      <div className="hidden items-center justify-between px-6 pt-3 sm:flex sm:px-10 lg:pt-4">
+      <div className="hidden items-center justify-between px-6 pt-6 sm:flex sm:px-10">
         <Link href="/" className="block leading-none" aria-label="Volver al inicio">
-          <Logo className="block h-auto w-[120px]" />
+          <Logo className="block h-auto w-[150px]" />
         </Link>
         <Link href="/" className="font-display text-sm uppercase tracking-wide text-mCyan hover:text-mCyan/80">
           ← Volver al inicio
@@ -58,10 +58,10 @@ export default function NeumaticosPage() {
           El banner final ("¿Listo para rodar?") ya no va abajo de las dos
           columnas: vive apilado bajo "Tipos de uso", que es más corto que
           "Servicios" — así ocupa el espacio que quedaba vacío ahí en vez
-          de agregar una sección más y obligar a hacer scroll para verlo. */}
-      <section className="grid grid-cols-1 items-start gap-4 px-6 py-3 sm:px-10 lg:grid-cols-[0.78fr_1.22fr] lg:gap-4 lg:py-3">
+          de agregar una sección más. */}
+      <section className="grid grid-cols-1 items-start gap-8 px-6 py-10 sm:px-10 lg:grid-cols-[0.85fr_1.15fr] lg:gap-8 lg:py-14">
         <NeumaticosServicios agendarHref={AGENDAR_HREF} />
-        <div className="flex flex-col gap-4">
+        <div className="flex flex-col gap-8">
           <NeumaticosUsos agendarHref={AGENDAR_HREF} />
           <NeumaticosCta agendarHref={AGENDAR_HREF} />
         </div>

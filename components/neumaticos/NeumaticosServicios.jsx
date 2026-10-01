@@ -18,15 +18,15 @@ export default function NeumaticosServicios({ agendarHref }) {
   const openCard = NEUMATICOS_SERVICIOS.find((c) => c.slot === openSlot) || null;
 
   return (
-    <div className="flex flex-col gap-2.5 rounded-xl border border-[#1E2226] bg-white/[0.02] p-3 sm:p-3.5">
+    <div className="flex flex-col gap-4 rounded-xl border border-[#1E2226] bg-white/[0.02] p-5">
       <div>
         <div className="flex items-center gap-3.5">
           <ColorBars />
-          <h2 className="font-display text-lg font-bold uppercase tracking-wide text-white">Servicios</h2>
+          <h2 className="font-display text-2xl font-bold italic uppercase leading-none tracking-wide text-white">Servicios</h2>
         </div>
-        <p className="mt-1 text-[12px] text-[#6E7780]">{NEUMATICOS_SERVICIOS_HINT}</p>
+        <p className="mt-1.5 text-[13px] uppercase tracking-wide text-[#6E7780]">{NEUMATICOS_SERVICIOS_HINT}</p>
       </div>
-      <div className="grid grid-cols-2 gap-3">
+      <div className="grid grid-cols-2 gap-4">
         {NEUMATICOS_SERVICIOS.map(({ slot, Icon, title, defaultPhoto }) => (
           <button
             key={slot}
@@ -37,13 +37,13 @@ export default function NeumaticosServicios({ agendarHref }) {
             <SlotImage src={photos[slot] || defaultPhoto} alt={title} Icon={Icon} fill className="h-full w-full" />
             <div
               className="pointer-events-none absolute inset-0"
-              style={{ background: "linear-gradient(180deg, rgba(5,5,5,0) 45%, rgba(5,5,5,0.85) 100%)" }}
+              style={{ background: "linear-gradient(180deg, rgba(5,5,5,0) 40%, rgba(5,5,5,0.9) 100%)" }}
             />
-            <div className="absolute inset-x-0 bottom-0 flex items-center justify-between gap-1.5 px-2.5 py-2">
-              <h3 className="font-display text-[13px] font-bold uppercase leading-tight text-white [text-shadow:0_1px_4px_rgba(0,0,0,0.6)]">
+            <div className="absolute inset-x-0 bottom-0 flex items-center justify-between gap-1.5 px-3.5 py-3">
+              <h3 className="font-display text-lg font-bold italic uppercase leading-tight text-white [text-shadow:0_1px_4px_rgba(0,0,0,0.6)]">
                 {title}
               </h3>
-              <ChevronRight size={14} strokeWidth={2.2} className="flex-none text-white" aria-hidden="true" />
+              <ChevronRight size={18} strokeWidth={2.2} className="flex-none text-mCyan" aria-hidden="true" />
             </div>
           </button>
         ))}

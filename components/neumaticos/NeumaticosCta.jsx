@@ -29,37 +29,44 @@ export default function NeumaticosCta({ agendarHref }) {
   return (
     <section
       id="neumaticos-cta"
-      className="flex flex-col gap-2.5 rounded-xl border border-mBlue/40 p-3.5 sm:p-4"
-      style={{ background: "linear-gradient(145deg, rgba(27,95,174,0.16) 0%, rgba(11,13,15,0.4) 70%)" }}
+      className="flex flex-col gap-4 rounded-xl border border-mBlue/40 p-5"
+      style={{ background: "linear-gradient(145deg, rgba(27,95,174,0.18) 0%, rgba(11,13,15,0.4) 70%)" }}
     >
-      <div className="flex flex-col gap-1">
-        <h2 className="font-display text-lg font-bold italic uppercase leading-[1.05] text-white">{NEUMATICOS_CTA.title}</h2>
-        <p className="text-[12.5px] leading-[1.45] text-[#B9C0C7]">{NEUMATICOS_CTA.subtitle}</p>
+      <div className="flex flex-col gap-1.5">
+        <h2 className="font-display text-2xl font-bold italic uppercase leading-[1.05] text-white">{NEUMATICOS_CTA.title}</h2>
+        <p className="text-sm leading-[1.5] text-[#B9C0C7]">{NEUMATICOS_CTA.subtitle}</p>
       </div>
-      <div className="flex flex-col items-stretch gap-2 sm:flex-row sm:flex-wrap">
-        <Link
-          href={agendarHref}
-          className="inline-flex flex-1 basis-0 items-center justify-center gap-2 whitespace-nowrap rounded border border-mBlue bg-mBlue px-3 py-2.5 font-display text-[11.5px] font-semibold uppercase tracking-[1.3px] text-white transition-colors hover:border-mCyan hover:bg-mCyan sm:min-w-[130px]"
-        >
-          <Calendar size={13} strokeWidth={2} aria-hidden="true" />
-          <span>Agendar</span>
-        </Link>
+
+      {/* "Agendar" es la acción principal: mucho más grande y con flecha,
+          igual criterio que los botones primarios del resto del sitio —
+          "Comprar"/"Asesórate" quedan como alternativas secundarias,
+          notoriamente más chicas. */}
+      <Link
+        href={agendarHref}
+        className="inline-flex w-full items-center justify-center gap-3 whitespace-nowrap rounded bg-mBlue px-6 py-4 font-display text-base font-semibold uppercase tracking-[2.2px] text-white transition-colors hover:bg-mCyan sm:w-fit"
+      >
+        <Calendar size={18} strokeWidth={2} aria-hidden="true" />
+        <span>Agendar</span>
+        <span className="font-body" aria-hidden="true">→</span>
+      </Link>
+
+      <div className="flex flex-col items-stretch gap-2.5 sm:flex-row">
         <a
           href={comprarHref}
           target="_blank"
           rel="noopener noreferrer"
-          className="inline-flex flex-1 basis-0 items-center justify-center gap-2 whitespace-nowrap rounded border border-mCyan px-3 py-2.5 font-display text-[11.5px] font-semibold uppercase tracking-[1.3px] text-white transition-colors hover:bg-mCyan/15 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-mCyan sm:min-w-[150px]"
+          className="inline-flex flex-1 items-center justify-center gap-2 whitespace-nowrap rounded border border-mCyan px-4 py-2.5 font-display text-[13px] font-semibold uppercase tracking-[1.5px] text-white transition-colors hover:bg-mCyan/15 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-mCyan"
         >
-          <ShoppingCart size={13} strokeWidth={2} aria-hidden="true" />
+          <ShoppingCart size={14} strokeWidth={2} aria-hidden="true" />
           <span>Compra tu neumático</span>
         </a>
         <a
           href={asesoriaHref}
           target="_blank"
           rel="noopener noreferrer"
-          className="inline-flex flex-1 basis-0 items-center justify-center gap-2 whitespace-nowrap rounded border border-mCyan px-3 py-2.5 font-display text-[11.5px] font-semibold uppercase tracking-[1.3px] text-white transition-colors hover:bg-mCyan/15 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-mCyan sm:min-w-[160px]"
+          className="inline-flex flex-1 items-center justify-center gap-2 whitespace-nowrap rounded border border-mCyan px-4 py-2.5 font-display text-[13px] font-semibold uppercase tracking-[1.5px] text-white transition-colors hover:bg-mCyan/15 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-mCyan"
         >
-          <MessageCircle size={13} strokeWidth={2} aria-hidden="true" />
+          <MessageCircle size={14} strokeWidth={2} aria-hidden="true" />
           <span>Asesórate con nosotros</span>
         </a>
       </div>
