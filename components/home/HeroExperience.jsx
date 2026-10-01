@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState } from "react";
+import { useRouter } from "next/navigation";
 import HeroBanner from "./HeroBanner";
 import SelectorPanel from "./SelectorPanel";
 import { menus } from "@/lib/servicesData";
@@ -9,6 +10,7 @@ import { useProductos } from "@/lib/catalogo";
 const PER_PAGE = 4;
 
 export default function HeroExperience() {
+  const router = useRouter();
   const [sel, setSel] = useState(0);
   const [tick, setTick] = useState(0);
   const [query, setQuery] = useState("");
@@ -37,7 +39,15 @@ export default function HeroExperience() {
     return () => clearInterval(autoRef.current);
   }, [isProductos]);
 
+  // "Neumáticos & Vulcanización" ya no se muestra inline en la home (esas 4
+  // tarjetas genéricas quedaron obsoletas): tiene su propia página a medida
+  // en /servicios/neumaticos (ver app/servicios/neumaticos/page.jsx), así
+  // que el tablero del hero navega directo ahí en vez de cambiar de panel.
   function handleSelect(i) {
+    if (menus[i]?.slug === "neumaticos") {
+      router.push("/servicios/neumaticos");
+      return;
+    }
     if (i === sel) return;
     setSel(i);
     setTick((t) => t + 1);
