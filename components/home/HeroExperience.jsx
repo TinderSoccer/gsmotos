@@ -67,6 +67,10 @@ export default function HeroExperience() {
     if (i === sel) return;
     setSel(i);
     setTick((t) => t + 1);
+    // Al elegir una opción del tablero (o del menú del hero), bajar de
+    // una vez a las tarjetas en vez de dejar al usuario mirando el hero
+    // con el panel ya cambiado fuera de la vista.
+    document.getElementById("servicios")?.scrollIntoView({ behavior: "smooth", block: "start" });
   }
 
   function step(d) {

@@ -48,21 +48,25 @@ export default function TableroFoto({ onSelect, fluid = false, width = 440 }) {
     [getAudio]
   );
 
+  // Antes era un barrido ascendente en onda cuadrada (1180→1760Hz) — sonaba
+  // a videojuego/arcade. Un "tock" grave en onda seno, sin barrido hacia
+  // arriba, se siente más sobrio (más cerca del clic de un panel de auto
+  // real que de un botón de consola).
   const beep = useCallback(() => {
     const ctx = getAudio();
     if (!ctx) return;
     const t = ctx.currentTime;
     const osc = ctx.createOscillator();
     const gain = ctx.createGain();
-    osc.type = "square";
-    osc.frequency.setValueAtTime(1180, t);
-    osc.frequency.exponentialRampToValueAtTime(1760, t + 0.05);
+    osc.type = "sine";
+    osc.frequency.setValueAtTime(380, t);
+    osc.frequency.exponentialRampToValueAtTime(260, t + 0.07);
     gain.gain.setValueAtTime(0.0001, t);
-    gain.gain.exponentialRampToValueAtTime(0.07, t + 0.008);
-    gain.gain.exponentialRampToValueAtTime(0.0001, t + 0.11);
+    gain.gain.exponentialRampToValueAtTime(0.05, t + 0.004);
+    gain.gain.exponentialRampToValueAtTime(0.0001, t + 0.09);
     osc.connect(gain).connect(ctx.destination);
     osc.start(t);
-    osc.stop(t + 0.13);
+    osc.stop(t + 0.1);
   }, [getAudio]);
 
   return (
