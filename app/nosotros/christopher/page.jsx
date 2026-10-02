@@ -5,6 +5,7 @@ import ColorBars from "@/components/services/ColorBars";
 import SiteFooter from "@/components/SiteFooter";
 import Logo from "@/components/Logo";
 import { MobileMenuButton } from "@/components/mobile/MobileNav";
+import TrayectoriaFoto from "@/components/nosotros/TrayectoriaFoto";
 import { TRAYECTORIA } from "@/lib/certificados";
 
 // Página propia de Christopher, fiel al diseño original de Claude Design
@@ -122,12 +123,23 @@ export default function ChristopherPage() {
                   ) : (
                     <div className="text-[15.5px] leading-[1.6] text-[#3A3A3A]">{item.text}</div>
                   )}
-                  {item.logos && (
+                  {(item.logos || item.photo) && (
                     <div className="flex flex-wrap items-center gap-4">
-                      {item.logos.map((logo) => (
+                      {item.logos?.map((logo) => (
                         // eslint-disable-next-line @next/next/no-img-element
                         <img key={logo.src} src={logo.src} alt={logo.alt} className="h-5 w-auto object-contain" />
                       ))}
+                      {item.photo && (
+                        <TrayectoriaFoto
+                          thumb={item.photo.thumb}
+                          full={item.photo.full}
+                          alt={item.photo.alt}
+                          year={item.photo.year}
+                          org={item.photo.org}
+                          title={item.photo.title}
+                          desc={item.photo.desc}
+                        />
+                      )}
                     </div>
                   )}
                 </div>
