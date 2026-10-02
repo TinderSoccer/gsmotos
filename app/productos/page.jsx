@@ -13,6 +13,7 @@ import { checkStock } from "@/lib/tallergp";
 import { formatCLP, productConsultMessage, useProductosChanged } from "@/lib/catalogo";
 import { PLACEHOLDER_PHOTO } from "@/lib/productosData";
 import { useSettings, whatsappUrl } from "@/lib/settings";
+import SmartImage from "@/components/common/SmartImage";
 
 // Plantilla de catálogo/listado — hoy solo la usa "Productos", pensada para
 // cualquier categoría futura que necesite consulta de stock en vez de una
@@ -34,10 +35,7 @@ function ProductPhoto({ photo, name }) {
       </div>
     );
   }
-  return (
-    // eslint-disable-next-line @next/next/no-img-element
-    <img src={photo} alt={name} className="block h-full w-full object-contain p-3" />
-  );
+  return <SmartImage src={photo} alt={name} fit="contain" className="p-3" sizes="(max-width: 639px) 100vw, (max-width: 1023px) 50vw, 330px" />;
 }
 
 // Antes solo se marcaba "Usado" (si no, no decía nada) — a pedido del

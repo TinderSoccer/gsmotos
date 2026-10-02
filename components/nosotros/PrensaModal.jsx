@@ -1,6 +1,7 @@
 "use client";
 
 import { useRef, useState } from "react";
+import Image from "next/image";
 
 // Popup para TrayectoriaFoto.jsx — a diferencia de CertificadoModal (ancho
 // fijo pensado para escaneos apaisados), acá el ancho también es fijo
@@ -105,10 +106,12 @@ export default function PrensaModal({ photo, onClose }) {
         </button>
 
         <div ref={scrollRef} className="relative max-h-[78vh] overflow-auto bg-[#111]">
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img
+          <Image
             src={photo.full}
             alt={photo.alt}
+            width={1236}
+            height={1600}
+            sizes="(max-width: 639px) 100vw, 760px"
             draggable={false}
             onPointerDown={handlePointerDown}
             onPointerMove={handlePointerMove}

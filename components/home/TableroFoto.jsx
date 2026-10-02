@@ -7,6 +7,7 @@
 // % que el diseño), con un pequeño feedback sonoro al pasar el mouse/clic —
 // igual que el original.
 import { useCallback, useRef } from "react";
+import Image from "next/image";
 
 const MENU_LABELS = [
   "Servicios BMW Motorrad",
@@ -66,10 +67,13 @@ export default function TableroFoto({ onSelect, fluid = false, width = 440 }) {
 
   return (
     <div className={fluid ? "relative w-full" : "relative"} style={{ width: fluid ? undefined : `${width}px` }}>
-      {/* eslint-disable-next-line @next/next/no-img-element */}
-      <img
+      <Image
         src="/images/tablero-bmw.png"
         alt="Tablero digital GSmotos"
+        width={1148}
+        height={928}
+        priority
+        sizes="(max-width: 1023px) 92vw, 440px"
         className="block h-auto w-full"
         style={{
           WebkitMaskImage:

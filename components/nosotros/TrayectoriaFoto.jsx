@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { Search } from "lucide-react";
 import PrensaModal from "./PrensaModal";
+import SmartImage from "@/components/common/SmartImage";
 
 // Thumbnail clickeable junto a un hito de Trayectoria que abre un popup
 // con la foto de prensa en grande (PrensaModal.jsx — a diferencia del de
@@ -21,8 +22,7 @@ export default function TrayectoriaFoto({ thumb, full, alt, year, org, title, de
         className="relative h-16 w-16 flex-none overflow-hidden rounded border border-white/20 transition-colors hover:border-mCyan"
         aria-label={`Ver foto: ${alt}`}
       >
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img src={thumb} alt={alt} className="block h-full w-full object-cover" />
+        <SmartImage src={thumb} alt={alt} sizes="64px" />
         <span className="absolute inset-0 flex items-center justify-center bg-black/35 opacity-0 transition-opacity hover:opacity-100">
           <Search size={20} strokeWidth={2.2} className="text-white" aria-hidden="true" />
         </span>

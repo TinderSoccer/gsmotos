@@ -5,6 +5,7 @@
 // (mp4/webm/ogg, se reproduce con <video>) o un link de YouTube/Vimeo (se
 // incrusta como <iframe>).
 import { isDirectVideoUrl, toEmbedUrl, useTallerItems } from "@/lib/taller";
+import SmartImage from "@/components/common/SmartImage";
 
 export default function TallerGallery() {
   const items = useTallerItems();
@@ -37,8 +38,7 @@ export default function TallerGallery() {
                 />
               )
             ) : (
-              // eslint-disable-next-line @next/next/no-img-element
-              <img src={item.photo} alt={item.caption || "Foto del taller"} className="h-full w-full object-cover" />
+              <SmartImage src={item.photo} alt={item.caption || "Foto del taller"} sizes="(max-width: 639px) 100vw, (max-width: 1023px) 50vw, 420px" />
             )}
           </div>
           {item.caption && <div className="px-4 py-3 text-sm text-[#C3C9CE]">{item.caption}</div>}

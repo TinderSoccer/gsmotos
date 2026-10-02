@@ -11,6 +11,7 @@ import ProductModal from "./ProductModal";
 import { useSettings, whatsappUrl } from "@/lib/settings";
 import { formatCLP } from "@/lib/catalogo";
 import { PLACEHOLDER_PHOTO } from "@/lib/productosData";
+import SmartImage from "@/components/common/SmartImage";
 
 // Foto del producto o, si todavía no tiene una propia, un aviso honesto de
 // "sin foto" — ver el mismo criterio en app/productos/page.jsx.
@@ -23,10 +24,7 @@ function ProductPhoto({ photo, name }) {
       </div>
     );
   }
-  return (
-    // eslint-disable-next-line @next/next/no-img-element
-    <img src={photo} alt={name} className="block h-full w-full object-contain p-2.5 sm:p-3" />
-  );
+  return <SmartImage src={photo} alt={name} fit="contain" className="p-2.5 sm:p-3" sizes="(max-width: 639px) 46vw, 190px" />;
 }
 
 // Antes solo se marcaba "Usado" (si no, no decía nada) y además quedaba

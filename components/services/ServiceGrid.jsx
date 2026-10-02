@@ -5,6 +5,7 @@ import Link from "next/link";
 import ColorBars from "./ColorBars";
 import ServiceDetailModal from "./ServiceDetailModal";
 import { servicePhotoKey, useServicePhotos } from "@/lib/servicePhotos";
+import SmartImage from "@/components/common/SmartImage";
 
 // Grilla de tarjetas de servicio, fiel al comportamiento del diseño
 // original: una tarjeta con `href` propio (categoría "GSmotos": Nosotros,
@@ -25,10 +26,7 @@ export default function ServiceGrid({ cards, animClass }) {
           const photo = (card.categorySlug && photoOverrides[servicePhotoKey(card.categorySlug, card.slug)]) || card.photo;
           const content = (
             <>
-              <div
-                className="absolute inset-0 bg-cover bg-center brightness-125"
-                style={{ backgroundImage: `url(${photo})` }}
-              />
+              <SmartImage src={photo} alt={card.title} className="brightness-125" sizes="(max-width: 639px) 50vw, (max-width: 1023px) 33vw, 420px" />
               <div className="pointer-events-none absolute inset-0" style={{ background: "linear-gradient(180deg, rgba(5,5,5,0.10) 0%, rgba(5,5,5,0.58) 34%, rgba(5,5,5,0.90) 62%, rgba(5,5,5,0.96) 100%)" }} />
               <div className="relative flex min-h-[168px] flex-col justify-between gap-2 px-3 pb-3.5 pt-3 sm:min-h-[320px] sm:justify-end sm:gap-3 sm:px-6 sm:pb-6 sm:pt-6">
                 <div className="hidden items-center gap-3 sm:flex">

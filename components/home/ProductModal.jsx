@@ -5,6 +5,7 @@ import { FaWhatsapp } from "react-icons/fa6";
 import { formatCLP, productConsultMessage } from "@/lib/catalogo";
 import { PLACEHOLDER_PHOTO } from "@/lib/productosData";
 import { useSettings, whatsappUrl } from "@/lib/settings";
+import SmartImage from "@/components/common/SmartImage";
 
 // Popup al hacer clic en una tarjeta de producto del carrusel "Destacados
 // de esta semana" (ver SelectorPanel.jsx) — antes la tarjeta navegaba a
@@ -38,8 +39,7 @@ export default function ProductModal({ prod, onClose }) {
 
         <div className="relative h-[220px] flex-none overflow-hidden bg-[#EFEDE9]">
           {prod.photo && prod.photo !== PLACEHOLDER_PHOTO ? (
-            // eslint-disable-next-line @next/next/no-img-element
-            <img src={prod.photo} alt={prod.name} className="block h-full w-full object-contain p-4" />
+            <SmartImage src={prod.photo} alt={prod.name} fit="contain" className="p-4" sizes="520px" />
           ) : (
             <div className="flex h-full w-full flex-col items-center justify-center gap-2">
               <ImageOff size={26} strokeWidth={1.4} className="text-[#A6A099]" />

@@ -5,6 +5,7 @@ import { Award } from "lucide-react";
 import { CERTIFICADOS } from "@/lib/certificados";
 import { useCertPhotos } from "@/lib/useCertPhotos";
 import CertificadoModal from "./CertificadoModal";
+import SmartImage from "@/components/common/SmartImage";
 
 // Grilla de certificados de Christopher. Cada tarjeta trae una foto real
 // del certificado (`defaultPhoto`, archivo del proyecto — ver
@@ -41,8 +42,7 @@ export default function CertificadosGrid() {
           >
             <div className="relative h-[130px] overflow-hidden border-b border-[#E0E0E0] bg-[#F2F2F2] sm:h-[240px]">
               {photo ? (
-                // eslint-disable-next-line @next/next/no-img-element
-                <img src={photo} alt={cert.title} className="block h-full w-full object-contain" />
+                <SmartImage src={photo} alt={cert.title} fit="contain" sizes="(max-width: 639px) 45vw, (max-width: 1023px) 45vw, 300px" />
               ) : (
                 <div
                   className="flex h-full w-full flex-col items-center justify-center gap-2 sm:gap-3"
