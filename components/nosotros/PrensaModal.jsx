@@ -111,6 +111,7 @@ export default function PrensaModal({ photo, onClose }) {
             alt={photo.alt}
             width={1236}
             height={1600}
+            priority
             // El tamaño pedido no es el de "reposo" (760px) sino el del
             // zoom (1.9x) — si no, la foto se ve nítida sin zoom pero
             // blanda al ampliarla, justo cuando el usuario quiere ver

@@ -39,7 +39,7 @@ export default function ProductModal({ prod, onClose }) {
 
         <div className="relative h-[220px] flex-none overflow-hidden bg-[#EFEDE9]">
           {prod.photo && prod.photo !== PLACEHOLDER_PHOTO ? (
-            <SmartImage src={prod.photo} alt={prod.name} fit="contain" className="p-4" sizes="520px" />
+            <SmartImage src={prod.photo} alt={prod.name} fit="contain" className="p-4" sizes="520px" priority />
           ) : (
             <div className="flex h-full w-full flex-col items-center justify-center gap-2">
               <ImageOff size={26} strokeWidth={1.4} className="text-[#A6A099]" />
