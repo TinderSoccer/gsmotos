@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { ImageOff, Search } from "lucide-react";
 import { FaWhatsapp } from "react-icons/fa6";
@@ -67,6 +67,35 @@ function EstadoBadge({ estado }) {
 function ProductCarousel({ query, onQueryChange, products, pageLabel, dir, resultLabel, empty, onPrev, onNext, animClass }) {
   const s = useSettings();
   const [openProduct, setOpenProduct] = useState(null);
+  const gridRef = useRef(null);
+  const prevLabelRef = useRef(null);
+
+  // Antes esta grilla se desmontaba y volvía a montar entera en cada
+  // cambio de página (key={pageLabel}) para repetir la animación de
+  // entrada — pero eso también destruye y recrea los <img> de las 4
+  // fotos, así estén en caché: el navegador los repinta desde cero, lo
+  // que se veía como un parpadeo ("pestañea") y una demora de carga que
+  // en realidad no era de red. Ahora el contenedor y las tarjetas (ver
+  // `key={i}` más abajo, por posición) se mantienen montados siempre —
+  // solo cambia el contenido (foto/texto) — y la animación de slide se
+  // dispara a mano con la Web Animations API cuando cambia `pageLabel`.
+  //
+  // SOLO transform, sin opacity: con opacity de por medio, la grilla
+  // entera pasaba por invisible un instante en cada cambio de página —
+  // un parpadeo real (se midió: el área caía a negro de fondo por un
+  // frame), más notorio todavía que el problema del remount. Sin fade,
+  // las tarjetas nunca desaparecen — solo se deslizan a su lugar.
+  useEffect(() => {
+    if (prevLabelRef.current === pageLabel) return;
+    prevLabelRef.current = pageLabel;
+    const el = gridRef.current;
+    if (!el) return;
+    el.animate(
+      [{ transform: dir === "prev" ? "translateX(-36px)" : "translateX(36px)" }, { transform: "none" }],
+      { duration: 380, easing: "cubic-bezier(0.33,0.02,0.16,1)", fill: "both" }
+    );
+  }, [pageLabel, dir]);
+
   return (
     <div className="flex flex-col gap-5" style={{ animation: `${animClass} 760ms cubic-bezier(0.33,0.02,0.16,1) both` }}>
       <div className="flex items-center gap-3 rounded-[10px] border border-white/10 py-1 pl-5 pr-2.5" style={{ background: "linear-gradient(180deg, #1A1D21 0%, #0C0E10 100%)" }}>
@@ -117,23 +146,19 @@ function ProductCarousel({ query, onQueryChange, products, pageLabel, dir, resul
         // fiel a "GSmotos Mobile.dc.html". Desde `sm` vuelve a ser la grilla
         // responsive de siempre — sin cambios ahí.
         //
-        // `key={pageLabel}` fuerza a React a desmontar y volver a montar
-        // esta grilla en cada cambio de página (auto cada 4.5s, flechas, o
-        // búsqueda) — así la animación de entrada se reproduce de nuevo
-        // cada vez, en vez de solo la primera vez que aparece el carrusel
-        // (antes el cambio de página era un salto seco, sin transición).
-        // La dirección (gsmSlideNext/gsmSlidePrev) viene de qué flecha se
-        // usó (o "next" por defecto, para el auto-avance y la búsqueda) —
-        // un slide horizontal se siente más "carrusel" que el fade+escala
-        // (gsmIn1/2) que se usa para los otros cambios de panel.
+        // Este contenedor y sus tarjetas YA NO se desmontan en cada cambio
+        // de página (ver comentario arriba, junto al useEffect de
+        // gridRef) — la animación de slide la dispara ese efecto a mano.
+        // `key={i}` (por posición, no por `prod.slug`) es lo que permite
+        // que React reutilice los mismos nodos <img> entre páginas en vez
+        // de recrearlos.
         <div
-          key={pageLabel}
+          ref={gridRef}
           className="-mx-6 flex snap-x snap-mandatory gap-3 overflow-x-auto px-6 pb-1 sm:mx-0 sm:grid sm:grid-cols-2 sm:gap-3.5 sm:overflow-visible sm:px-0 sm:pb-0 lg:grid-cols-4"
-          style={{ animation: `${dir === "prev" ? "gsmSlidePrev" : "gsmSlideNext"} 420ms cubic-bezier(0.33,0.02,0.16,1) both` }}
         >
-          {products.map((prod) => (
+          {products.map((prod, i) => (
             <div
-              key={prod.slug}
+              key={i}
               className="group flex w-[46%] flex-none snap-start flex-col overflow-hidden rounded-xl border border-[#1E2226] bg-[#0B0D0F] text-[#E4E7EA] transition-all sm:w-auto sm:hover:-translate-y-1 sm:hover:border-mCyan"
             >
               <button type="button" onClick={() => setOpenProduct(prod)} className="block w-full text-left">
