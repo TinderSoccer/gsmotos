@@ -26,6 +26,18 @@ body {
   from { opacity: 0; transform: translateY(14px) scale(0.99); }
   to { opacity: 1; transform: none; }
 }
+/* Slide horizontal del carrusel de "Destacados" (Home) al cambiar de
+   página — a diferencia de gsmIn1/2 (fade+escala, para cambios de
+   categoría), este lleva dirección: entra desde la derecha al avanzar
+   ("→"/auto-avance/búsqueda) o desde la izquierda al retroceder ("←"). */
+@keyframes gsmSlideNext {
+  from { opacity: 0; transform: translateX(36px); }
+  to { opacity: 1; transform: none; }
+}
+@keyframes gsmSlidePrev {
+  from { opacity: 0; transform: translateX(-36px); }
+  to { opacity: 1; transform: none; }
+}
 @keyframes gsmBack {
   from { opacity: 0; }
   to { opacity: 1; }

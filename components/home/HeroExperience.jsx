@@ -2,10 +2,12 @@
 
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
+import Image from "next/image";
 import HeroBanner from "./HeroBanner";
 import SelectorPanel from "./SelectorPanel";
 import { menus } from "@/lib/servicesData";
 import { useProductos } from "@/lib/catalogo";
+import { PLACEHOLDER_PHOTO } from "@/lib/productosData";
 
 const PER_PAGE = 4;
 
@@ -15,6 +17,7 @@ export default function HeroExperience() {
   const [tick, setTick] = useState(0);
   const [query, setQuery] = useState("");
   const [prodPage, setProdPage] = useState(0);
+  const [prodDir, setProdDir] = useState("next");
   const autoRef = useRef(null);
 
   const menu = menus[sel];
@@ -51,7 +54,10 @@ export default function HeroExperience() {
   // categoría está activa.
   useEffect(() => {
     if (!isProductos) return undefined;
-    autoRef.current = setInterval(() => setProdPage((p) => p + 1), 4500);
+    autoRef.current = setInterval(() => {
+      setProdDir("next");
+      setProdPage((p) => p + 1);
+    }, 4500);
     return () => clearInterval(autoRef.current);
   }, [isProductos]);
 
@@ -77,11 +83,35 @@ export default function HeroExperience() {
 
   function step(d) {
     clearInterval(autoRef.current);
+    setProdDir(d > 0 ? "next" : "prev");
     setProdPage((p) => p + d);
   }
 
+  // Precarga de "Destacados": mientras el visitante está en cualquier OTRA
+  // pestaña, prodPage queda congelado en 0 (el auto-avance solo corre si
+  // isProductos, ver arriba) — así que estas son siempre las fotos de la
+  // primera página. Se piden con `priority` pero en un bloque invisible
+  // (1x1px, fuera de pantalla) para que el navegador las tenga en caché
+  // ANTES de que el usuario toque "Productos", sin ocupar espacio ni
+  // duplicar nada visible.
+  // El `sizes` tiene que ser EXACTAMENTE el mismo que usa ProductPhoto
+  // (SelectorPanel.jsx): next/image elige qué variante de la imagen pedir
+  // en base al string de `sizes`, no al tamaño real del elemento — con un
+  // `sizes` distinto (o un `width`/`height` chico) se precarga una URL
+  // distinta a la que la foto real termina pidiendo, y no sirve de nada.
+  const preloadPhotos = visibleProducts.filter((p) => p.photo && p.photo !== PLACEHOLDER_PHOTO);
+
   return (
     <>
+      {preloadPhotos.length > 0 && (
+        <div aria-hidden="true" style={{ position: "absolute", width: 1, height: 1, overflow: "hidden", opacity: 0, pointerEvents: "none" }}>
+          {preloadPhotos.map((p) => (
+            <div key={p.slug} style={{ position: "relative", width: 1, height: 1 }}>
+              <Image src={p.photo} alt="" fill sizes="(max-width: 639px) 46vw, 190px" priority />
+            </div>
+          ))}
+        </div>
+      )}
       <HeroBanner onSelect={handleSelect} />
       <SelectorPanel
         menuTitles={menus.map((m) => m.title)}
@@ -96,10 +126,12 @@ export default function HeroExperience() {
         query={query}
         onQueryChange={(v) => {
           setQuery(v);
+          setProdDir("next");
           setProdPage(0);
         }}
         visibleProducts={visibleProducts}
         prodPageLabel={`${page + 1} / ${pageCount}`}
+        prodDir={prodDir}
         prodResultLabel={query.trim() ? `${catalogue.length} resultado${catalogue.length === 1 ? "" : "s"}` : ""}
         prodEmpty={catalogue.length === 0}
         onPrevProd={() => step(-1)}

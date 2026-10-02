@@ -64,7 +64,7 @@ function EstadoBadge({ estado }) {
 // animación de entrada al cambiar de página), para que funcione bien en
 // cualquier ancho de pantalla.
 
-function ProductCarousel({ query, onQueryChange, products, pageLabel, resultLabel, empty, onPrev, onNext, animClass }) {
+function ProductCarousel({ query, onQueryChange, products, pageLabel, dir, resultLabel, empty, onPrev, onNext, animClass }) {
   const s = useSettings();
   const [openProduct, setOpenProduct] = useState(null);
   return (
@@ -122,10 +122,14 @@ function ProductCarousel({ query, onQueryChange, products, pageLabel, resultLabe
         // búsqueda) — así la animación de entrada se reproduce de nuevo
         // cada vez, en vez de solo la primera vez que aparece el carrusel
         // (antes el cambio de página era un salto seco, sin transición).
+        // La dirección (gsmSlideNext/gsmSlidePrev) viene de qué flecha se
+        // usó (o "next" por defecto, para el auto-avance y la búsqueda) —
+        // un slide horizontal se siente más "carrusel" que el fade+escala
+        // (gsmIn1/2) que se usa para los otros cambios de panel.
         <div
           key={pageLabel}
           className="-mx-6 flex snap-x snap-mandatory gap-3 overflow-x-auto px-6 pb-1 sm:mx-0 sm:grid sm:grid-cols-2 sm:gap-3.5 sm:overflow-visible sm:px-0 sm:pb-0 lg:grid-cols-4"
-          style={{ animation: "gsmIn1 420ms cubic-bezier(0.33,0.02,0.16,1) both" }}
+          style={{ animation: `${dir === "prev" ? "gsmSlidePrev" : "gsmSlideNext"} 420ms cubic-bezier(0.33,0.02,0.16,1) both` }}
         >
           {products.map((prod) => (
             <div
@@ -174,6 +178,7 @@ export default function SelectorPanel({
   onQueryChange,
   visibleProducts,
   prodPageLabel,
+  prodDir,
   prodResultLabel,
   prodEmpty,
   onPrevProd,
@@ -220,6 +225,7 @@ export default function SelectorPanel({
           onQueryChange={onQueryChange}
           products={visibleProducts}
           pageLabel={prodPageLabel}
+          dir={prodDir}
           resultLabel={prodResultLabel}
           empty={prodEmpty}
           onPrev={onPrevProd}
