@@ -58,7 +58,7 @@ export default function NeumaticosPage() {
           columnas: vive apilado bajo "Tipos de uso", que es más corto que
           "Servicios" — así ocupa el espacio que quedaba vacío ahí en vez
           de agregar una sección más. */}
-      <section className="grid grid-cols-1 items-start gap-8 px-6 py-10 sm:px-10 lg:grid-cols-[0.85fr_1.15fr] lg:gap-8 lg:py-14">
+      <section className="grid grid-cols-1 items-start gap-8 px-6 pb-10 pt-6 sm:px-10 sm:pt-8 lg:grid-cols-[0.85fr_1.15fr] lg:gap-8 lg:pb-14 lg:pt-10">
         <NeumaticosServicios agendarHref={AGENDAR_HREF} />
         <div className="flex flex-col gap-8">
           <NeumaticosUsos agendarHref={AGENDAR_HREF} />

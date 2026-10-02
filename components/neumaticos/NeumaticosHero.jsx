@@ -13,7 +13,7 @@ import { NEUMATICOS_HERO } from "@/lib/neumaticosContent";
 // texto, solo con una línea lateral para distinguirla, nada más.
 export default function NeumaticosHero({ agendarHref }) {
   return (
-    <section id="neumaticos-hero" className="flex flex-col gap-3.5 px-6 pt-8 sm:px-10 sm:pt-10">
+    <section id="neumaticos-hero" className="flex flex-col gap-2.5 px-6 pt-6 sm:px-10 sm:pt-8">
       <div className="flex items-center gap-4">
         <ColorBars size="lg" />
         <h1 className="font-display text-[32px] font-bold italic uppercase leading-none text-white sm:text-4xl">
