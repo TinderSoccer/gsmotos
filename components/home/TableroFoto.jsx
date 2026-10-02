@@ -6,7 +6,7 @@
 // de menú del tablero son zonas clicables superpuestas (mismas posiciones en
 // % que el diseño), con un pequeño feedback sonoro al pasar el mouse/clic —
 // igual que el original.
-import { useCallback, useRef } from "react";
+import { useCallback, useEffect, useRef } from "react";
 import Image from "next/image";
 
 const MENU_LABELS = [
@@ -28,6 +28,19 @@ export default function TableroFoto({ onSelect, fluid = false, width = 440 }) {
     if (audioRef.current.state === "suspended") audioRef.current.resume();
     return audioRef.current;
   }, []);
+
+  // Crear el AudioContext (sin sonar nada) apenas se monta el componente,
+  // en vez de esperar al primer clic — así ya existe el objeto cuando
+  // llega la primera interacción real. Los navegadores igual exigen un
+  // gesto del usuario para "despertarlo" (resume), por eso además se
+  // llama getAudio() en onPointerDown: ese evento ocurre un instante
+  // antes que onClick, así el context ya está "running" (no "suspended")
+  // para cuando se agenda el sonido del clic — antes el primer clic hacía
+  // las dos cosas a la vez (crear + resume + sonar), y ese resume async
+  // se sentía como un retraso general, no solo del audio.
+  useEffect(() => {
+    getAudio();
+  }, [getAudio]);
 
   const tone = useCallback(
     (freq, vol, type, dur) => {
@@ -94,6 +107,7 @@ export default function TableroFoto({ onSelect, fluid = false, width = 440 }) {
           <button
             key={label}
             type="button"
+            onPointerDown={getAudio}
             onClick={() => {
               beep();
               onSelect(i);
