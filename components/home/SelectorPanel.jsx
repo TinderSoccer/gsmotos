@@ -15,6 +15,14 @@ import SmartImage from "@/components/common/SmartImage";
 
 // Foto del producto o, si todavía no tiene una propia, un aviso honesto de
 // "sin foto" — ver el mismo criterio en app/productos/page.jsx.
+//
+// `priority`: acá (a diferencia de /productos, donde SÍ conviene que las
+// fotos carguen "lazy" porque hay decenas fuera de pantalla) las 4 fotos
+// visibles en un momento dado SIEMPRE están a la vista — es "Destacados de
+// esta semana", no una grilla larga. Con "lazy" (el default), cada cambio
+// de página del carrusel (auto cada 4.5s, o con las flechas) dejaba la
+// foto nueva en blanco un instante hasta que el IntersectionObserver la
+// detectaba — mismo problema que ya se arregló en los popups de producto.
 function ProductPhoto({ photo, name }) {
   if (photo === PLACEHOLDER_PHOTO) {
     return (
@@ -24,7 +32,7 @@ function ProductPhoto({ photo, name }) {
       </div>
     );
   }
-  return <SmartImage src={photo} alt={name} fit="contain" className="p-2.5 sm:p-3" sizes="(max-width: 639px) 46vw, 190px" />;
+  return <SmartImage src={photo} alt={name} fit="contain" className="p-2.5 sm:p-3" sizes="(max-width: 639px) 46vw, 190px" priority />;
 }
 
 // Antes solo se marcaba "Usado" (si no, no decía nada) y además quedaba
@@ -108,7 +116,17 @@ function ProductCarousel({ query, onQueryChange, products, pageLabel, resultLabe
         // En mobile: tira horizontal deslizable de a 2 tarjetas (con snap),
         // fiel a "GSmotos Mobile.dc.html". Desde `sm` vuelve a ser la grilla
         // responsive de siempre — sin cambios ahí.
-        <div className="-mx-6 flex snap-x snap-mandatory gap-3 overflow-x-auto px-6 pb-1 sm:mx-0 sm:grid sm:grid-cols-2 sm:gap-3.5 sm:overflow-visible sm:px-0 sm:pb-0 lg:grid-cols-4">
+        //
+        // `key={pageLabel}` fuerza a React a desmontar y volver a montar
+        // esta grilla en cada cambio de página (auto cada 4.5s, flechas, o
+        // búsqueda) — así la animación de entrada se reproduce de nuevo
+        // cada vez, en vez de solo la primera vez que aparece el carrusel
+        // (antes el cambio de página era un salto seco, sin transición).
+        <div
+          key={pageLabel}
+          className="-mx-6 flex snap-x snap-mandatory gap-3 overflow-x-auto px-6 pb-1 sm:mx-0 sm:grid sm:grid-cols-2 sm:gap-3.5 sm:overflow-visible sm:px-0 sm:pb-0 lg:grid-cols-4"
+          style={{ animation: "gsmIn1 420ms cubic-bezier(0.33,0.02,0.16,1) both" }}
+        >
           {products.map((prod) => (
             <div
               key={prod.slug}
