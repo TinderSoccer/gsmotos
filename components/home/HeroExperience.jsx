@@ -64,12 +64,14 @@ export default function HeroExperience() {
       router.push("/servicios/neumaticos");
       return;
     }
-    if (i === sel) return;
-    setSel(i);
-    setTick((t) => t + 1);
-    // Al elegir una opción del tablero (o del menú del hero), bajar de
-    // una vez a las tarjetas en vez de dejar al usuario mirando el hero
-    // con el panel ya cambiado fuera de la vista.
+    // El cambio de panel se salta si ya estaba esa opción seleccionada
+    // (evita un re-render/animación de más), pero el scroll NO — si no,
+    // tocar de nuevo la opción ya activa (típico si el usuario volvió a
+    // scrollear arriba) no hacía nada hasta elegir una distinta.
+    if (i !== sel) {
+      setSel(i);
+      setTick((t) => t + 1);
+    }
     document.getElementById("servicios")?.scrollIntoView({ behavior: "smooth", block: "start" });
   }
 
