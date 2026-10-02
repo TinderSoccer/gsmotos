@@ -24,6 +24,15 @@ export default function HeroExperience() {
   const isProductos = menu.kind === "catalog";
   const productos = useProductos();
 
+  // "Neumáticos & Vulcanización" navega con router.push a mano (ver
+  // handleSelect) en vez de un <Link> — un <Link> precarga la página solo
+  // con que quede a la vista, pero router.push() programático no, así que
+  // sin este prefetch explícito el clic disparaba la descarga de esa
+  // página recién en ese momento, sintiéndose con retardo.
+  useEffect(() => {
+    router.prefetch("/servicios/neumaticos");
+  }, [router]);
+
   // "Destacados de esta semana" (sin búsqueda activa) muestra solo productos
   // usados, en orden aleatorio — a diferencia de una búsqueda puntual, que
   // sí busca en todo el catálogo (nuevo y usado) sin importar la condición.
