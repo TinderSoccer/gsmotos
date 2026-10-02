@@ -2,6 +2,7 @@ import Link from "next/link";
 import ColorBars from "@/components/services/ColorBars";
 import SiteFooter from "@/components/SiteFooter";
 import TallerGallery from "@/components/nosotros/TallerGallery";
+import TallerWhatsappButton from "@/components/nosotros/TallerWhatsappButton";
 import { MobileTopBar } from "@/components/mobile/MobileNav";
 
 export const metadata = { title: "Nuestro taller — GSmotos" };
@@ -42,6 +43,7 @@ export default function TallerPage() {
             <span>Agendar ahora</span>
             <span className="font-body">→</span>
           </Link>
+          <TallerWhatsappButton />
           <Link
             href="/"
             className="inline-flex items-center gap-3 whitespace-nowrap rounded border border-mBlue px-6 py-4 font-display text-base font-semibold uppercase tracking-[2.2px] text-white transition-colors hover:bg-mBlue/10"
