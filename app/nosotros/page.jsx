@@ -11,9 +11,9 @@ const nosotros = gsmotos.cards.find((c) => c.slug === "nosotros");
 const taller = gsmotos.cards.find((c) => c.slug === "nuestro-taller");
 const christopher = gsmotos.cards.find((c) => c.slug === "christopher-fundador");
 
-function Section({ id, card }) {
+function Section({ card }) {
   return (
-    <section id={id} className="grid grid-cols-1 items-center gap-10 border-t border-[#1c1d20] px-6 py-14 sm:px-10 md:grid-cols-2">
+    <section className="grid grid-cols-1 items-center gap-10 border-t border-[#1c1d20] px-6 py-14 sm:px-10 md:grid-cols-2">
       <div className="relative h-64 overflow-hidden rounded-xl">
         <div className="absolute inset-0 bg-cover bg-center brightness-125" style={{ backgroundImage: `url(${card.photo})` }} />
         <div className="pointer-events-none absolute inset-0" style={{ background: "linear-gradient(180deg, rgba(5,5,5,0.10) 0%, rgba(5,5,5,0.55) 100%)" }} />
@@ -47,7 +47,28 @@ export default function NosotrosPage() {
       </div>
 
       <Section card={nosotros} />
-      <Section id="taller" card={taller} />
+
+      {/* Antes acá iba el bloque largo de "Nuestro taller" (texto + foto,
+          igual que arriba), duplicando lo que ya cuenta su propia página
+          — el cliente notó que al entrar a "Nosotros" también le aparecía
+          "Nuestro taller" ahí mismo. Ahora es solo una tarjeta chica que
+          lleva a /nosotros/taller (la galería real de fotos y videos). */}
+      <section className="border-t border-[#1c1d20] px-6 py-14 sm:px-10">
+        <Link
+          href="/nosotros/taller"
+          className="group flex flex-col gap-3 rounded-xl border border-[#1E2226] bg-white/[0.02] p-8 transition-colors hover:border-mCyan sm:flex-row sm:items-center sm:justify-between"
+        >
+          <div>
+            <div className="font-display text-sm uppercase tracking-[2.2px] text-[#D6DADE]">{taller.kicker}</div>
+            <div className="mt-1 font-display text-2xl font-bold italic uppercase text-white">{taller.title}</div>
+            <p className="mt-1.5 max-w-xl text-[14.5px] leading-relaxed text-[#B9C0C7]">{taller.desc}</p>
+          </div>
+          <div className="flex items-center gap-2.5 font-display text-sm uppercase tracking-wide text-mCyan">
+            <span>Ver fotos y videos</span>
+            <span className="font-body">→</span>
+          </div>
+        </Link>
+      </section>
 
       <section className="border-t border-[#1c1d20] px-6 py-14 sm:px-10">
         <Link
