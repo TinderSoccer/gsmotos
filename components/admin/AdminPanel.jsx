@@ -2,8 +2,7 @@
 
 // Panel de administración, portado del diseño "Administración.dc.html" de
 // Claude Design. Protegido con usuario/contraseña (ver app/administracion/
-// page.jsx y lib/adminAuth.js). Sin base de datos: el contenido vive en
-// localStorage del navegador —
+// page.jsx y lib/adminAuth.js). Secciones —
 // - Certificados: fotos de cada certificado de Christopher (lib/certificados.js).
 // - Productos: catálogo que alimenta el buscador de la Home y /productos
 //   (lib/catalogo.js).
@@ -12,6 +11,9 @@
 // - Taller: fotos y videos de /nosotros/taller (lib/taller.js).
 // - Contacto: teléfono/mail/dirección/Instagram y cifras del sitio
 //   (lib/settings.js).
+// Todo se guarda en el servidor (ver lib/contentStore.js): las fotos se
+// suben a Vercel Blob y los datos a Redis, así que lo ven todos los
+// visitantes, no solo el navegador de quien edita.
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import Logo from "@/components/Logo";
@@ -30,19 +32,98 @@ import { NEUMATICOS_PHOTO_SLOTS } from "@/lib/neumaticosContent";
 import { resetNeumaticosPhotos, setNeumaticosPhoto, useNeumaticosPhotos } from "@/lib/neumaticosPhotos";
 import { DEFAULT_SETTINGS, resetSettings, useSettings, writeSettings } from "@/lib/settings";
 import { readImageFile } from "@/lib/readImage";
+import { hasPendingSaves, lastSaveError, saveContent, uploadImage } from "@/lib/contentStore";
+import { CONTENT_KEYS } from "@/lib/contentKeys";
 
-// Todas las escrituras a localStorage (fotos, catálogo, textos) pueden
-// fallar si el navegador llegó a la cuota de almacenamiento del sitio —
-// las fotos como data URL son lo que más pesa. Antes ese error se
-// descartaba en silencio (el cambio no se guardaba y el panel no avisaba
-// nada); ahora cada función `write*`/`set*` de lib/ devuelve true/false y
-// este helper avisa cuando falla.
-const STORAGE_FULL_MSG =
-  "No se pudo guardar el cambio: se llegó al límite de almacenamiento del navegador para este sitio (las fotos ocupan la mayor parte). Elimina o reemplaza alguna foto para liberar espacio e intenta de nuevo.";
+// Cada cambio que sí se guarda avisa con un "Guardado ✓" abajo en la
+// pantalla (ver SavedToast); si el servidor no lo pudo guardar se avisa
+// con el motivo (sin internet, sesión expirada, etc.).
+const SAVED_EVENT = "gsmotos-admin:saved";
 
-function warnIfFailed(ok) {
-  if (!ok) alert(STORAGE_FULL_MSG);
+function notifySaved(msg = "Guardado ✓") {
+  window.dispatchEvent(new CustomEvent(SAVED_EVENT, { detail: msg }));
+}
+
+// Recibe la promesa de un write*/set*/reset* de lib/ y devuelve true/false.
+async function warnIfFailed(promise, okMsg) {
+  const ok = await promise;
+  if (!ok) alert(lastSaveError());
+  else notifySaved(okMsg);
   return ok;
+}
+
+// Comprime la foto en el navegador y la sube al servidor. Devuelve su URL,
+// o "" si se canceló/falló (ya avisado).
+async function readAndUpload(ev, opts) {
+  const file = ev.target.files?.[0];
+  ev.target.value = "";
+  if (!file) return "";
+  notifySaved("Subiendo foto…");
+  let dataUrl;
+  try {
+    dataUrl = await readImageFile(file, opts);
+  } catch {
+    notifySaved("");
+    alert("No se pudo leer ese archivo. Prueba con una foto JPG o PNG.");
+    return "";
+  }
+  const url = await uploadImage(dataUrl);
+  if (!url) {
+    notifySaved("");
+    alert(lastSaveError());
+  }
+  return url;
+}
+
+// Pregunta antes de borrar o restaurar algo — un clic accidental en
+// "Eliminar" o "Quitar" antes no tenía vuelta atrás.
+function confirmar(msg) {
+  return window.confirm(msg);
+}
+
+function SavedToast() {
+  const [msg, setMsg] = useState("");
+
+  useEffect(() => {
+    let timer;
+    function onSaved(ev) {
+      setMsg(ev.detail);
+      clearTimeout(timer);
+      // "Subiendo foto…" queda visible hasta que llegue el resultado.
+      if (!ev.detail.endsWith("…")) timer = setTimeout(() => setMsg(""), 1800);
+    }
+    window.addEventListener(SAVED_EVENT, onSaved);
+    return () => {
+      window.removeEventListener(SAVED_EVENT, onSaved);
+      clearTimeout(timer);
+    };
+  }, []);
+
+  if (!msg) return null;
+  return (
+    <div
+      role="status"
+      className="fixed bottom-6 left-1/2 z-[400] -translate-x-1/2 rounded-full bg-[#0B0B0B] px-6 py-3 font-display text-sm font-semibold uppercase tracking-[2px] text-white shadow-[0_6px_24px_rgba(0,0,0,0.25)]"
+      style={{ marginBottom: "env(safe-area-inset-bottom, 0px)" }}
+    >
+      {msg}
+    </div>
+  );
+}
+
+// Link "Ver en el sitio" en el encabezado de cada pestaña, en pestaña nueva
+// para no perder lo que se está editando acá.
+function SeeOnSite({ href }) {
+  return (
+    <a
+      href={href}
+      target="_blank"
+      rel="noopener noreferrer"
+      className="inline-flex items-center gap-1.5 font-display text-sm font-semibold uppercase tracking-wide text-mBlue hover:text-mCyan"
+    >
+      Ver en el sitio <ExternalLink size={14} />
+    </a>
+  );
 }
 
 function PlaceholderIcon({ label }) {
@@ -75,11 +156,8 @@ function FounderHeroPhoto() {
   const photo = useFounderPhoto();
 
   async function handleFile(ev) {
-    const file = ev.target.files?.[0];
-    ev.target.value = "";
-    if (!file) return;
-    const dataUrl = await readImageFile(file, { maxSize: 1800, quality: 0.85 });
-    warnIfFailed(setFounderPhoto(dataUrl));
+    const url = await readAndUpload(ev, { maxSize: 1800, quality: 0.85 });
+    if (url) warnIfFailed(setFounderPhoto(url));
   }
 
   return (
@@ -90,15 +168,15 @@ function FounderHeroPhoto() {
           <img src={photo} alt="Foto del hero de Christopher" className="block h-full w-full object-cover" />
         ) : (
           <div className="flex h-full w-full items-center justify-center font-display text-[11px] uppercase tracking-wide text-[#9A9A9A]">
-            Foto genérica actual
+            Usando una foto del taller
           </div>
         )}
       </div>
       <div className="flex flex-1 flex-col gap-2">
-        <div className="font-display text-lg font-semibold uppercase tracking-wide text-[#0B0B0B]">Foto del hero (fundador)</div>
+        <div className="font-display text-lg font-semibold uppercase tracking-wide text-[#0B0B0B]">Foto principal de la página de Christopher</div>
         <p className="text-sm leading-[1.5] text-[#5A5A5A]">
-          Es la foto grande de fondo en /nosotros/christopher. Hoy usa una foto genérica del taller — sube una foto
-          real de Christopher para reemplazarla.
+          Es la foto grande de fondo, arriba de todo en la página de Christopher. Si no subes ninguna, se usa una
+          foto del taller.
         </p>
         <div className="mt-1 flex items-center gap-2.5">
           <label className="flex cursor-pointer items-center justify-center gap-2.5 whitespace-nowrap rounded bg-mBlue px-4 py-2.5 font-display text-sm font-semibold uppercase tracking-wide text-white transition-colors hover:bg-mCyan">
@@ -107,7 +185,7 @@ function FounderHeroPhoto() {
           </label>
           <button
             type="button"
-            onClick={() => setFounderPhoto("")}
+            onClick={() => confirmar("¿Quitar esta foto? Vuelve a verse la foto del taller.") && warnIfFailed(setFounderPhoto(""))}
             disabled={!photo}
             className="rounded border border-[#D6D6D6] bg-white px-4 py-2.5 font-display text-sm font-semibold uppercase tracking-wide text-[#0B0B0B] transition-colors enabled:hover:border-mRed enabled:hover:text-mRed disabled:cursor-not-allowed disabled:text-[#B4B4B4]"
           >
@@ -124,11 +202,8 @@ function CertificadosTab() {
   const count = CERTIFICADOS.filter((c) => overrides[c.slot] || c.defaultPhoto).length;
 
   async function handleFile(slot, ev) {
-    const file = ev.target.files?.[0];
-    ev.target.value = "";
-    if (!file) return;
-    const dataUrl = await readImageFile(file, { maxSize: 1400, quality: 0.82 });
-    warnIfFailed(setCertPhoto(slot, dataUrl));
+    const url = await readAndUpload(ev, { maxSize: 1400, quality: 0.82 });
+    if (url) warnIfFailed(setCertPhoto(slot, url));
   }
 
   return (
@@ -139,15 +214,16 @@ function CertificadosTab() {
             Certificados de Christopher
           </h1>
           <p className="max-w-xl text-[15.5px] leading-[1.6] text-[#5A5A5A]">
-            Cada certificado ya trae la foto real escaneada. Sube una imagen acá solo si quieres reemplazarla; "Quitar"
-            vuelve a mostrar esa foto original.
+            Cada certificado ya tiene su foto escaneada. Sube una imagen solo si quieres cambiarla; con
+            &ldquo;Quitar&rdquo; vuelve la foto original.
           </p>
+          <SeeOnSite href="/nosotros/christopher" />
         </div>
         <div className="flex flex-col items-end gap-0.5">
           <div className="font-display text-[32px] font-bold italic leading-none text-mBlue">
             {count}/{CERTIFICADOS.length}
           </div>
-          <div className="font-display text-[13px] uppercase tracking-[2px] text-[#8A8A8A]">Publicados</div>
+          <div className="font-display text-[13px] uppercase tracking-[2px] text-[#8A8A8A]">Con foto</div>
         </div>
       </div>
 
@@ -170,7 +246,7 @@ function CertificadosTab() {
                   className="absolute left-3 top-3 rounded-[3px] px-3 py-1.5 font-display text-[12.5px] uppercase tracking-[2px] text-white"
                   style={{ background: photo ? "#1B5FAE" : cert.defaultPhoto ? "#5A6B7A" : "#7A7A7A" }}
                 >
-                  {photo ? "Foto propia" : cert.defaultPhoto ? "Publicado" : "Pendiente"}
+                  {photo ? "Tu foto" : cert.defaultPhoto ? "Foto original" : "Sin foto"}
                 </div>
               </div>
               <div className="flex flex-col gap-2.5 px-[22px] pb-[22px] pt-5">
@@ -186,7 +262,7 @@ function CertificadosTab() {
                   </label>
                   <button
                     type="button"
-                    onClick={() => setCertPhoto(cert.slot, "")}
+                    onClick={() => confirmar("¿Quitar tu foto? Vuelve a verse la foto original del certificado.") && warnIfFailed(setCertPhoto(cert.slot, ""))}
                     disabled={!photo}
                     className="rounded border border-[#D6D6D6] bg-white px-4 py-3 font-display text-[14.5px] font-semibold uppercase tracking-[2px] text-[#0B0B0B] transition-colors enabled:hover:border-mRed enabled:hover:text-mRed disabled:cursor-not-allowed disabled:text-[#B4B4B4]"
                   >
@@ -209,11 +285,8 @@ function ServiciosTab() {
   const customCount = Object.keys(overrides).length;
 
   async function handleFile(key, ev) {
-    const file = ev.target.files?.[0];
-    ev.target.value = "";
-    if (!file) return;
-    const dataUrl = await readImageFile(file, { maxSize: 1600, quality: 0.85 });
-    warnIfFailed(setServicePhoto(key, dataUrl));
+    const url = await readAndUpload(ev, { maxSize: 1600, quality: 0.85 });
+    if (url) warnIfFailed(setServicePhoto(key, url));
   }
 
   return (
@@ -223,10 +296,14 @@ function ServiciosTab() {
           <h1 className="font-display text-[32px] font-bold italic uppercase leading-none text-[#0B0B0B] sm:text-4xl">
             Fotos de servicios
           </h1>
+          <p className="max-w-xl text-[15.5px] leading-[1.6] text-[#5A5A5A]">
+            Cada servicio del sitio muestra una foto. Mientras no subas una tuya, se ve una foto de ejemplo.
+          </p>
+          <SeeOnSite href="/" />
         </div>
         <div className="flex flex-col items-end gap-0.5">
           <div className="font-display text-[32px] font-bold italic leading-none text-mBlue">{customCount}</div>
-          <div className="font-display text-[13px] uppercase tracking-[2px] text-[#8A8A8A]">Con foto propia</div>
+          <div className="font-display text-[13px] uppercase tracking-[2px] text-[#8A8A8A]">Con tu foto</div>
         </div>
       </div>
 
@@ -247,7 +324,7 @@ function ServiciosTab() {
                       className="absolute left-3 top-3 rounded-[3px] px-3 py-1.5 font-display text-[11px] uppercase tracking-[2px] text-white"
                       style={{ background: custom ? "#1B5FAE" : "#7A7A7A" }}
                     >
-                      {custom ? "Foto propia" : "Genérica"}
+                      {custom ? "Tu foto" : "Foto de ejemplo"}
                     </div>
                   </div>
                   <div className="flex flex-col gap-2.5 px-4 pb-4 pt-3.5">
@@ -259,7 +336,7 @@ function ServiciosTab() {
                       </label>
                       <button
                         type="button"
-                        onClick={() => setServicePhoto(key, "")}
+                        onClick={() => confirmar("¿Quitar tu foto? Vuelve a verse la foto de ejemplo.") && warnIfFailed(setServicePhoto(key, ""))}
                         disabled={!custom}
                         className="rounded border border-[#D6D6D6] bg-white px-4 py-2.5 font-display text-sm font-semibold uppercase tracking-wide text-[#0B0B0B] transition-colors enabled:hover:border-mRed enabled:hover:text-mRed disabled:cursor-not-allowed disabled:text-[#B4B4B4]"
                       >
@@ -277,18 +354,22 @@ function ServiciosTab() {
       <div className="px-6 pb-14 sm:px-10">
         <div className="flex flex-col items-start gap-4 rounded-xl border border-[#E0E0E0] bg-white p-6 sm:flex-row sm:items-center sm:justify-between">
           <div className="flex flex-col gap-1.5">
-            <div className="font-display text-lg font-semibold uppercase tracking-wide text-[#0B0B0B]">Cómo se publica</div>
+            <div className="font-display text-lg font-semibold uppercase tracking-wide text-[#0B0B0B]">Consejos</div>
             <div className="text-[14.5px] leading-[1.6] text-[#5A5A5A]">
-              Los cambios se reflejan de inmediato en el Home y en /servicios. Foto horizontal recomendada, mínimo
-              1000&nbsp;px de ancho.
+              Las fotos se ven en la página de inicio y en las páginas de cada servicio. Usa fotos horizontales
+              (más anchas que altas).
             </div>
           </div>
           <button
             type="button"
-            onClick={() => resetServicePhotos()}
+            onClick={() => {
+              if (confirmar("¿Quitar todas tus fotos de servicios? Todas vuelven a la foto de ejemplo.")) {
+                warnIfFailed(resetServicePhotos(), "Fotos restauradas ✓");
+              }
+            }}
             className="whitespace-nowrap rounded border border-mRed px-5 py-3.5 font-display text-sm font-semibold uppercase tracking-[2.2px] text-mRed transition-colors hover:bg-mRed hover:text-white"
           >
-            Restaurar todas a la foto genérica
+            Volver todas a la foto de ejemplo
           </button>
         </div>
       </div>
@@ -305,11 +386,8 @@ function NeumaticosTab() {
   const customCount = Object.keys(overrides).length;
 
   async function handleFile(slot, ev) {
-    const file = ev.target.files?.[0];
-    ev.target.value = "";
-    if (!file) return;
-    const dataUrl = await readImageFile(file, { maxSize: 1600, quality: 0.85 });
-    warnIfFailed(setNeumaticosPhoto(slot, dataUrl));
+    const url = await readAndUpload(ev, { maxSize: 1600, quality: 0.85 });
+    if (url) warnIfFailed(setNeumaticosPhoto(slot, url));
   }
 
   return (
@@ -320,14 +398,14 @@ function NeumaticosTab() {
             Fotos de Neumáticos & Vulcanización
           </h1>
           <p className="max-w-xl text-[15.5px] leading-[1.6] text-[#5A5A5A]">
-            Las 4 tarjetas de servicio y los 3 tipos de uso de /servicios/neumaticos. Todas traen una foto de
-            referencia (banco libre) mientras no subas la tuya propia — esa, cuando exista, siempre tiene
-            prioridad.
+            Las fotos de la página de Neumáticos: 4 servicios y 3 tipos de uso. Mientras no subas las tuyas, se
+            ven fotos de ejemplo.
           </p>
+          <SeeOnSite href="/servicios/neumaticos" />
         </div>
         <div className="flex flex-col items-end gap-0.5">
           <div className="font-display text-[32px] font-bold italic leading-none text-mBlue">{customCount}</div>
-          <div className="font-display text-[13px] uppercase tracking-[2px] text-[#8A8A8A]">de {NEUMATICOS_PHOTO_SLOTS.length} con foto</div>
+          <div className="font-display text-[13px] uppercase tracking-[2px] text-[#8A8A8A]">de {NEUMATICOS_PHOTO_SLOTS.length} con tu foto</div>
         </div>
       </div>
 
@@ -347,14 +425,14 @@ function NeumaticosTab() {
                       className="flex h-full w-full items-center justify-center font-display text-[11px] uppercase tracking-[2px] text-white/80"
                       style={{ background: "linear-gradient(135deg, #1B5FAE 0%, #4E9AD1 100%)" }}
                     >
-                      Sin foto propia
+                      Sin foto
                     </div>
                   )}
                   <div
                     className="absolute left-3 top-3 rounded-[3px] px-3 py-1.5 font-display text-[11px] uppercase tracking-[2px] text-white"
                     style={{ background: photo ? "#1B5FAE" : defaultPhoto ? "#5A6B7A" : "#7A7A7A" }}
                   >
-                    {photo ? "Foto propia" : defaultPhoto ? "Foto de referencia" : "Respaldo de color"}
+                    {photo ? "Tu foto" : defaultPhoto ? "Foto de ejemplo" : "Sin foto"}
                   </div>
                 </div>
                 <div className="flex flex-col gap-2.5 px-4 pb-4 pt-3.5">
@@ -366,7 +444,7 @@ function NeumaticosTab() {
                     </label>
                     <button
                       type="button"
-                      onClick={() => setNeumaticosPhoto(slot, "")}
+                      onClick={() => confirmar("¿Quitar tu foto? Vuelve a verse la foto de ejemplo.") && warnIfFailed(setNeumaticosPhoto(slot, ""))}
                       disabled={!photo}
                       className="rounded border border-[#D6D6D6] bg-white px-4 py-2.5 font-display text-sm font-semibold uppercase tracking-wide text-[#0B0B0B] transition-colors enabled:hover:border-mRed enabled:hover:text-mRed disabled:cursor-not-allowed disabled:text-[#B4B4B4]"
                     >
@@ -383,18 +461,21 @@ function NeumaticosTab() {
       <div className="px-6 pb-14 sm:px-10">
         <div className="flex flex-col items-start gap-4 rounded-xl border border-[#E0E0E0] bg-white p-6 sm:flex-row sm:items-center sm:justify-between">
           <div className="flex flex-col gap-1.5">
-            <div className="font-display text-lg font-semibold uppercase tracking-wide text-[#0B0B0B]">Cómo se publica</div>
+            <div className="font-display text-lg font-semibold uppercase tracking-wide text-[#0B0B0B]">Consejos</div>
             <div className="text-[14.5px] leading-[1.6] text-[#5A5A5A]">
-              Los cambios se reflejan de inmediato en /servicios/neumaticos. Foto horizontal recomendada, mínimo
-              1000&nbsp;px de ancho.
+              Usa fotos horizontales (más anchas que altas).
             </div>
           </div>
           <button
             type="button"
-            onClick={() => resetNeumaticosPhotos()}
+            onClick={() => {
+              if (confirmar("¿Quitar todas tus fotos de Neumáticos? Todas vuelven a la foto de ejemplo.")) {
+                warnIfFailed(resetNeumaticosPhotos(), "Fotos restauradas ✓");
+              }
+            }}
             className="whitespace-nowrap rounded border border-mRed px-5 py-3.5 font-display text-sm font-semibold uppercase tracking-[2.2px] text-mRed transition-colors hover:bg-mRed hover:text-white"
           >
-            Quitar todas las fotos propias
+            Quitar todas mis fotos
           </button>
         </div>
       </div>
@@ -409,18 +490,21 @@ function NewProductModal({ onClose, onCreate }) {
   const [price, setPrice] = useState("");
   const [stock, setStock] = useState("1");
   const [estado, setEstado] = useState("nuevo");
+  const [uploading, setUploading] = useState(false);
 
   async function handleFile(ev) {
-    const file = ev.target.files?.[0];
-    ev.target.value = "";
-    if (!file) return;
-    const dataUrl = await readImageFile(file, { maxSize: 1200, quality: 0.8 });
-    setPhoto(dataUrl);
+    setUploading(true);
+    const url = await readAndUpload(ev, { maxSize: 1200, quality: 0.8 });
+    setUploading(false);
+    if (url) {
+      setPhoto(url);
+      notifySaved("Foto subida ✓");
+    }
   }
 
   function handleSubmit(ev) {
     ev.preventDefault();
-    if (!name.trim()) return;
+    if (!name.trim() || uploading) return;
     onCreate({
       name: name.trim(),
       cat: cat.trim() || "General",
@@ -457,8 +541,8 @@ function NewProductModal({ onClose, onCreate }) {
             )}
           </div>
           <label className="flex cursor-pointer items-center justify-center gap-2.5 rounded bg-mBlue px-4 py-2.5 font-display text-sm font-semibold uppercase tracking-wide text-white transition-colors hover:bg-mCyan">
-            <span>{photo ? "Reemplazar foto" : "Subir foto"}</span>
-            <input type="file" accept="image/*" className="hidden" onChange={handleFile} />
+            <span>{uploading ? "Subiendo…" : photo ? "Reemplazar foto" : "Subir foto"}</span>
+            <input type="file" accept="image/*" className="hidden" onChange={handleFile} disabled={uploading} />
           </label>
           <label className="flex flex-col gap-1.5 text-sm text-[#3A3A3A]">
             Nombre del producto
@@ -577,10 +661,9 @@ function ProductosTab() {
     warnIfFailed(writeProductos(products.map((p, k) => (k === i ? { ...p, ...changes } : p))));
   }
 
-  function createProduct(newProduct) {
-    // Si falla (cuota llena) el modal se queda abierto con lo ya escrito —
-    // antes se cerraba igual aunque el producto nunca se hubiera guardado.
-    if (warnIfFailed(writeProductos([...products, newProduct]))) {
+  async function createProduct(newProduct) {
+    // Si falla el modal se queda abierto con lo ya escrito, para reintentar.
+    if (await warnIfFailed(writeProductos([...products, newProduct]), "Producto creado ✓")) {
       setShowNew(false);
     }
   }
@@ -590,11 +673,8 @@ function ProductosTab() {
   }
 
   async function handleFile(i, ev) {
-    const file = ev.target.files?.[0];
-    ev.target.value = "";
-    if (!file) return;
-    const dataUrl = await readImageFile(file, { maxSize: 1200, quality: 0.8 });
-    patch(i, { photo: dataUrl });
+    const url = await readAndUpload(ev, { maxSize: 1200, quality: 0.8 });
+    if (url) patch(i, { photo: url });
   }
 
   return (
@@ -606,8 +686,10 @@ function ProductosTab() {
             Catálogo de productos
           </h1>
           <p className="max-w-xl text-[15.5px] leading-[1.6] text-[#5A5A5A]">
-            Agrega, edita o elimina los productos que aparecen en el buscador de la Home y en /productos.
+            Agrega, edita o elimina los productos de la tienda (los del buscador del inicio y de la página
+            Productos). Lo que escribas se guarda solo, no hay que apretar ningún botón.
           </p>
+          <SeeOnSite href="/productos" />
         </div>
         <div className="flex items-center gap-5">
           <div className="flex flex-col items-end gap-0.5">
@@ -734,7 +816,7 @@ function ProductosTab() {
               </label>
               <button
                 type="button"
-                onClick={() => removeProduct(i)}
+                onClick={() => confirmar(`¿Eliminar "${prod.name || "este producto"}"? No se puede deshacer.`) && removeProduct(i)}
                 className="whitespace-nowrap rounded border border-[#D6D6D6] bg-white px-4 py-2.5 font-display text-sm font-semibold uppercase tracking-wide text-[#0B0B0B] transition-colors hover:border-mRed hover:text-mRed"
               >
                 Eliminar
@@ -773,19 +855,18 @@ function ProductosTab() {
       <div className="px-6 pb-14 sm:px-10">
         <div className="flex flex-col items-start gap-4 rounded-xl border border-[#E0E0E0] bg-white p-6 sm:flex-row sm:items-center sm:justify-between">
           <div className="flex flex-col gap-1.5">
-            <div className="font-display text-lg font-semibold uppercase tracking-wide text-[#0B0B0B]">Cómo se publica</div>
+            <div className="font-display text-lg font-semibold uppercase tracking-wide text-[#0B0B0B]">Consejos</div>
             <div className="text-[14.5px] leading-[1.6] text-[#5A5A5A]">
-              La Home muestra 4 productos por página en el orden de esta lista. Foto horizontal recomendada,
-              mínimo 1000&nbsp;px de ancho. &ldquo;Restaurar catálogo&rdquo; descarta cualquier edición guardada
-              acá y vuelve a mostrar el inventario real tal como está cargado en el sitio — útil si algo quedó
-              mal editado o desactualizado.
+              Los productos aparecen en el sitio en el mismo orden de esta lista. Usa fotos horizontales (más
+              anchas que altas). &ldquo;Restaurar catálogo&rdquo; borra todos los cambios hechos acá y vuelve a la
+              lista original de productos — útil si algo quedó mal.
             </div>
           </div>
           <button
             type="button"
             onClick={() => {
-              if (confirm("¿Restaurar el catálogo? Se pierden los cambios hechos desde este panel (fotos, precios, stock editados a mano) y vuelve a mostrarse el inventario real tal como está cargado en el sitio.")) {
-                resetProductos();
+              if (confirmar("¿Restaurar el catálogo? Se pierden todos los cambios hechos acá (fotos, precios, stock, productos nuevos o eliminados) y vuelve la lista original.")) {
+                warnIfFailed(resetProductos(), "Catálogo restaurado ✓");
               }
             }}
             className="whitespace-nowrap rounded border border-mRed px-5 py-3.5 font-display text-sm font-semibold uppercase tracking-[2.2px] text-mRed transition-colors hover:bg-mRed hover:text-white"
@@ -812,18 +893,15 @@ function TallerTab() {
   }
 
   async function handleFile(ev) {
-    const file = ev.target.files?.[0];
-    ev.target.value = "";
-    if (!file) return;
-    const dataUrl = await readImageFile(file, { maxSize: 1600, quality: 0.85 });
-    warnIfFailed(writeTallerItems([...items, { id: `photo-${Date.now()}`, type: "photo", photo: dataUrl, caption: "" }]));
+    const url = await readAndUpload(ev, { maxSize: 1600, quality: 0.85 });
+    if (url) warnIfFailed(writeTallerItems([...items, { id: `photo-${Date.now()}`, type: "photo", photo: url, caption: "" }]));
   }
 
-  function addVideo(ev) {
+  async function addVideo(ev) {
     ev.preventDefault();
     const url = videoUrl.trim();
     if (!url) return;
-    if (!warnIfFailed(writeTallerItems([...items, { id: `video-${Date.now()}`, type: "video", url, caption: videoCaption.trim() }]))) return;
+    if (!(await warnIfFailed(writeTallerItems([...items, { id: `video-${Date.now()}`, type: "video", url, caption: videoCaption.trim() }])))) return;
     setVideoUrl("");
     setVideoCaption("");
   }
@@ -836,13 +914,14 @@ function TallerTab() {
             Contenido del taller
           </h1>
           <p className="max-w-xl text-[15.5px] leading-[1.6] text-[#5A5A5A]">
-            Fotos y videos que se muestran en /nosotros/taller (destino del botón &ldquo;Nuestro taller&rdquo; del
-            inicio). Un video puede ser un link directo (.mp4) o de YouTube/Vimeo.
+            Fotos y videos de la página &ldquo;Nuestro taller&rdquo;. Para agregar un video, pega el link de
+            YouTube, Vimeo o de un archivo .mp4.
           </p>
+          <SeeOnSite href="/nosotros/taller" />
         </div>
         <div className="flex flex-col items-end gap-0.5">
           <div className="font-display text-[32px] font-bold italic leading-none text-mBlue">{items.length}</div>
-          <div className="font-display text-[13px] uppercase tracking-[2px] text-[#8A8A8A]">Publicados</div>
+          <div className="font-display text-[13px] uppercase tracking-[2px] text-[#8A8A8A]">Fotos y videos</div>
         </div>
       </div>
 
@@ -909,7 +988,7 @@ function TallerTab() {
               />
               <button
                 type="button"
-                onClick={() => removeItem(item.id)}
+                onClick={() => confirmar(`¿Eliminar ${item.type === "photo" ? "esta foto" : "este video"}? No se puede deshacer.`) && removeItem(item.id)}
                 className="rounded border border-[#D6D6D6] bg-white px-4 py-2.5 font-display text-sm font-semibold uppercase tracking-wide text-[#0B0B0B] transition-colors hover:border-mRed hover:text-mRed"
               >
                 Eliminar
@@ -922,17 +1001,21 @@ function TallerTab() {
       <div className="px-6 pb-14 sm:px-10">
         <div className="flex flex-col items-start gap-4 rounded-xl border border-[#E0E0E0] bg-white p-6 sm:flex-row sm:items-center sm:justify-between">
           <div className="flex flex-col gap-1.5">
-            <div className="font-display text-lg font-semibold uppercase tracking-wide text-[#0B0B0B]">Cómo se publica</div>
+            <div className="font-display text-lg font-semibold uppercase tracking-wide text-[#0B0B0B]">Consejos</div>
             <div className="text-[14.5px] leading-[1.6] text-[#5A5A5A]">
-              Los cambios se reflejan de inmediato en /nosotros/taller, en el orden en que se agregan.
+              Aparecen en la página del taller en el orden en que los agregas.
             </div>
           </div>
           <button
             type="button"
-            onClick={() => resetTallerItems()}
+            onClick={() => {
+              if (confirmar("¿Volver a la galería original? Se borran las fotos y videos que agregaste.")) {
+                warnIfFailed(resetTallerItems(), "Galería restaurada ✓");
+              }
+            }}
             className="whitespace-nowrap rounded border border-mRed px-5 py-3.5 font-display text-sm font-semibold uppercase tracking-[2.2px] text-mRed transition-colors hover:bg-mRed hover:text-white"
           >
-            Restaurar galería base
+            Volver a la galería original
           </button>
         </div>
       </div>
@@ -960,11 +1043,8 @@ function LogoUpload() {
   const logo = useLogo();
 
   async function handleFile(ev) {
-    const file = ev.target.files?.[0];
-    ev.target.value = "";
-    if (!file) return;
-    const dataUrl = await readImageFile(file, { maxSize: 900, format: "png" });
-    warnIfFailed(setLogo(dataUrl));
+    const url = await readAndUpload(ev, { maxSize: 900, format: "png" });
+    if (url) warnIfFailed(setLogo(url));
   }
 
   return (
@@ -982,7 +1062,7 @@ function LogoUpload() {
       <div className="flex flex-1 flex-col gap-2">
         <div className="font-display text-lg font-semibold uppercase tracking-wide text-[#0B0B0B]">Logo del sitio</div>
         <p className="text-sm leading-[1.5] text-[#5A5A5A]">
-          Reemplaza el logo en todo el sitio (encabezado, hero, panel). Sube un archivo con{" "}
+          Cambia el logo en todo el sitio (arriba en cada página, en la portada y en este panel). Sube un archivo con{" "}
           <strong>fondo transparente</strong> (PNG) para que se vea bien tanto en fondos claros como oscuros.
         </p>
         <div className="mt-1 flex items-center gap-2.5">
@@ -992,7 +1072,7 @@ function LogoUpload() {
           </label>
           <button
             type="button"
-            onClick={() => setLogo("")}
+            onClick={() => confirmar("¿Volver al logo original?") && warnIfFailed(setLogo(""))}
             disabled={!logo}
             className="rounded border border-[#D6D6D6] bg-white px-4 py-2.5 font-display text-sm font-semibold uppercase tracking-wide text-[#0B0B0B] transition-colors enabled:hover:border-mRed enabled:hover:text-mRed disabled:cursor-not-allowed disabled:text-[#B4B4B4]"
           >
@@ -1011,9 +1091,8 @@ function ContactoTab() {
   const [savedFlash, setSavedFlash] = useState(false);
 
   // Mientras el admin no haya tocado nada, el formulario sigue el valor real
-  // guardado (útil porque useSettings() recién sabe el valor de
-  // localStorage después de montar). Apenas escribe algo, se corta el
-  // seguimiento para no pisarle lo que está editando.
+  // guardado (ej. si se restauran los valores originales). Apenas escribe
+  // algo, se corta el seguimiento para no pisarle lo que está editando.
   useEffect(() => {
     if (!dirty) setForm(s);
   }, [s, dirty]);
@@ -1023,16 +1102,17 @@ function ContactoTab() {
     setForm((f) => ({ ...f, [key]: value }));
   }
 
-  function handleSave(ev) {
+  async function handleSave(ev) {
     ev.preventDefault();
-    if (!warnIfFailed(writeSettings(form))) return;
+    if (!(await warnIfFailed(writeSettings(form)))) return;
     setDirty(false);
     setSavedFlash(true);
     setTimeout(() => setSavedFlash(false), 2200);
   }
 
   function handleReset() {
-    resetSettings();
+    if (!confirmar("¿Volver a los datos de contacto originales? Se pierden los cambios que hiciste acá.")) return;
+    warnIfFailed(resetSettings(), "Valores restaurados ✓");
     setForm(DEFAULT_SETTINGS);
     setDirty(false);
   }
@@ -1045,39 +1125,46 @@ function ContactoTab() {
             Contacto y cifras del sitio
           </h1>
           <p className="max-w-xl text-[15.5px] leading-[1.6] text-[#5A5A5A]">
-            Teléfono, mail, dirección, Instagram y las cifras que se muestran en el pie de página y el inicio. Se
-            usan en todo el sitio — WhatsApp, mapa, botones de contacto — así que un cambio acá los actualiza a
-            todos de una vez.
+            Teléfono, mail, dirección, Instagram y los números destacados. Se usan en todo el sitio (WhatsApp,
+            mapa, botones de contacto), así que un cambio acá los actualiza todos de una vez.
           </p>
+          <SeeOnSite href="/contacto" />
         </div>
-        <button
-          type="submit"
-          className="inline-flex items-center gap-3.5 whitespace-nowrap rounded bg-mBlue px-6 py-[15px] font-display text-base font-semibold uppercase tracking-[2.2px] text-white transition-colors hover:bg-mCyan"
-        >
-          {savedFlash ? "Guardado ✓" : "Guardar cambios"}
-        </button>
+        <div className="flex flex-col items-end gap-2">
+          <button
+            type="submit"
+            className="inline-flex items-center gap-3.5 whitespace-nowrap rounded bg-mBlue px-6 py-[15px] font-display text-base font-semibold uppercase tracking-[2.2px] text-white transition-colors hover:bg-mCyan"
+          >
+            {savedFlash ? "Guardado ✓" : "Guardar cambios"}
+          </button>
+          {dirty && (
+            <span className="font-display text-xs font-semibold uppercase tracking-wide text-mRed">
+              Tienes cambios sin guardar
+            </span>
+          )}
+        </div>
       </div>
 
       <LogoUpload />
 
       <div className="grid grid-cols-1 gap-6 px-6 pb-8 sm:grid-cols-2 sm:px-10">
-        <Field label="Teléfono (como se muestra)" value={form.phoneDisplay} onChange={(v) => update("phoneDisplay", v)} placeholder="+56 9 8405 8116" />
+        <Field label="Teléfono (como se ve en el sitio)" value={form.phoneDisplay} onChange={(v) => update("phoneDisplay", v)} placeholder="+56 9 8405 8116" />
         <Field
           label="Teléfono (solo dígitos, con código de país)"
           value={form.phoneDigits}
           onChange={(v) => update("phoneDigits", v.replace(/[^\d]/g, ""))}
           placeholder="56984058116"
-          hint="Sin espacios ni +. Se usa para los links de llamar y WhatsApp."
+          hint="Sin espacios ni +. Se usa para los botones de llamar y WhatsApp."
         />
         <Field label="Email" type="email" value={form.email} onChange={(v) => update("email", v)} placeholder="contacto@gsmotos.cl" />
         <Field label="Usuario de Instagram" value={form.instagramUser} onChange={(v) => update("instagramUser", v.replace(/^@/, ""))} placeholder="tallergsmotos" hint="Sin @." />
         <div className="sm:col-span-2">
-          <Field label="Dirección" value={form.address} onChange={(v) => update("address", v)} placeholder="Av. Presidente Riesco 6721, Las Condes, Santiago, Chile" hint="Se usa también para el link a Google Maps." />
+          <Field label="Dirección" value={form.address} onChange={(v) => update("address", v)} placeholder="Av. Presidente Riesco 6721, Las Condes, Santiago, Chile" hint="También se usa para el mapa de Google Maps." />
         </div>
       </div>
 
       <div className="px-6 pb-8 sm:px-10">
-        <div className="mb-4 font-display text-xl font-bold uppercase tracking-wide text-[#0B0B0B]">Cifras del footer e inicio</div>
+        <div className="mb-4 font-display text-xl font-bold uppercase tracking-wide text-[#0B0B0B]">Números destacados (inicio y pie de página)</div>
         <div className="grid grid-cols-2 gap-6 sm:grid-cols-4">
           <Field label="Años de experiencia" value={form.statYears} onChange={(v) => update("statYears", v)} placeholder="15+" />
           <Field label="Años en BMW Motorrad" value={form.statBmwYears} onChange={(v) => update("statBmwYears", v)} placeholder="21+" />
@@ -1087,18 +1174,18 @@ function ContactoTab() {
       </div>
 
       <div className="px-6 pb-8 sm:px-10">
-        <div className="mb-4 font-display text-xl font-bold uppercase tracking-wide text-[#0B0B0B]">Reseñas (franja fija)</div>
+        <div className="mb-4 font-display text-xl font-bold uppercase tracking-wide text-[#0B0B0B]">Reseñas de Google</div>
         <div className="grid grid-cols-2 gap-6 sm:max-w-[420px]">
           <Field label="Puntaje" value={form.ratingScore} onChange={(v) => update("ratingScore", v)} placeholder="4.9" />
           <Field label="Cantidad de reseñas" value={form.ratingCount} onChange={(v) => update("ratingCount", v)} placeholder="200" />
         </div>
         <div className="mt-6 sm:max-w-[420px]">
           <Field
-            label="Link de reseñas (Google Business)"
+            label="Link de reseñas de Google"
             value={form.reviewsUrl}
             onChange={(v) => update("reviewsUrl", v)}
             placeholder="https://g.page/r/.../review"
-            hint="El QR y el puntaje de la franja apuntan acá. Vacío = usa el link de Maps por dirección."
+            hint="El código QR y el puntaje llevan a este link. Si lo dejas vacío, se usa el link de Google Maps de la dirección."
           />
         </div>
       </div>
@@ -1106,9 +1193,9 @@ function ContactoTab() {
       <div className="px-6 pb-14 sm:px-10">
         <div className="flex flex-col items-start gap-4 rounded-xl border border-[#E0E0E0] bg-white p-6 sm:flex-row sm:items-center sm:justify-between">
           <div className="flex flex-col gap-1.5">
-            <div className="font-display text-lg font-semibold uppercase tracking-wide text-[#0B0B0B]">Cómo se publica</div>
+            <div className="font-display text-lg font-semibold uppercase tracking-wide text-[#0B0B0B]">Consejos</div>
             <div className="text-[14.5px] leading-[1.6] text-[#5A5A5A]">
-              Los cambios se aplican al hacer clic en &ldquo;Guardar cambios&rdquo; — no en cada letra que escribas.
+              En esta sección los cambios se aplican solo al apretar &ldquo;Guardar cambios&rdquo;.
             </div>
           </div>
           <button
@@ -1121,6 +1208,114 @@ function ContactoTab() {
         </div>
       </div>
     </form>
+  );
+}
+
+// Antes de tener servidor, el panel guardaba todo en localStorage del
+// navegador de quien editaba. Si en este navegador quedó algo así, se
+// ofrece publicarlo (subiendo las fotos a Blob) para que no se pierda.
+function readLegacyContent() {
+  const found = {};
+  try {
+    for (const [key, { legacy, json }] of Object.entries(CONTENT_KEYS)) {
+      const raw = window.localStorage.getItem(legacy);
+      if (!raw) continue;
+      found[key] = json ? JSON.parse(raw) : raw;
+    }
+  } catch {}
+  return found;
+}
+
+function clearLegacyContent() {
+  try {
+    Object.values(CONTENT_KEYS).forEach(({ legacy }) => window.localStorage.removeItem(legacy));
+  } catch {}
+}
+
+// Reemplaza cada foto data:image dentro del valor por su URL ya subida.
+async function uploadDataUrls(value) {
+  if (typeof value === "string") {
+    if (!value.startsWith("data:image")) return value;
+    const url = await uploadImage(value);
+    if (!url) throw new Error(lastSaveError());
+    return url;
+  }
+  if (Array.isArray(value)) {
+    const out = [];
+    for (const v of value) out.push(await uploadDataUrls(v));
+    return out;
+  }
+  if (value && typeof value === "object") {
+    const out = {};
+    for (const [k, v] of Object.entries(value)) out[k] = await uploadDataUrls(v);
+    return out;
+  }
+  return value;
+}
+
+function LegacyMigrationBanner() {
+  const [legacy, setLegacy] = useState({});
+  const [busy, setBusy] = useState(false);
+
+  useEffect(() => setLegacy(readLegacyContent()), []);
+
+  const keys = Object.keys(legacy);
+  if (keys.length === 0) return null;
+
+  async function publish() {
+    setBusy(true);
+    notifySaved("Publicando…");
+    try {
+      for (const key of keys) {
+        const value = await uploadDataUrls(legacy[key]);
+        if (!(await saveContent(key, value))) throw new Error(lastSaveError());
+      }
+      clearLegacyContent();
+      setLegacy({});
+      notifySaved("Cambios publicados ✓");
+    } catch (err) {
+      notifySaved("");
+      alert(err.message || "No se pudo publicar. Intenta de nuevo.");
+    }
+    setBusy(false);
+  }
+
+  function discard() {
+    if (!confirmar("¿Descartar los cambios guardados en este navegador? No se pueden recuperar.")) return;
+    clearLegacyContent();
+    setLegacy({});
+  }
+
+  return (
+    <div className="mx-6 mt-6 flex flex-col gap-4 rounded-xl border-2 border-mBlue bg-white p-5 sm:mx-10 sm:flex-row sm:items-center sm:justify-between">
+      <div className="flex flex-col gap-1.5">
+        <div className="font-display text-lg font-semibold uppercase tracking-wide text-[#0B0B0B]">
+          Tienes cambios sin publicar en este navegador
+        </div>
+        <p className="max-w-2xl text-sm leading-[1.5] text-[#5A5A5A]">
+          Antes, lo que editabas en el panel solo se veía en este computador. Publícalo ahora para que lo vean todos
+          los visitantes del sitio. Ojo: reemplaza lo que esté publicado en esas secciones.
+        </p>
+      </div>
+      <div className="flex flex-none items-center gap-2.5">
+        <button
+          type="button"
+          onClick={publish}
+          disabled={busy}
+          className="whitespace-nowrap rounded bg-mBlue px-5 py-3 font-display text-sm font-semibold uppercase tracking-wide text-white transition-colors hover:bg-mCyan disabled:opacity-60"
+        >
+          {busy ? "Publicando…" : "Publicar ahora"}
+        </button>
+        <button
+          type="button"
+          onClick={discard}
+          disabled={busy}
+          className="whitespace-nowrap rounded border border-[#D6D6D6] bg-white px-4 py-3 font-display text-sm font-semibold uppercase tracking-wide text-[#0B0B0B] transition-colors hover:border-mRed hover:text-mRed disabled:opacity-60"
+        >
+          Descartar
+        </button>
+      </div>
+    </div>
   );
 }
 
@@ -1160,6 +1355,18 @@ function LogoutButton() {
 export default function AdminPanel() {
   const [tab, setTab] = useState("certs");
   const ActiveTab = TABS[tab];
+
+  // Los cambios se mandan al servidor ~0.6 s después de dejar de escribir:
+  // si se cierra la pestaña justo antes, el navegador pregunta.
+  useEffect(() => {
+    function onBeforeUnload(ev) {
+      if (!hasPendingSaves()) return;
+      ev.preventDefault();
+      ev.returnValue = "";
+    }
+    window.addEventListener("beforeunload", onBeforeUnload);
+    return () => window.removeEventListener("beforeunload", onBeforeUnload);
+  }, []);
 
   return (
     <div className="min-h-screen bg-[#F7F7F7] text-[#0B0B0B]">
@@ -1206,7 +1413,9 @@ export default function AdminPanel() {
         </Tab>
       </div>
 
+      <LegacyMigrationBanner />
       <ActiveTab />
+      <SavedToast />
     </div>
   );
 }
