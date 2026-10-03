@@ -3,7 +3,6 @@
 import { useEffect, useRef } from "react";
 import Link from "next/link";
 import Logo from "@/components/Logo";
-import { MobileMenuButton } from "@/components/mobile/MobileNav";
 import TableroFoto from "./TableroFoto";
 
 export default function HeroBanner({ onSelect }) {
@@ -52,7 +51,7 @@ export default function HeroBanner({ onSelect }) {
             abajo hacia el fondo, donde arranca el título. */}
         <div
           className="pointer-events-none absolute inset-0 sm:hidden"
-          style={{ background: "linear-gradient(180deg, rgba(5,5,5,0.82) 0%, rgba(5,5,5,0.45) 22%, rgba(5,5,5,0) 42%, rgba(5,5,5,0) 58%, #050505 100%)" }}
+          style={{ background: "linear-gradient(180deg, rgba(5,5,5,0.82) 0%, rgba(5,5,5,0.45) 22%, rgba(5,5,5,0) 40%, rgba(5,5,5,0.15) 52%, rgba(5,5,5,0.78) 76%, #050505 100%)" }}
         />
       </div>
 
@@ -68,30 +67,29 @@ export default function HeroBanner({ onSelect }) {
         style={{ background: "linear-gradient(90deg, rgba(5,6,7,0.88) 0%, rgba(5,6,7,0.68) 32%, rgba(5,6,7,0.3) 56%, rgba(5,6,7,0) 74%)" }}
       />
 
-      <header className="absolute inset-x-0 top-0 z-30 flex items-start justify-between px-6 py-6 sm:px-10">
-        <MobileMenuButton />
+      {/* Sin menú hamburguesa en el inicio (pedido del cliente): acá el menú
+          es el tablero. Logo centrado en mobile, a la izquierda desde sm. */}
+      <header className="absolute inset-x-0 top-0 z-30 flex items-start justify-center px-6 py-5 sm:justify-between sm:px-10 sm:py-6">
         <a href="/" className="block leading-none">
           {/* Antes era "mobile" (claro en mobile, oscuro desde sm) porque
               desktop tenía la tarjeta blanca detrás del logo — ahora todo el
               hero es oscuro (video), así que el logo claro va siempre. */}
           <Logo light className="block h-auto w-[150px] drop-shadow-[0_2px_8px_rgba(0,0,0,0.9)] sm:w-[210px] sm:drop-shadow-none" priority />
         </a>
-        {/* Espaciador: mantiene el logo centrado frente al botón hamburguesa en mobile */}
-        <div className="w-11 flex-none sm:hidden" />
       </header>
 
       {/* Hero mobile: contenido centrado debajo de la franja de video (el
           título se monta sobre el fundido del final del video, -mt). Orden:
           título → tablero (menú principal) → Agendar → botones → texto, así
           el menú y la llamada a la acción entran en la primera pantalla. */}
-      <div className="relative z-20 -mt-16 flex flex-col items-center gap-3 px-[18px] pb-[26px] text-center sm:hidden">
-        <div className="font-display text-[19px] font-semibold uppercase tracking-[5px] text-white">
+      <div className="relative z-20 -mt-[104px] flex flex-col items-center gap-2 px-[18px] pb-[26px] text-center sm:hidden">
+        <div className="font-display text-[17px] font-semibold uppercase tracking-[4px] text-white [text-shadow:0_1px_6px_rgba(0,0,0,0.7)]">
           Especialistas en
         </div>
         <div className="flex items-center justify-center gap-3">
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img src="/images/marcas/bmw.svg" alt="BMW" className="h-11 w-11 flex-none" />
-          <h1 className="font-display text-[34px] font-bold italic uppercase leading-[0.95] tracking-[-0.4px] text-white">
+          <h1 className="font-display text-[32px] font-bold italic uppercase leading-[0.95] tracking-[-0.4px] text-white [text-shadow:0_2px_8px_rgba(0,0,0,0.7)]">
             BMW Motorrad
           </h1>
           <Link
@@ -114,13 +112,13 @@ export default function HeroBanner({ onSelect }) {
             se vea en la primera pantalla (antes quedaba al final, casi fuera
             de pantalla). Recortado a la pantalla del tablero (ver CROP en
             TableroFoto) para que las filas sean fáciles de tocar. */}
-        <div className="mb-1 mt-1 w-full">
+        <div className="w-full">
           <TableroFoto onSelect={onSelect} crop />
         </div>
 
         <Link
           href="/contacto"
-          className="mt-1.5 flex w-full max-w-[300px] items-center justify-center gap-3 rounded bg-mBlue py-3.5 font-display text-base font-semibold uppercase tracking-[2.2px] text-white"
+          className="flex w-full max-w-[300px] items-center justify-center gap-3 rounded bg-mBlue py-3.5 font-display text-base font-semibold uppercase tracking-[2.2px] text-white"
         >
           <span>Agendar tu cita</span>
           <span className="font-body">→</span>

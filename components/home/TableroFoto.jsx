@@ -17,10 +17,10 @@ const MENU_LABELS = [
 ];
 
 // Recorte de la foto que se muestra en mobile (`crop`), en % de la foto
-// completa: solo la pantalla del tablero, sin los manubrios ni casi nada
-// del marco. Así las 5 filas del menú quedan ~40px de alto (antes ~30px,
-// chicas para el dedo) sin dejar de verse como el tablero real.
-const CROP = { x0: 12, x1: 84, y0: 13, y1: 82 };
+// completa: el tablero con su marco pero sin los manubrios ni el espacio
+// vacío alrededor. Así las 5 filas del menú quedan ~42px de alto (antes
+// ~30px, chicas para el dedo) y se ve el tablero entero.
+const CROP = { x0: 6, x1: 94, y0: 6, y1: 92 };
 const PHOTO_W = 1148;
 const PHOTO_H = 928;
 
@@ -105,7 +105,7 @@ export default function TableroFoto({ onSelect, fluid = false, width = 440, crop
     const ch = (CROP.y1 - CROP.y0) / 100;
     return (
       <div
-        className="relative w-full overflow-hidden rounded-2xl border border-white/[0.08] bg-black"
+        className="relative w-full overflow-hidden"
         style={{ aspectRatio: `${cw * PHOTO_W} / ${ch * PHOTO_H}` }}
       >
         <div
