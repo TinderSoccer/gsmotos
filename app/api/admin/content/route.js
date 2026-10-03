@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import { cookies } from "next/headers";
 import { revalidateTag } from "next/cache";
 import { isValidSession, SESSION_COOKIE } from "@/lib/adminAuth";
-import { CONTENT_KEYS } from "@/lib/contentKeys";
+import { CONTENT_KEY_NAMES } from "@/lib/contentKeys";
 import { CONTENT_TAG, isContentStorageConfigured, writeContent } from "@/lib/contentServer";
 
 // Guarda una clave de contenido desde el panel: { key, value } — value null
@@ -24,7 +24,7 @@ export async function POST(request) {
   } catch {
     return NextResponse.json({ ok: false, error: "Solicitud inválida." }, { status: 400 });
   }
-  if (!body || !Object.hasOwn(CONTENT_KEYS, body.key)) {
+  if (!body || !CONTENT_KEY_NAMES.includes(body.key)) {
     return NextResponse.json({ ok: false, error: "Clave inválida." }, { status: 400 });
   }
   // Las fotos se suben aparte a Vercel Blob; acá solo deberían llegar URLs.

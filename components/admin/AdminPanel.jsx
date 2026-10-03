@@ -30,10 +30,9 @@ import { menus } from "@/lib/servicesData";
 import { resetServicePhotos, servicePhotoKey, setServicePhoto, useServicePhotos } from "@/lib/servicePhotos";
 import { NEUMATICOS_PHOTO_SLOTS } from "@/lib/neumaticosContent";
 import { resetNeumaticosPhotos, setNeumaticosPhoto, useNeumaticosPhotos } from "@/lib/neumaticosPhotos";
-import { DEFAULT_SETTINGS, resetSettings, useSettings, writeSettings } from "@/lib/settings";
+import { resetSettings, useSettings, writeSettings } from "@/lib/settings";
 import { readImageFile } from "@/lib/readImage";
-import { hasPendingSaves, lastSaveError, saveContent, uploadImage } from "@/lib/contentStore";
-import { CONTENT_KEYS } from "@/lib/contentKeys";
+import { hasPendingSaves, lastSaveError, uploadImage } from "@/lib/contentStore";
 
 // Cada cambio que sí se guarda avisa con un "Guardado ✓" abajo en la
 // pantalla (ver SavedToast); si el servidor no lo pudo guardar se avisa
@@ -45,8 +44,14 @@ function notifySaved(msg = "Guardado ✓") {
 }
 
 // Recibe la promesa de un write*/set*/reset* de lib/ y devuelve true/false.
+// Mientras se escribe, todas las letras de un mismo envío comparten la
+// misma promesa (ver saveContent): se avisa una sola vez por envío.
+const announced = new WeakSet();
+
 async function warnIfFailed(promise, okMsg) {
   const ok = await promise;
+  if (announced.has(promise)) return ok;
+  announced.add(promise);
   if (!ok) alert(lastSaveError());
   else notifySaved(okMsg);
   return ok;
@@ -1085,40 +1090,21 @@ function LogoUpload() {
 }
 
 function ContactoTab() {
-  const s = useSettings();
-  const [form, setForm] = useState(s);
-  const [dirty, setDirty] = useState(false);
-  const [savedFlash, setSavedFlash] = useState(false);
-
-  // Mientras el admin no haya tocado nada, el formulario sigue el valor real
-  // guardado (ej. si se restauran los valores originales). Apenas escribe
-  // algo, se corta el seguimiento para no pisarle lo que está editando.
-  useEffect(() => {
-    if (!dirty) setForm(s);
-  }, [s, dirty]);
+  // Se guarda solo mientras se escribe, igual que el resto del panel (el
+  // store agrupa las letras seguidas en un solo envío al servidor).
+  const form = useSettings();
 
   function update(key, value) {
-    setDirty(true);
-    setForm((f) => ({ ...f, [key]: value }));
-  }
-
-  async function handleSave(ev) {
-    ev.preventDefault();
-    if (!(await warnIfFailed(writeSettings(form)))) return;
-    setDirty(false);
-    setSavedFlash(true);
-    setTimeout(() => setSavedFlash(false), 2200);
+    warnIfFailed(writeSettings({ [key]: value }));
   }
 
   function handleReset() {
     if (!confirmar("¿Volver a los datos de contacto originales? Se pierden los cambios que hiciste acá.")) return;
     warnIfFailed(resetSettings(), "Valores restaurados ✓");
-    setForm(DEFAULT_SETTINGS);
-    setDirty(false);
   }
 
   return (
-    <form onSubmit={handleSave}>
+    <div>
       <div className="flex flex-wrap items-end justify-between gap-8 px-6 pb-5 pt-11 sm:px-10">
         <div className="flex flex-col gap-2.5">
           <h1 className="font-display text-[32px] font-bold italic uppercase leading-none text-[#0B0B0B] sm:text-4xl">
@@ -1126,22 +1112,10 @@ function ContactoTab() {
           </h1>
           <p className="max-w-xl text-[15.5px] leading-[1.6] text-[#5A5A5A]">
             Teléfono, mail, dirección, Instagram y los números destacados. Se usan en todo el sitio (WhatsApp,
-            mapa, botones de contacto), así que un cambio acá los actualiza todos de una vez.
+            mapa, botones de contacto), así que un cambio acá los actualiza todos de una vez. Lo que escribas se
+            guarda solo.
           </p>
           <SeeOnSite href="/contacto" />
-        </div>
-        <div className="flex flex-col items-end gap-2">
-          <button
-            type="submit"
-            className="inline-flex items-center gap-3.5 whitespace-nowrap rounded bg-mBlue px-6 py-[15px] font-display text-base font-semibold uppercase tracking-[2.2px] text-white transition-colors hover:bg-mCyan"
-          >
-            {savedFlash ? "Guardado ✓" : "Guardar cambios"}
-          </button>
-          {dirty && (
-            <span className="font-display text-xs font-semibold uppercase tracking-wide text-mRed">
-              Tienes cambios sin guardar
-            </span>
-          )}
         </div>
       </div>
 
@@ -1195,7 +1169,7 @@ function ContactoTab() {
           <div className="flex flex-col gap-1.5">
             <div className="font-display text-lg font-semibold uppercase tracking-wide text-[#0B0B0B]">Consejos</div>
             <div className="text-[14.5px] leading-[1.6] text-[#5A5A5A]">
-              En esta sección los cambios se aplican solo al apretar &ldquo;Guardar cambios&rdquo;.
+              Los cambios se guardan solos apenas dejas de escribir.
             </div>
           </div>
           <button
@@ -1206,114 +1180,6 @@ function ContactoTab() {
             Restaurar valores originales
           </button>
         </div>
-      </div>
-    </form>
-  );
-}
-
-// Antes de tener servidor, el panel guardaba todo en localStorage del
-// navegador de quien editaba. Si en este navegador quedó algo así, se
-// ofrece publicarlo (subiendo las fotos a Blob) para que no se pierda.
-function readLegacyContent() {
-  const found = {};
-  try {
-    for (const [key, { legacy, json }] of Object.entries(CONTENT_KEYS)) {
-      const raw = window.localStorage.getItem(legacy);
-      if (!raw) continue;
-      found[key] = json ? JSON.parse(raw) : raw;
-    }
-  } catch {}
-  return found;
-}
-
-function clearLegacyContent() {
-  try {
-    Object.values(CONTENT_KEYS).forEach(({ legacy }) => window.localStorage.removeItem(legacy));
-  } catch {}
-}
-
-// Reemplaza cada foto data:image dentro del valor por su URL ya subida.
-async function uploadDataUrls(value) {
-  if (typeof value === "string") {
-    if (!value.startsWith("data:image")) return value;
-    const url = await uploadImage(value);
-    if (!url) throw new Error(lastSaveError());
-    return url;
-  }
-  if (Array.isArray(value)) {
-    const out = [];
-    for (const v of value) out.push(await uploadDataUrls(v));
-    return out;
-  }
-  if (value && typeof value === "object") {
-    const out = {};
-    for (const [k, v] of Object.entries(value)) out[k] = await uploadDataUrls(v);
-    return out;
-  }
-  return value;
-}
-
-function LegacyMigrationBanner() {
-  const [legacy, setLegacy] = useState({});
-  const [busy, setBusy] = useState(false);
-
-  useEffect(() => setLegacy(readLegacyContent()), []);
-
-  const keys = Object.keys(legacy);
-  if (keys.length === 0) return null;
-
-  async function publish() {
-    setBusy(true);
-    notifySaved("Publicando…");
-    try {
-      for (const key of keys) {
-        const value = await uploadDataUrls(legacy[key]);
-        if (!(await saveContent(key, value))) throw new Error(lastSaveError());
-      }
-      clearLegacyContent();
-      setLegacy({});
-      notifySaved("Cambios publicados ✓");
-    } catch (err) {
-      notifySaved("");
-      alert(err.message || "No se pudo publicar. Intenta de nuevo.");
-    }
-    setBusy(false);
-  }
-
-  function discard() {
-    if (!confirmar("¿Descartar los cambios guardados en este navegador? No se pueden recuperar.")) return;
-    clearLegacyContent();
-    setLegacy({});
-  }
-
-  return (
-    <div className="mx-6 mt-6 flex flex-col gap-4 rounded-xl border-2 border-mBlue bg-white p-5 sm:mx-10 sm:flex-row sm:items-center sm:justify-between">
-      <div className="flex flex-col gap-1.5">
-        <div className="font-display text-lg font-semibold uppercase tracking-wide text-[#0B0B0B]">
-          Tienes cambios sin publicar en este navegador
-        </div>
-        <p className="max-w-2xl text-sm leading-[1.5] text-[#5A5A5A]">
-          Antes, lo que editabas en el panel solo se veía en este computador. Publícalo ahora para que lo vean todos
-          los visitantes del sitio. Ojo: reemplaza lo que esté publicado en esas secciones.
-        </p>
-      </div>
-      <div className="flex flex-none items-center gap-2.5">
-        <button
-          type="button"
-          onClick={publish}
-          disabled={busy}
-          className="whitespace-nowrap rounded bg-mBlue px-5 py-3 font-display text-sm font-semibold uppercase tracking-wide text-white transition-colors hover:bg-mCyan disabled:opacity-60"
-        >
-          {busy ? "Publicando…" : "Publicar ahora"}
-        </button>
-        <button
-          type="button"
-          onClick={discard}
-          disabled={busy}
-          className="whitespace-nowrap rounded border border-[#D6D6D6] bg-white px-4 py-3 font-display text-sm font-semibold uppercase tracking-wide text-[#0B0B0B] transition-colors hover:border-mRed hover:text-mRed disabled:opacity-60"
-        >
-          Descartar
-        </button>
       </div>
     </div>
   );
@@ -1413,7 +1279,6 @@ export default function AdminPanel() {
         </Tab>
       </div>
 
-      <LegacyMigrationBanner />
       <ActiveTab />
       <SavedToast />
     </div>
