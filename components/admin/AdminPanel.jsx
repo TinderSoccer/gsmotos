@@ -18,17 +18,20 @@ import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import Logo from "@/components/Logo";
 import { useRouter } from "next/navigation";
-import { Award, ChevronLeft, ChevronRight, ExternalLink, LogOut, PlayCircle, Search } from "lucide-react";
+import { Award, Camera, ChevronLeft, ChevronRight, ExternalLink, ImageOff, LogOut, PlayCircle, Search } from "lucide-react";
 import ColorBars from "@/components/services/ColorBars";
 import { CERTIFICADOS } from "@/lib/certificados";
 import { setCertPhoto, useCertPhotos } from "@/lib/useCertPhotos";
 import { setFounderPhoto, useFounderPhoto } from "@/lib/founderPhoto";
 import { setLogo, useLogo } from "@/lib/logo";
 import { formatCLP, resetProductos, useProductos, writeProductos } from "@/lib/catalogo";
+import { PLACEHOLDER_PHOTO } from "@/lib/productosData";
 import { resetTallerItems, useTallerItems, writeTallerItems } from "@/lib/taller";
 import { menus } from "@/lib/servicesData";
 import { resetServicePhotos, servicePhotoKey, setServicePhoto, useServicePhotos } from "@/lib/servicePhotos";
-import { NEUMATICOS_PHOTO_SLOTS } from "@/lib/neumaticosContent";
+import { NEUMATICOS_PHOTO_SLOTS, NEUMATICOS_SERVICIOS, NEUMATICOS_USOS } from "@/lib/neumaticosContent";
+import SlotImage from "@/components/neumaticos/SlotImage";
+import SmartImage from "@/components/common/SmartImage";
 import { resetNeumaticosPhotos, setNeumaticosPhoto, useNeumaticosPhotos } from "@/lib/neumaticosPhotos";
 import { resetSettings, useSettings, writeSettings } from "@/lib/settings";
 import { readImageFile } from "@/lib/readImage";
@@ -157,6 +160,74 @@ function Tab({ active, onClick, children }) {
   );
 }
 
+// ── Fotos con el mismo diseño que la web ─────────────────────────────────
+// Cada foto del panel se muestra igual que en el sitio (mismas tarjetas,
+// degradados y proporciones), así se ve el resultado antes de cambiarla.
+// Toda la foto es clickeable: al tocarla se elige el archivo nuevo.
+
+function PhotoPicker({ onFile, className = "", children }) {
+  return (
+    <label className={`group/photo relative block cursor-pointer ${className}`}>
+      {children}
+      <input type="file" accept="image/*" className="hidden" onChange={onFile} />
+      {/* Ícono siempre visible (en el celular no hay "pasar el mouse"). */}
+      <span className="pointer-events-none absolute right-2.5 top-2.5 z-20 flex h-9 w-9 items-center justify-center rounded-full bg-white/95 text-[#0B0B0B] shadow-[0_2px_8px_rgba(0,0,0,0.35)] transition-opacity group-hover/photo:opacity-0">
+        <Camera size={17} strokeWidth={2} />
+      </span>
+      <span className="pointer-events-none absolute inset-0 z-10 flex items-center justify-center bg-black/50 opacity-0 transition-opacity group-hover/photo:opacity-100">
+        <span className="inline-flex items-center gap-2 rounded-full bg-white px-4 py-2.5 font-display text-sm font-semibold uppercase tracking-wide text-[#0B0B0B] shadow-[0_4px_14px_rgba(0,0,0,0.35)]">
+          <Camera size={16} strokeWidth={2} /> Cambiar foto
+        </span>
+      </span>
+    </label>
+  );
+}
+
+// Fila debajo de cada foto: de dónde sale la foto que se ve y, si es una
+// subida por el taller, el botón para quitarla.
+function PhotoStatus({ custom, baseLabel = "Foto de ejemplo", onRemove, dark = false }) {
+  return (
+    <div className="flex min-h-[34px] items-center justify-between gap-2 pt-2">
+      <span
+        className={`inline-flex items-center gap-1.5 font-display text-[12px] font-semibold uppercase tracking-[1.6px] ${
+          custom ? "text-mCyan" : dark ? "text-[#8A939B]" : "text-[#8A8A8A]"
+        }`}
+      >
+        <span className={`h-2 w-2 rounded-full ${custom ? "bg-mCyan" : "bg-[#8A939B]"}`} />
+        {custom ? "Tu foto" : baseLabel}
+      </span>
+      {custom && onRemove && (
+        <button
+          type="button"
+          onClick={onRemove}
+          className={`rounded px-2.5 py-1.5 font-display text-[12px] font-semibold uppercase tracking-wide transition-colors hover:text-mRed ${
+            dark ? "text-[#B9C0C7]" : "text-[#5A5A5A]"
+          }`}
+        >
+          Quitar mi foto
+        </button>
+      )}
+    </div>
+  );
+}
+
+// Fondo oscuro como el de la web, para las secciones que en el sitio van
+// sobre negro.
+function SitePanel({ children, className = "" }) {
+  return <div className={`rounded-2xl border border-[#1E2226] bg-[#0B0B0B] p-4 sm:p-6 ${className}`}>{children}</div>;
+}
+
+function TapHint({ dark = false }) {
+  return (
+    <p className={`mb-4 flex items-center gap-2 text-sm ${dark ? "text-[#9AA1A8]" : "text-[#5A5A5A]"}`}>
+      <Camera size={15} /> Toca cualquier foto para cambiarla. Así es como se ve en la web.
+    </p>
+  );
+}
+
+const FOUNDER_DEFAULT_PHOTO = "/images/foto-taller-c.png";
+
+// Réplica del hero de /nosotros/christopher (corte diagonal blanco + texto).
 function FounderHeroPhoto() {
   const photo = useFounderPhoto();
 
@@ -166,38 +237,38 @@ function FounderHeroPhoto() {
   }
 
   return (
-    <div className="mx-6 mb-8 flex flex-col gap-4 rounded-xl border border-[#E0E0E0] bg-white p-5 sm:mx-10 sm:flex-row sm:items-center sm:gap-6">
-      <div className="relative h-[110px] w-full overflow-hidden rounded-lg border border-[#E4E4E4] bg-[#F2F2F2] sm:w-[180px] sm:flex-none">
-        {photo ? (
-          // eslint-disable-next-line @next/next/no-img-element
-          <img src={photo} alt="Foto del hero de Christopher" className="block h-full w-full object-cover" />
-        ) : (
-          <div className="flex h-full w-full items-center justify-center font-display text-[11px] uppercase tracking-wide text-[#9A9A9A]">
-            Usando una foto del taller
+    <div className="px-6 pb-8 sm:px-10">
+      <div className="mb-2 font-display text-lg font-semibold uppercase tracking-wide text-[#0B0B0B]">
+        Foto principal de la página
+      </div>
+      <PhotoPicker onFile={handleFile} className="overflow-hidden rounded-xl border border-[#E0E0E0]">
+        <section className="relative h-[180px] overflow-hidden bg-[#050505] sm:h-[230px]">
+          <SmartImage src={photo || FOUNDER_DEFAULT_PHOTO} alt="Foto principal de Christopher" className="brightness-110" sizes="(max-width: 1023px) 100vw, 1100px" />
+          <div
+            className="pointer-events-none absolute inset-0 sm:hidden"
+            style={{ background: "linear-gradient(180deg, rgba(5,5,5,0.55) 0%, rgba(5,5,5,0.72) 50%, rgba(5,5,5,0.93) 100%)" }}
+          />
+          <div className="pointer-events-none absolute inset-0 hidden bg-white sm:block" style={{ clipPath: "polygon(0 0, 34% 0, 47% 100%, 0 100%)" }} />
+          <div
+            className="pointer-events-none absolute inset-y-0 left-0 hidden w-[64%] sm:block"
+            style={{ background: "linear-gradient(103deg, #ffffff 50%, rgba(255,255,255,0.86) 57%, rgba(255,255,255,0) 72%)" }}
+          />
+          <div className="relative flex h-full max-w-[560px] flex-col justify-end gap-1.5 px-6 pb-4 sm:px-10 sm:pb-6">
+            <div className="flex items-center gap-2.5">
+              <ColorBars />
+              <span className="font-display text-xs uppercase tracking-[2.2px] text-white sm:text-[#0B0B0B]">Fundador GSmotos</span>
+            </div>
+            <div className="font-display text-[26px] font-bold italic uppercase leading-[0.94] text-white sm:text-[38px] sm:text-[#0B0B0B]">
+              Christopher
+            </div>
           </div>
-        )}
-      </div>
-      <div className="flex flex-1 flex-col gap-2">
-        <div className="font-display text-lg font-semibold uppercase tracking-wide text-[#0B0B0B]">Foto principal de la página de Christopher</div>
-        <p className="text-sm leading-[1.5] text-[#5A5A5A]">
-          Es la foto grande de fondo, arriba de todo en la página de Christopher. Si no subes ninguna, se usa una
-          foto del taller.
-        </p>
-        <div className="mt-1 flex items-center gap-2.5">
-          <label className="flex cursor-pointer items-center justify-center gap-2.5 whitespace-nowrap rounded bg-mBlue px-4 py-2.5 font-display text-sm font-semibold uppercase tracking-wide text-white transition-colors hover:bg-mCyan">
-            <span>{photo ? "Reemplazar" : "Subir foto"}</span>
-            <input type="file" accept="image/*" className="hidden" onChange={handleFile} />
-          </label>
-          <button
-            type="button"
-            onClick={() => confirmar("¿Quitar esta foto? Vuelve a verse la foto del taller.") && warnIfFailed(setFounderPhoto(""))}
-            disabled={!photo}
-            className="rounded border border-[#D6D6D6] bg-white px-4 py-2.5 font-display text-sm font-semibold uppercase tracking-wide text-[#0B0B0B] transition-colors enabled:hover:border-mRed enabled:hover:text-mRed disabled:cursor-not-allowed disabled:text-[#B4B4B4]"
-          >
-            Quitar
-          </button>
-        </div>
-      </div>
+        </section>
+      </PhotoPicker>
+      <PhotoStatus
+        custom={Boolean(photo)}
+        baseLabel="Foto del taller"
+        onRemove={() => confirmar("¿Quitar tu foto? Vuelve a verse la foto del taller.") && warnIfFailed(setFounderPhoto(""))}
+      />
     </div>
   );
 }
@@ -216,11 +287,11 @@ function CertificadosTab() {
       <div className="flex flex-wrap items-end justify-between gap-8 px-6 pb-5 pt-11 sm:px-10">
         <div className="flex flex-col gap-2.5">
           <h1 className="font-display text-[32px] font-bold italic uppercase leading-none text-[#0B0B0B] sm:text-4xl">
-            Certificados de Christopher
+            Página de Christopher
           </h1>
           <p className="max-w-xl text-[15.5px] leading-[1.6] text-[#5A5A5A]">
-            Cada certificado ya tiene su foto escaneada. Sube una imagen solo si quieres cambiarla; con
-            &ldquo;Quitar&rdquo; vuelve la foto original.
+            La foto principal y los certificados. Cada certificado ya tiene su foto escaneada: cámbiala solo si
+            quieres otra.
           </p>
           <SeeOnSite href="/nosotros/christopher" />
         </div>
@@ -232,52 +303,47 @@ function CertificadosTab() {
         </div>
       </div>
 
+      <div className="px-6 sm:px-10">
+        <TapHint />
+      </div>
+
       <FounderHeroPhoto />
 
-      <div className="grid grid-cols-1 gap-4 px-6 pb-14 pt-5 sm:grid-cols-2 sm:px-10 lg:grid-cols-3">
-        {CERTIFICADOS.map((cert) => {
-          const photo = overrides[cert.slot];
-          const shown = photo || cert.defaultPhoto;
-          return (
-            <div key={cert.slot} className="flex flex-col overflow-hidden rounded-xl border border-[#E0E0E0] bg-white shadow-[0_2px_10px_rgba(11,11,11,0.06)]">
-              <div className="relative h-[250px] overflow-hidden border-b border-[#E0E0E0] bg-[#F2F2F2]">
-                {shown ? (
-                  // eslint-disable-next-line @next/next/no-img-element
-                  <img src={shown} alt={cert.title} className="block h-full w-full object-contain" />
-                ) : (
-                  <PlaceholderIcon label="Sin imagen" />
-                )}
-                <div
-                  className="absolute left-3 top-3 rounded-[3px] px-3 py-1.5 font-display text-[12.5px] uppercase tracking-[2px] text-white"
-                  style={{ background: photo ? "#1B5FAE" : cert.defaultPhoto ? "#5A6B7A" : "#7A7A7A" }}
-                >
-                  {photo ? "Tu foto" : cert.defaultPhoto ? "Foto original" : "Sin foto"}
+      <div className="px-6 pb-14 sm:px-10">
+        <div className="mb-3 font-display text-lg font-semibold uppercase tracking-wide text-[#0B0B0B]">Certificados</div>
+        <div className="grid grid-cols-1 gap-3.5 sm:grid-cols-2 lg:grid-cols-3">
+          {CERTIFICADOS.map((cert) => {
+            const custom = overrides[cert.slot];
+            const shown = custom || cert.defaultPhoto;
+            return (
+              <div key={cert.slot}>
+                <div className="flex flex-col overflow-hidden rounded-xl border border-[#E0E0E0] bg-white shadow-[0_2px_10px_rgba(11,11,11,0.06)]">
+                  <PhotoPicker onFile={(ev) => handleFile(cert.slot, ev)} className="h-[240px] overflow-hidden border-b border-[#E0E0E0] bg-[#F2F2F2]">
+                    {shown ? (
+                      <SmartImage src={shown} alt={cert.title} fit="contain" sizes="(max-width: 639px) 90vw, 360px" />
+                    ) : (
+                      <PlaceholderIcon label="Certificado pendiente" />
+                    )}
+                  </PhotoPicker>
+                  <div className="flex flex-col gap-2 px-[22px] pb-[22px] pt-5">
+                    <div className="font-display text-[13px] uppercase tracking-[2px] text-mBlue">
+                      {cert.year} · {cert.org}
+                    </div>
+                    <div className="font-display text-xl font-semibold uppercase leading-[1.15] tracking-wide text-[#0B0B0B]">{cert.title}</div>
+                    <div className="text-[14.5px] leading-[1.55] text-[#5A5A5A]">{cert.desc}</div>
+                  </div>
                 </div>
+                <PhotoStatus
+                  custom={Boolean(custom)}
+                  baseLabel={cert.defaultPhoto ? "Foto original" : "Sin foto"}
+                  onRemove={() =>
+                    confirmar("¿Quitar tu foto? Vuelve a verse la foto original del certificado.") && warnIfFailed(setCertPhoto(cert.slot, ""))
+                  }
+                />
               </div>
-              <div className="flex flex-col gap-2.5 px-[22px] pb-[22px] pt-5">
-                <div className="font-display text-[13px] uppercase tracking-[2px] text-mBlue">
-                  {cert.year} · {cert.org}
-                </div>
-                <div className="font-display text-xl font-semibold uppercase leading-[1.15] text-[#0B0B0B]">{cert.title}</div>
-                <p className="text-sm leading-[1.55] text-[#5A5A5A]">{cert.desc}</p>
-                <div className="mt-1.5 flex items-center gap-2.5">
-                  <label className="flex flex-1 cursor-pointer items-center justify-center gap-3 rounded bg-mBlue px-4 py-3 font-display text-[14.5px] font-semibold uppercase tracking-[2px] text-white transition-colors hover:bg-mCyan">
-                    <span>{photo ? "Reemplazar" : "Subir imagen"}</span>
-                    <input type="file" accept="image/*" className="hidden" onChange={(ev) => handleFile(cert.slot, ev)} />
-                  </label>
-                  <button
-                    type="button"
-                    onClick={() => confirmar("¿Quitar tu foto? Vuelve a verse la foto original del certificado.") && warnIfFailed(setCertPhoto(cert.slot, ""))}
-                    disabled={!photo}
-                    className="rounded border border-[#D6D6D6] bg-white px-4 py-3 font-display text-[14.5px] font-semibold uppercase tracking-[2px] text-[#0B0B0B] transition-colors enabled:hover:border-mRed enabled:hover:text-mRed disabled:cursor-not-allowed disabled:text-[#B4B4B4]"
-                  >
-                    Quitar
-                  </button>
-                </div>
-              </div>
-            </div>
-          );
-        })}
+            );
+          })}
+        </div>
       </div>
     </>
   );
@@ -312,49 +378,59 @@ function ServiciosTab() {
         </div>
       </div>
 
-      {SERVICE_CATEGORIES.map((menu) => (
-        <div key={menu.slug} className="px-6 pb-10 sm:px-10">
-          <div className="mb-4 font-display text-xl font-bold uppercase tracking-wide text-[#0B0B0B]">{menu.title}</div>
-          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
-            {menu.cards.map((card) => {
-              const key = servicePhotoKey(card.categorySlug, card.slug);
-              const photo = overrides[key] || card.photo;
-              const custom = Boolean(overrides[key]);
-              return (
-                <div key={key} className="flex flex-col overflow-hidden rounded-xl border border-[#E0E0E0] bg-white shadow-[0_2px_10px_rgba(11,11,11,0.06)]">
-                  <div className="relative h-[150px] overflow-hidden border-b border-[#E0E0E0] bg-[#F2F2F2]">
-                    {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img src={photo} alt={card.title} className="block h-full w-full object-cover" />
-                    <div
-                      className="absolute left-3 top-3 rounded-[3px] px-3 py-1.5 font-display text-[11px] uppercase tracking-[2px] text-white"
-                      style={{ background: custom ? "#1B5FAE" : "#7A7A7A" }}
+      <div className="flex flex-col gap-8 px-6 pb-10 sm:px-10">
+        {SERVICE_CATEGORIES.map((menu) => (
+          <SitePanel key={menu.slug}>
+            <div className="mb-1 flex items-center gap-3.5">
+              <ColorBars />
+              <h2 className="font-display text-2xl font-bold italic uppercase leading-none tracking-wide text-white">{menu.title}</h2>
+            </div>
+            <div className="mb-4 mt-3">
+              <TapHint dark />
+            </div>
+            <div className="grid grid-cols-1 gap-x-3.5 gap-y-2 sm:grid-cols-2 lg:grid-cols-3">
+              {menu.cards.map((card) => {
+                const key = servicePhotoKey(card.categorySlug, card.slug);
+                const custom = Boolean(overrides[key]);
+                return (
+                  <div key={key}>
+                    <PhotoPicker
+                      onFile={(ev) => handleFile(key, ev)}
+                      className="min-h-[260px] overflow-hidden rounded-xl border border-[#1E2226] bg-black"
                     >
-                      {custom ? "Tu foto" : "Foto de ejemplo"}
-                    </div>
+                      <SmartImage src={overrides[key] || card.photo} alt={card.title} className="brightness-125" sizes="(max-width: 639px) 90vw, 420px" />
+                      <div
+                        className="pointer-events-none absolute inset-0"
+                        style={{ background: "linear-gradient(180deg, rgba(5,5,5,0.10) 0%, rgba(5,5,5,0.58) 34%, rgba(5,5,5,0.90) 62%, rgba(5,5,5,0.96) 100%)" }}
+                      />
+                      <div className="relative flex min-h-[260px] flex-col justify-end gap-2.5 px-5 pb-5 pt-5">
+                        <div className="flex items-center gap-3">
+                          <ColorBars />
+                          <span className="whitespace-nowrap font-display text-[13px] uppercase tracking-[2.2px] text-[#D6DADE]">{card.kicker}</span>
+                          {card.kicker?.includes("BMW") && (
+                            // eslint-disable-next-line @next/next/no-img-element
+                            <img src="/images/marcas/bmw.svg" alt="BMW" className="h-5 w-5 flex-none" />
+                          )}
+                        </div>
+                        <div className="font-display text-[24px] font-bold italic uppercase leading-tight text-white">{card.title}</div>
+                        <div className="flex items-center gap-2.5 font-display text-sm uppercase tracking-wide text-mCyan">
+                          <span>Ver detalle</span>
+                          <span className="font-body">→</span>
+                        </div>
+                      </div>
+                    </PhotoPicker>
+                    <PhotoStatus
+                      dark
+                      custom={custom}
+                      onRemove={() => confirmar("¿Quitar tu foto? Vuelve a verse la foto de ejemplo.") && warnIfFailed(setServicePhoto(key, ""))}
+                    />
                   </div>
-                  <div className="flex flex-col gap-2.5 px-4 pb-4 pt-3.5">
-                    <div className="font-display text-base font-semibold uppercase leading-tight text-[#0B0B0B]">{card.title}</div>
-                    <div className="flex items-center gap-2.5">
-                      <label className="flex flex-1 cursor-pointer items-center justify-center gap-2.5 whitespace-nowrap rounded bg-mBlue px-4 py-2.5 font-display text-sm font-semibold uppercase tracking-wide text-white transition-colors hover:bg-mCyan">
-                        <span>{custom ? "Reemplazar" : "Subir foto"}</span>
-                        <input type="file" accept="image/*" className="hidden" onChange={(ev) => handleFile(key, ev)} />
-                      </label>
-                      <button
-                        type="button"
-                        onClick={() => confirmar("¿Quitar tu foto? Vuelve a verse la foto de ejemplo.") && warnIfFailed(setServicePhoto(key, ""))}
-                        disabled={!custom}
-                        className="rounded border border-[#D6D6D6] bg-white px-4 py-2.5 font-display text-sm font-semibold uppercase tracking-wide text-[#0B0B0B] transition-colors enabled:hover:border-mRed enabled:hover:text-mRed disabled:cursor-not-allowed disabled:text-[#B4B4B4]"
-                      >
-                        Quitar
-                      </button>
-                    </div>
-                  </div>
-                </div>
-              );
-            })}
-          </div>
-        </div>
-      ))}
+                );
+              })}
+            </div>
+          </SitePanel>
+        ))}
+      </div>
 
       <div className="px-6 pb-14 sm:px-10">
         <div className="flex flex-col items-start gap-4 rounded-xl border border-[#E0E0E0] bg-white p-6 sm:flex-row sm:items-center sm:justify-between">
@@ -382,10 +458,8 @@ function ServiciosTab() {
   );
 }
 
-// Fotos de /servicios/neumaticos (imagen principal + 4 servicios + 3 tipos
-// de uso) — mismo patrón que ServiciosTab, pero con respaldo en degradado
-// (no hay "foto genérica" previa para estos slots, son nuevos) en vez de
-// una imagen de ejemplo. Ver lib/neumaticosPhotos.js.
+// Fotos de /servicios/neumaticos: 4 servicios (tarjetas cuadradas) y 3 tipos
+// de uso (verticales 3:4), igual que en la página. Ver lib/neumaticosPhotos.js.
 function NeumaticosTab() {
   const overrides = useNeumaticosPhotos();
   const customCount = Object.keys(overrides).length;
@@ -394,6 +468,12 @@ function NeumaticosTab() {
     const url = await readAndUpload(ev, { maxSize: 1600, quality: 0.85 });
     if (url) warnIfFailed(setNeumaticosPhoto(slot, url));
   }
+
+  function removeFor(slot) {
+    return () => confirmar("¿Quitar tu foto? Vuelve a verse la foto de ejemplo.") && warnIfFailed(setNeumaticosPhoto(slot, ""));
+  }
+
+  const overlay = { background: "linear-gradient(180deg, rgba(5,5,5,0) 40%, rgba(5,5,5,0.9) 100%)" };
 
   return (
     <>
@@ -414,53 +494,61 @@ function NeumaticosTab() {
         </div>
       </div>
 
-      <div className="px-6 pb-10 sm:px-10">
-        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          {NEUMATICOS_PHOTO_SLOTS.map(({ slot, label, defaultPhoto }) => {
-            const photo = overrides[slot];
-            const shown = photo || defaultPhoto;
-            return (
-              <div key={slot} className="flex flex-col overflow-hidden rounded-xl border border-[#E0E0E0] bg-white shadow-[0_2px_10px_rgba(11,11,11,0.06)]">
-                <div className="relative h-[150px] overflow-hidden border-b border-[#E0E0E0] bg-[#F2F2F2]">
-                  {shown ? (
-                    // eslint-disable-next-line @next/next/no-img-element
-                    <img src={shown} alt={label} className="block h-full w-full object-cover" />
-                  ) : (
-                    <div
-                      className="flex h-full w-full items-center justify-center font-display text-[11px] uppercase tracking-[2px] text-white/80"
-                      style={{ background: "linear-gradient(135deg, #1B5FAE 0%, #4E9AD1 100%)" }}
-                    >
-                      Sin foto
+      <div className="grid grid-cols-1 gap-6 px-6 pb-10 sm:px-10 lg:grid-cols-[1fr_1.15fr]">
+        <SitePanel>
+          <div className="flex items-center gap-3.5">
+            <ColorBars />
+            <h2 className="font-display text-2xl font-bold italic uppercase leading-none tracking-wide text-white">Servicios</h2>
+          </div>
+          <div className="mb-1 mt-3">
+            <TapHint dark />
+          </div>
+          <div className="grid grid-cols-2 gap-x-4 gap-y-1">
+            {NEUMATICOS_SERVICIOS.map(({ slot, Icon, title, defaultPhoto }) => (
+              <div key={slot}>
+                <PhotoPicker onFile={(ev) => handleFile(slot, ev)} className="aspect-square overflow-hidden rounded-lg border border-[#1E2226]">
+                  <SlotImage src={overrides[slot] || defaultPhoto} alt={title} Icon={Icon} fill sizes="260px" className="h-full w-full" />
+                  <div className="pointer-events-none absolute inset-0" style={overlay} />
+                  <div className="absolute inset-x-0 bottom-0 flex items-end justify-between gap-1.5 px-3.5 py-3">
+                    <div className="flex min-w-0 items-center gap-1.5 sm:gap-2">
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
+                      <img src="/images/marcas/bmw.svg" alt="BMW" className="h-3.5 w-3.5 flex-none sm:h-4 sm:w-4" />
+                      <span className="font-display text-base font-bold italic uppercase leading-tight text-white [text-shadow:0_1px_4px_rgba(0,0,0,0.6)] sm:text-lg">
+                        {title}
+                      </span>
                     </div>
-                  )}
-                  <div
-                    className="absolute left-3 top-3 rounded-[3px] px-3 py-1.5 font-display text-[11px] uppercase tracking-[2px] text-white"
-                    style={{ background: photo ? "#1B5FAE" : defaultPhoto ? "#5A6B7A" : "#7A7A7A" }}
-                  >
-                    {photo ? "Tu foto" : defaultPhoto ? "Foto de ejemplo" : "Sin foto"}
+                    <ChevronRight size={18} strokeWidth={2.2} className="flex-none text-mCyan" aria-hidden="true" />
                   </div>
-                </div>
-                <div className="flex flex-col gap-2.5 px-4 pb-4 pt-3.5">
-                  <div className="font-display text-base font-semibold uppercase leading-tight text-[#0B0B0B]">{label}</div>
-                  <div className="flex items-center gap-2.5">
-                    <label className="flex flex-1 cursor-pointer items-center justify-center gap-2.5 whitespace-nowrap rounded bg-mBlue px-4 py-2.5 font-display text-sm font-semibold uppercase tracking-wide text-white transition-colors hover:bg-mCyan">
-                      <span>{photo ? "Reemplazar" : "Subir foto"}</span>
-                      <input type="file" accept="image/*" className="hidden" onChange={(ev) => handleFile(slot, ev)} />
-                    </label>
-                    <button
-                      type="button"
-                      onClick={() => confirmar("¿Quitar tu foto? Vuelve a verse la foto de ejemplo.") && warnIfFailed(setNeumaticosPhoto(slot, ""))}
-                      disabled={!photo}
-                      className="rounded border border-[#D6D6D6] bg-white px-4 py-2.5 font-display text-sm font-semibold uppercase tracking-wide text-[#0B0B0B] transition-colors enabled:hover:border-mRed enabled:hover:text-mRed disabled:cursor-not-allowed disabled:text-[#B4B4B4]"
-                    >
-                      Quitar
-                    </button>
-                  </div>
-                </div>
+                </PhotoPicker>
+                <PhotoStatus dark custom={Boolean(overrides[slot])} onRemove={removeFor(slot)} />
               </div>
-            );
-          })}
-        </div>
+            ))}
+          </div>
+        </SitePanel>
+
+        <SitePanel>
+          <div className="flex items-center gap-3.5">
+            <ColorBars />
+            <h2 className="font-display text-2xl font-bold italic uppercase leading-none tracking-wide text-white">Tipos de uso</h2>
+          </div>
+          <div className="mb-1 mt-3">
+            <TapHint dark />
+          </div>
+          <div className="grid grid-cols-2 gap-x-4 gap-y-1 sm:grid-cols-3">
+            {NEUMATICOS_USOS.map(({ slot, Icon, title, defaultPhoto }) => (
+              <div key={slot}>
+                <PhotoPicker onFile={(ev) => handleFile(slot, ev)} className="aspect-[3/4] overflow-hidden rounded-lg border border-[#1E2226]">
+                  <SlotImage src={overrides[slot] || defaultPhoto} alt={title} Icon={Icon} fill sizes="300px" className="h-full w-full" />
+                  <div className="pointer-events-none absolute inset-0" style={overlay} />
+                  <span className="absolute inset-x-0 bottom-0 px-3 py-3 text-center font-display text-lg font-bold italic uppercase text-white [text-shadow:0_1px_4px_rgba(0,0,0,0.6)]">
+                    {title}
+                  </span>
+                </PhotoPicker>
+                <PhotoStatus dark custom={Boolean(overrides[slot])} onRemove={removeFor(slot)} />
+              </div>
+            ))}
+          </div>
+        </SitePanel>
       </div>
 
       <div className="px-6 pb-14 sm:px-10">
@@ -468,7 +556,8 @@ function NeumaticosTab() {
           <div className="flex flex-col gap-1.5">
             <div className="font-display text-lg font-semibold uppercase tracking-wide text-[#0B0B0B]">Consejos</div>
             <div className="text-[14.5px] leading-[1.6] text-[#5A5A5A]">
-              Usa fotos horizontales (más anchas que altas).
+              Servicios usa fotos cuadradas y Tipos de uso, fotos verticales (más altas que anchas) — la foto se
+              recorta sola para llenar la tarjeta.
             </div>
           </div>
           <button
@@ -535,20 +624,10 @@ function NewProductModal({ onClose, onCreate }) {
           Nuevo producto
         </div>
         <form onSubmit={handleSubmit} className="flex flex-col gap-4">
-          <div className="relative h-[140px] overflow-hidden rounded-lg border border-[#E4E4E4] bg-[#F2F2F2]">
-            {photo ? (
-              // eslint-disable-next-line @next/next/no-img-element
-              <img src={photo} alt="" className="block h-full w-full object-cover" />
-            ) : (
-              <div className="flex h-full w-full items-center justify-center font-display text-xs uppercase tracking-wide text-[#9A9A9A]">
-                Sin foto
-              </div>
-            )}
-          </div>
-          <label className="flex cursor-pointer items-center justify-center gap-2.5 rounded bg-mBlue px-4 py-2.5 font-display text-sm font-semibold uppercase tracking-wide text-white transition-colors hover:bg-mCyan">
-            <span>{uploading ? "Subiendo…" : photo ? "Reemplazar foto" : "Subir foto"}</span>
-            <input type="file" accept="image/*" className="hidden" onChange={handleFile} disabled={uploading} />
-          </label>
+          <PhotoPicker onFile={handleFile} className="h-[160px] overflow-hidden rounded-lg border border-[#1E2226] bg-[#EFEDE9]">
+            <ProductPhotoPreview photo={photo} name={name} estado={estado} />
+          </PhotoPicker>
+          <p className="-mt-2 text-xs text-[#8A8A8A]">{uploading ? "Subiendo foto…" : "Toca la foto para elegir una."}</p>
           <label className="flex flex-col gap-1.5 text-sm text-[#3A3A3A]">
             Nombre del producto
             <input
@@ -634,6 +713,32 @@ function NewProductModal({ onClose, onCreate }) {
   );
 }
 
+// Foto de producto igual que en la tarjeta de /productos: fondo crema, la
+// foto entera (sin recortar) y la etiqueta Nuevo/Usado arriba a la izquierda.
+function ProductPhotoPreview({ photo, name, estado }) {
+  const usado = estado === "usado";
+  return (
+    <>
+      {!photo || photo === PLACEHOLDER_PHOTO ? (
+        <div className="flex h-full flex-col items-center justify-center gap-2 bg-[repeating-linear-gradient(135deg,#EDEBE7_0_10px,#E4E1DB_10px_20px)]">
+          <ImageOff size={24} strokeWidth={1.4} className="text-[#A6A099]" />
+          <span className="font-display text-[10.5px] uppercase tracking-[2px] text-[#8C857C]">Foto próximamente</span>
+        </div>
+      ) : (
+        <SmartImage src={photo} alt={name} fit="contain" className="p-3" sizes="330px" />
+      )}
+      <span
+        className={`absolute left-3 top-3 rounded-sm border border-white/15 font-display font-bold uppercase tracking-[1.5px] text-white ${
+          usado ? "px-2.5 py-1.5 text-[11px] shadow-[0_2px_8px_rgba(231,0,42,0.5)]" : "px-2 py-1 text-[10px]"
+        }`}
+        style={{ background: usado ? "#E7002A" : "rgba(27,95,174,0.9)" }}
+      >
+        {usado ? "Usado" : "Nuevo"}
+      </span>
+    </>
+  );
+}
+
 const PRODUCTS_PAGE_SIZE = 20;
 
 function ProductosTab() {
@@ -692,7 +797,8 @@ function ProductosTab() {
           </h1>
           <p className="max-w-xl text-[15.5px] leading-[1.6] text-[#5A5A5A]">
             Agrega, edita o elimina los productos de la tienda (los del buscador del inicio y de la página
-            Productos). Lo que escribas se guarda solo, no hay que apretar ningún botón.
+            Productos). Lo que escribas se guarda solo, no hay que apretar ningún botón. Toca una foto para
+            cambiarla.
           </p>
           <SeeOnSite href="/productos" />
         </div>
@@ -739,21 +845,11 @@ function ProductosTab() {
         {pageItems.map(({ prod, i }) => (
           <div
             key={i}
-            className="grid grid-cols-[110px_1fr] items-center gap-4 rounded-xl border border-[#E0E0E0] bg-white p-4 shadow-[0_2px_10px_rgba(11,11,11,0.05)] sm:grid-cols-[170px_1fr_auto] sm:gap-5 sm:p-5"
+            className="grid grid-cols-[140px_1fr] items-center gap-4 rounded-xl border border-[#E0E0E0] bg-white p-4 shadow-[0_2px_10px_rgba(11,11,11,0.05)] sm:grid-cols-[190px_1fr_auto] sm:gap-5 sm:p-5"
           >
-            <div className="relative h-[80px] overflow-hidden rounded-lg border border-[#E4E4E4] bg-[#F2F2F2] sm:h-[112px]">
-              {prod.photo ? (
-                // eslint-disable-next-line @next/next/no-img-element
-                <img src={prod.photo} alt={prod.name} className="block h-full w-full object-cover" />
-              ) : (
-                <div
-                  className="flex h-full w-full items-center justify-center font-display text-[11px] uppercase tracking-[2px] text-[#9A9A9A] sm:text-[12.5px]"
-                  style={{ background: "repeating-linear-gradient(135deg, #F2F2F2 0 12px, #ECECEC 12px 24px)" }}
-                >
-                  Sin foto
-                </div>
-              )}
-            </div>
+            <PhotoPicker onFile={(ev) => handleFile(i, ev)} className="h-[100px] overflow-hidden rounded-lg border border-[#1E2226] bg-[#EFEDE9] sm:h-[130px]">
+              <ProductPhotoPreview photo={prod.photo} name={prod.name} estado={prod.estado} />
+            </PhotoPicker>
 
             <div className="col-span-2 flex min-w-0 flex-col gap-2.5 sm:col-span-1">
               <input
@@ -815,10 +911,6 @@ function ProductosTab() {
             </div>
 
             <div className="col-span-2 flex gap-2.5 sm:col-span-1 sm:flex-col">
-              <label className="flex flex-1 cursor-pointer items-center justify-center gap-2.5 whitespace-nowrap rounded bg-mBlue px-4 py-2.5 font-display text-sm font-semibold uppercase tracking-wide text-white transition-colors hover:bg-mCyan">
-                <span>{prod.photo ? "Reemplazar foto" : "Subir foto"}</span>
-                <input type="file" accept="image/*" className="hidden" onChange={(ev) => handleFile(i, ev)} />
-              </label>
               <button
                 type="button"
                 onClick={() => confirmar(`¿Eliminar "${prod.name || "este producto"}"? No se puede deshacer.`) && removeProduct(i)}
@@ -862,8 +954,8 @@ function ProductosTab() {
           <div className="flex flex-col gap-1.5">
             <div className="font-display text-lg font-semibold uppercase tracking-wide text-[#0B0B0B]">Consejos</div>
             <div className="text-[14.5px] leading-[1.6] text-[#5A5A5A]">
-              Los productos aparecen en el sitio en el mismo orden de esta lista. Usa fotos horizontales (más
-              anchas que altas). &ldquo;Restaurar catálogo&rdquo; borra todos los cambios hechos acá y vuelve a la
+              Los productos aparecen en el sitio en el mismo orden de esta lista. Toca la foto de un producto para
+              cambiarla; se muestra entera, sin recortar, sobre fondo claro. &ldquo;Restaurar catálogo&rdquo; borra todos los cambios hechos acá y vuelve a la
               lista original de productos — útil si algo quedó mal.
             </div>
           </div>
@@ -902,6 +994,11 @@ function TallerTab() {
     if (url) warnIfFailed(writeTallerItems([...items, { id: `photo-${Date.now()}`, type: "photo", photo: url, caption: "" }]));
   }
 
+  async function replacePhoto(id, ev) {
+    const url = await readAndUpload(ev, { maxSize: 1600, quality: 0.85 });
+    if (url) patch(id, { photo: url });
+  }
+
   async function addVideo(ev) {
     ev.preventDefault();
     const url = videoUrl.trim();
@@ -930,13 +1027,8 @@ function TallerTab() {
         </div>
       </div>
 
-      <div className="flex flex-col gap-3 px-6 pb-6 sm:flex-row sm:px-10">
-        <label className="flex flex-1 cursor-pointer items-center justify-center gap-3 rounded bg-mBlue px-4 py-3.5 font-display text-[14.5px] font-semibold uppercase tracking-[2px] text-white transition-colors hover:bg-mCyan">
-          <span>Subir foto</span>
-          <span className="font-body text-lg">+</span>
-          <input type="file" accept="image/*" className="hidden" onChange={handleFile} />
-        </label>
-        <form onSubmit={addVideo} className="flex flex-1 flex-col gap-2 sm:flex-row">
+      <div className="px-6 pb-6 sm:px-10">
+        <form onSubmit={addVideo} className="flex flex-col gap-2 sm:flex-row">
           <input
             type="url"
             required
@@ -961,46 +1053,45 @@ function TallerTab() {
         </form>
       </div>
 
-      <div className="grid grid-cols-1 gap-4 px-6 pb-14 sm:grid-cols-2 sm:px-10 lg:grid-cols-3">
-        {items.map((item) => (
-          <div key={item.id} className="flex flex-col overflow-hidden rounded-xl border border-[#E0E0E0] bg-white shadow-[0_2px_10px_rgba(11,11,11,0.06)]">
-            <div className="relative h-[160px] overflow-hidden border-b border-[#E0E0E0] bg-[#F2F2F2]">
-              {item.type === "photo" ? (
-                // eslint-disable-next-line @next/next/no-img-element
-                <img src={item.photo} alt={item.caption || "Foto del taller"} className="block h-full w-full object-cover" />
-              ) : (
-                <div className="flex h-full w-full flex-col items-center justify-center gap-2 bg-[#141719]">
-                  <PlayCircle size={32} strokeWidth={1.4} color="#4E9AD1" />
-                  <div className="max-w-[90%] truncate font-display text-[11.5px] uppercase tracking-wide text-[#8FC2E6]">
-                    {item.url}
+      <div className="px-6 pb-10 sm:px-10">
+        <SitePanel>
+          <TapHint dark />
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+            {items.map((item) => (
+              <div key={item.id} className="flex flex-col overflow-hidden rounded-xl border border-[#1E2226] bg-[#0B0D0F]">
+                {item.type === "photo" ? (
+                  <PhotoPicker onFile={(ev) => replacePhoto(item.id, ev)} className="aspect-video overflow-hidden bg-[#14171A]">
+                    <SmartImage src={item.photo} alt={item.caption || "Foto del taller"} sizes="420px" />
+                  </PhotoPicker>
+                ) : (
+                  <div className="relative flex aspect-video flex-col items-center justify-center gap-2 bg-[#14171A]">
+                    <PlayCircle size={40} strokeWidth={1.4} color="#4E9AD1" />
+                    <div className="max-w-[90%] truncate font-display text-[11.5px] uppercase tracking-wide text-[#8FC2E6]">{item.url}</div>
                   </div>
-                </div>
-              )}
-              <div
-                className="absolute left-3 top-3 rounded-[3px] px-3 py-1.5 font-display text-[11.5px] uppercase tracking-[2px] text-white"
-                style={{ background: item.type === "photo" ? "#1B5FAE" : "#0B0B0B" }}
-              >
-                {item.type === "photo" ? "Foto" : "Video"}
+                )}
+                <input
+                  type="text"
+                  value={item.caption || ""}
+                  onChange={(ev) => patch(item.id, { caption: ev.target.value })}
+                  placeholder="Escribe una descripción (opcional)"
+                  className="w-full border-0 border-t border-[#1E2226] bg-transparent px-4 py-3 text-sm text-[#C3C9CE] outline-none placeholder:text-[#5E666D] focus:bg-white/[0.04]"
+                />
+                <button
+                  type="button"
+                  onClick={() => confirmar(`¿Eliminar ${item.type === "photo" ? "esta foto" : "este video"}? No se puede deshacer.`) && removeItem(item.id)}
+                  className="border-t border-[#1E2226] px-4 py-2.5 text-left font-display text-[12px] font-semibold uppercase tracking-wide text-[#8A939B] transition-colors hover:text-mRed"
+                >
+                  Eliminar {item.type === "photo" ? "foto" : "video"}
+                </button>
               </div>
-            </div>
-            <div className="flex flex-col gap-2.5 px-4 pb-4 pt-3.5">
-              <input
-                type="text"
-                value={item.caption || ""}
-                onChange={(ev) => patch(item.id, { caption: ev.target.value })}
-                placeholder="Descripción (opcional)"
-                className="w-full rounded-md border border-[#E0E0E0] bg-[#FBFBFB] px-3 py-2 text-sm text-[#0B0B0B] outline-none focus:border-mCyan"
-              />
-              <button
-                type="button"
-                onClick={() => confirmar(`¿Eliminar ${item.type === "photo" ? "esta foto" : "este video"}? No se puede deshacer.`) && removeItem(item.id)}
-                className="rounded border border-[#D6D6D6] bg-white px-4 py-2.5 font-display text-sm font-semibold uppercase tracking-wide text-[#0B0B0B] transition-colors hover:border-mRed hover:text-mRed"
-              >
-                Eliminar
-              </button>
-            </div>
+            ))}
+            <label className="flex aspect-video cursor-pointer flex-col items-center justify-center gap-2 rounded-xl border-2 border-dashed border-[#2E3A45] text-[#8FC2E6] transition-colors hover:border-mCyan hover:text-mCyan">
+              <Camera size={28} strokeWidth={1.6} />
+              <span className="font-display text-sm font-semibold uppercase tracking-wide">Agregar foto</span>
+              <input type="file" accept="image/*" className="hidden" onChange={handleFile} />
+            </label>
           </div>
-        ))}
+        </SitePanel>
       </div>
 
       <div className="px-6 pb-14 sm:px-10">
@@ -1044,6 +1135,7 @@ function Field({ label, value, onChange, placeholder, hint, type = "text" }) {
   );
 }
 
+// El logo se muestra sobre la barra negra de arriba, como en la web.
 function LogoUpload() {
   const logo = useLogo();
 
@@ -1053,38 +1145,26 @@ function LogoUpload() {
   }
 
   return (
-    <div className="mx-6 mb-8 flex flex-col gap-4 rounded-xl border border-[#E0E0E0] bg-white p-5 sm:mx-10 sm:flex-row sm:items-center sm:gap-6">
-      <div className="relative flex h-[90px] w-full flex-none items-center justify-center overflow-hidden rounded-lg border border-[#E4E4E4] bg-[#1A1A1A] sm:w-[220px]">
-        {logo ? (
-          // eslint-disable-next-line @next/next/no-img-element
-          <img src={logo} alt="Logo actual" className="block h-full max-w-full object-contain p-3" />
-        ) : (
-          <div className="flex h-full w-full items-center justify-center font-display text-[11px] uppercase tracking-wide text-[#8A8A8A]">
-            Logo actual del sitio
+    <div className="px-6 pb-8 sm:px-10">
+      <div className="mb-1 font-display text-lg font-semibold uppercase tracking-wide text-[#0B0B0B]">Logo del sitio</div>
+      <p className="mb-3 max-w-2xl text-sm leading-[1.5] text-[#5A5A5A]">
+        Toca la barra para cambiar el logo en todo el sitio. Usa un archivo con <strong>fondo transparente</strong>{" "}
+        (PNG) para que se vea bien tanto en fondos claros como oscuros.
+      </p>
+      <PhotoPicker onFile={handleFile} className="overflow-hidden rounded-xl border border-[#1E2226]">
+        <div className="flex items-center justify-between gap-6 bg-[#0B0B0B] px-6 py-[22px] sm:px-10">
+          <Logo className="block h-auto w-[150px] sm:w-[190px]" />
+          <div className="hidden items-center gap-3.5 pr-12 sm:flex">
+            <ColorBars />
+            <span className="font-display text-sm uppercase tracking-[3px] text-white/70">Así se ve arriba de cada página</span>
           </div>
-        )}
-      </div>
-      <div className="flex flex-1 flex-col gap-2">
-        <div className="font-display text-lg font-semibold uppercase tracking-wide text-[#0B0B0B]">Logo del sitio</div>
-        <p className="text-sm leading-[1.5] text-[#5A5A5A]">
-          Cambia el logo en todo el sitio (arriba en cada página, en la portada y en este panel). Sube un archivo con{" "}
-          <strong>fondo transparente</strong> (PNG) para que se vea bien tanto en fondos claros como oscuros.
-        </p>
-        <div className="mt-1 flex items-center gap-2.5">
-          <label className="flex cursor-pointer items-center justify-center gap-2.5 whitespace-nowrap rounded bg-mBlue px-4 py-2.5 font-display text-sm font-semibold uppercase tracking-wide text-white transition-colors hover:bg-mCyan">
-            <span>{logo ? "Reemplazar logo" : "Subir logo"}</span>
-            <input type="file" accept="image/*" className="hidden" onChange={handleFile} />
-          </label>
-          <button
-            type="button"
-            onClick={() => confirmar("¿Volver al logo original?") && warnIfFailed(setLogo(""))}
-            disabled={!logo}
-            className="rounded border border-[#D6D6D6] bg-white px-4 py-2.5 font-display text-sm font-semibold uppercase tracking-wide text-[#0B0B0B] transition-colors enabled:hover:border-mRed enabled:hover:text-mRed disabled:cursor-not-allowed disabled:text-[#B4B4B4]"
-          >
-            Usar el original
-          </button>
         </div>
-      </div>
+      </PhotoPicker>
+      <PhotoStatus
+        custom={Boolean(logo)}
+        baseLabel="Logo original"
+        onRemove={() => confirmar("¿Volver al logo original?") && warnIfFailed(setLogo(""))}
+      />
     </div>
   );
 }
@@ -1260,7 +1340,7 @@ export default function AdminPanel() {
 
       <div className="flex gap-0 overflow-x-auto border-b border-[#23272B] bg-[#141719] px-6 sm:px-10">
         <Tab active={tab === "certs"} onClick={() => setTab("certs")}>
-          Certificados
+          Christopher
         </Tab>
         <Tab active={tab === "servicios"} onClick={() => setTab("servicios")}>
           Servicios
