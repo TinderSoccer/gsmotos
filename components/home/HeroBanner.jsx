@@ -52,7 +52,7 @@ export default function HeroBanner({ onSelect }) {
             abajo hacia el fondo, donde arranca el título. */}
         <div
           className="pointer-events-none absolute inset-0 sm:hidden"
-          style={{ background: "linear-gradient(180deg, rgba(5,5,5,0.55) 0%, rgba(5,5,5,0) 30%, rgba(5,5,5,0) 58%, #050505 100%)" }}
+          style={{ background: "linear-gradient(180deg, rgba(5,5,5,0.82) 0%, rgba(5,5,5,0.45) 22%, rgba(5,5,5,0) 42%, rgba(5,5,5,0) 58%, #050505 100%)" }}
         />
       </div>
 
@@ -74,7 +74,7 @@ export default function HeroBanner({ onSelect }) {
           {/* Antes era "mobile" (claro en mobile, oscuro desde sm) porque
               desktop tenía la tarjeta blanca detrás del logo — ahora todo el
               hero es oscuro (video), así que el logo claro va siempre. */}
-          <Logo light className="block h-auto w-[150px] sm:w-[210px]" priority />
+          <Logo light className="block h-auto w-[150px] drop-shadow-[0_2px_8px_rgba(0,0,0,0.9)] sm:w-[210px] sm:drop-shadow-none" priority />
         </a>
         {/* Espaciador: mantiene el logo centrado frente al botón hamburguesa en mobile */}
         <div className="w-11 flex-none sm:hidden" />
