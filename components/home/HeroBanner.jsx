@@ -20,29 +20,43 @@ export default function HeroBanner({ onSelect }) {
 
   return (
     <section className="relative h-auto overflow-hidden bg-[#050505] sm:h-[450px]">
-      <video
-        ref={videoRef}
-        autoPlay
-        muted
-        loop
-        playsInline
-        preload="auto"
-        className="absolute inset-0 block h-full w-full object-cover"
-      >
-        {/* Video real del taller (recortado y comprimido de la grabación completa
-            que entregó el cliente — ver public/videos/hero-taller.mp4, ~960KB,
-            1280px, 12s en loop, sin audio). Reemplaza el video de stock que se
-            usaba de placeholder. */}
-        <source src="/videos/hero-taller.mp4" type="video/mp4" />
-      </video>
+      {/* En mobile el video va arriba como franja en su proporción real (4:3)
+          y el contenido debajo: antes llenaba todo el hero (vertical, ~800px
+          de alto) con object-cover, así que solo se veía ~37% del ancho,
+          ampliado y tapado por el texto, los botones y el tablero. Desde sm
+          vuelve a ser fondo de todo el hero. */}
+      <div className="relative aspect-[4/3] w-full sm:absolute sm:inset-0 sm:aspect-auto">
+        <video
+          ref={videoRef}
+          autoPlay
+          muted
+          loop
+          playsInline
+          preload="auto"
+          poster="/images/hero-timelapse-poster.jpg"
+          className="absolute inset-0 block h-full w-full object-cover"
+        >
+          {/* Timelapse del taller armado con los clips originales del cliente
+              (~/Desktop/gsmotos/MP_ROOT): solo los tramos con más gente
+              moviéndose, a 15x, 40s en loop, sin el clip borroso (MAH07004) ni
+              el tramo final borroso de MAH07003, con el logo como marca de agua.
+              Antes era un video de 62MB (1920px, agrandado desde 1440px y CRF 18)
+              que cada visitante descargaba entero; ahora 7.9MB en computador y
+              2.5MB en celular. El navegador elige el primer <source> cuyo
+              `media` coincide. `poster`: primer cuadro, visible al instante
+              mientras carga el video. */}
+          <source src="/videos/hero-timelapse-movil.mp4" type="video/mp4" media="(max-width: 639px)" />
+          <source src="/videos/hero-timelapse.mp4" type="video/mp4" />
+        </video>
+        {/* Mobile: algo de sombra arriba para que se lea el logo y fundido
+            abajo hacia el fondo, donde arranca el título. */}
+        <div
+          className="pointer-events-none absolute inset-0 sm:hidden"
+          style={{ background: "linear-gradient(180deg, rgba(5,5,5,0.55) 0%, rgba(5,5,5,0) 30%, rgba(5,5,5,0) 58%, #050505 100%)" }}
+        />
+      </div>
 
-      {/* Viñeta oscura pareja, de arriba a abajo — la usa el hero mobile para
-          que el texto centrado quede legible sin la tarjeta blanca de sm+. */}
-      <div
-        className="pointer-events-none absolute inset-0 sm:hidden"
-        style={{ background: "linear-gradient(180deg, rgba(5,5,5,0.72) 0%, rgba(5,5,5,0.34) 22%, rgba(5,5,5,0.5) 58%, rgba(9,10,11,0.97) 100%)" }}
-      />
-      <div className="pointer-events-none absolute inset-0 bg-black/[0.22]" />
+      <div className="pointer-events-none absolute inset-0 hidden bg-black/[0.22] sm:block" />
       {/* Antes acá iba una tarjeta blanca sólida (clip-path diagonal) tapando
           ~40% del video para que el texto quedara legible — el cliente pidió
           que se viera más el video. Se reemplaza por un degradado oscuro de
@@ -66,12 +80,11 @@ export default function HeroBanner({ onSelect }) {
         <div className="w-11 flex-none sm:hidden" />
       </header>
 
-      {/* Hero mobile — fiel a "GSmotos Mobile.dc.html": contenido centrado
-          directamente sobre el video (sin tarjeta blanca) y el tablero
-          interactivo dentro del flujo, no oculto como en desktop/tablet.
-          Es este bloque (no el video, position:absolute) el que define el
-          alto del section en mobile — por eso arriba es h-auto. */}
-      <div className="relative z-20 flex flex-col items-center gap-3 px-[18px] pb-[26px] pt-[92px] text-center sm:hidden">
+      {/* Hero mobile: contenido centrado debajo de la franja de video (el
+          título se monta sobre el fundido del final del video, -mt) y el
+          tablero interactivo dentro del flujo, no oculto como en
+          desktop/tablet. */}
+      <div className="relative z-20 -mt-16 flex flex-col items-center gap-3 px-[18px] pb-[26px] text-center sm:hidden">
         <div className="font-display text-[19px] font-semibold uppercase tracking-[5px] text-white">
           Especialistas en
         </div>
