@@ -4,8 +4,7 @@
 // vectorial (components/home/SpeedometerDashboard.jsx) por la foto real del
 // tablero BMW, portada del diseño actualizado de Claude Design. Las 5 filas
 // de menú del tablero son zonas clicables superpuestas (mismas posiciones en
-// % que el diseño), con un pequeño feedback sonoro al pasar el mouse/clic —
-// igual que el original.
+// % que el diseño), con un pequeño feedback sonoro al hacer clic.
 import { useCallback, useEffect, useRef } from "react";
 import Image from "next/image";
 
@@ -42,29 +41,10 @@ export default function TableroFoto({ onSelect, fluid = false, width = 440 }) {
     getAudio();
   }, [getAudio]);
 
-  const tone = useCallback(
-    (freq, vol, type, dur) => {
-      const ctx = getAudio();
-      if (!ctx) return;
-      const t = ctx.currentTime;
-      const osc = ctx.createOscillator();
-      const gain = ctx.createGain();
-      osc.type = type;
-      osc.frequency.setValueAtTime(freq, t);
-      gain.gain.setValueAtTime(0.0001, t);
-      gain.gain.exponentialRampToValueAtTime(vol, t + 0.006);
-      gain.gain.exponentialRampToValueAtTime(0.0001, t + dur);
-      osc.connect(gain).connect(ctx.destination);
-      osc.start(t);
-      osc.stop(t + dur + 0.02);
-    },
-    [getAudio]
-  );
-
-  // Antes era un barrido ascendente en onda cuadrada (1180→1760Hz) — sonaba
-  // a videojuego/arcade. Un "tock" grave en onda seno, sin barrido hacia
-  // arriba, se siente más sobrio (más cerca del clic de un panel de auto
-  // real que de un botón de consola).
+  // El tono al pasar el mouse (hover) se sacó — el cliente lo encontró muy
+  // fuerte y que no pegaba con el estilo del sitio. Queda solo el "tock"
+  // del clic, grave en onda seno, bastante más suave que antes (el pico de
+  // volumen baja de 0.05 a 0.022 — menos de la mitad).
   const beep = useCallback(() => {
     const ctx = getAudio();
     if (!ctx) return;
@@ -75,7 +55,7 @@ export default function TableroFoto({ onSelect, fluid = false, width = 440 }) {
     osc.frequency.setValueAtTime(380, t);
     osc.frequency.exponentialRampToValueAtTime(260, t + 0.07);
     gain.gain.setValueAtTime(0.0001, t);
-    gain.gain.exponentialRampToValueAtTime(0.05, t + 0.004);
+    gain.gain.exponentialRampToValueAtTime(0.022, t + 0.004);
     gain.gain.exponentialRampToValueAtTime(0.0001, t + 0.09);
     osc.connect(gain).connect(ctx.destination);
     osc.start(t);
@@ -112,7 +92,6 @@ export default function TableroFoto({ onSelect, fluid = false, width = 440 }) {
               beep();
               onSelect(i);
             }}
-            onMouseEnter={() => tone(560, 0.026, "sine", 0.055)}
             className="group flex flex-1 cursor-pointer items-center border-0 bg-transparent pl-[14.5%] pr-[3.4%] text-left"
           >
             <span className="flex-1 truncate font-display text-[13px] font-medium uppercase leading-[1.1] tracking-wide text-[#F2F4F6] transition-colors duration-200 group-hover:text-white group-hover:[text-shadow:0_0_10px_rgba(78,154,209,0.95),0_0_22px_rgba(78,154,209,0.55)]">
