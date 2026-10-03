@@ -16,7 +16,15 @@ const MENU_LABELS = [
   "GSmotos",
 ];
 
-export default function TableroFoto({ onSelect, fluid = false, width = 440 }) {
+// Recorte de la foto que se muestra en mobile (`crop`), en % de la foto
+// completa: solo la pantalla del tablero, sin los manubrios ni casi nada
+// del marco. Así las 5 filas del menú quedan ~40px de alto (antes ~30px,
+// chicas para el dedo) sin dejar de verse como el tablero real.
+const CROP = { x0: 12, x1: 84, y0: 13, y1: 82 };
+const PHOTO_W = 1148;
+const PHOTO_H = 928;
+
+export default function TableroFoto({ onSelect, fluid = false, width = 440, crop = false }) {
   const audioRef = useRef(null);
 
   const getAudio = useCallback(() => {
@@ -62,13 +70,70 @@ export default function TableroFoto({ onSelect, fluid = false, width = 440 }) {
     osc.stop(t + 0.1);
   }, [getAudio]);
 
+  const menu = (
+    <div
+      className="absolute flex flex-col"
+      style={{ left: "16.4%", width: "64%", top: "33.4%", height: "47.4%", transform: "rotate(3deg)", gap: "3.4%" }}
+    >
+      {MENU_LABELS.map((label, i) => (
+        <button
+          key={label}
+          type="button"
+          onPointerDown={getAudio}
+          onClick={() => {
+            beep();
+            onSelect(i);
+          }}
+          className="group flex flex-1 cursor-pointer items-center border-0 bg-transparent pl-[14.5%] pr-[3.4%] text-left"
+        >
+          <span
+            className={`flex-1 truncate font-display font-medium uppercase leading-[1.1] tracking-wide text-[#F2F4F6] transition-colors duration-200 group-hover:text-white group-hover:[text-shadow:0_0_10px_rgba(78,154,209,0.95),0_0_22px_rgba(78,154,209,0.55)] ${
+              crop ? "text-[15px]" : "text-[13px]"
+            }`}
+          >
+            {label}
+          </span>
+        </button>
+      ))}
+    </div>
+  );
+
+  if (crop) {
+    // La foto completa (con el menú encima, mismas posiciones en %) va
+    // agrandada dentro de un marco que solo deja ver el recorte CROP.
+    const cw = (CROP.x1 - CROP.x0) / 100;
+    const ch = (CROP.y1 - CROP.y0) / 100;
+    return (
+      <div
+        className="relative w-full overflow-hidden rounded-2xl border border-white/[0.08] bg-black"
+        style={{ aspectRatio: `${cw * PHOTO_W} / ${ch * PHOTO_H}` }}
+      >
+        <div
+          className="absolute"
+          style={{ width: `${100 / cw}%`, left: `${(-CROP.x0 / (CROP.x1 - CROP.x0)) * 100}%`, top: `${(-CROP.y0 / (CROP.y1 - CROP.y0)) * 100}%` }}
+        >
+          <Image
+            src="/images/tablero-bmw.png"
+            alt="Tablero digital GSmotos"
+            width={PHOTO_W}
+            height={PHOTO_H}
+            priority
+            sizes="140vw"
+            className="block h-auto w-full"
+          />
+          {menu}
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className={fluid ? "relative w-full" : "relative"} style={{ width: fluid ? undefined : `${width}px` }}>
       <Image
         src="/images/tablero-bmw.png"
         alt="Tablero digital GSmotos"
-        width={1148}
-        height={928}
+        width={PHOTO_W}
+        height={PHOTO_H}
         priority
         sizes="(max-width: 1023px) 92vw, 440px"
         className="block h-auto w-full"
@@ -79,27 +144,7 @@ export default function TableroFoto({ onSelect, fluid = false, width = 440 }) {
             "radial-gradient(115% 112% at 50% 46%, #000 60%, rgba(0,0,0,0.9) 76%, rgba(0,0,0,0.35) 90%, rgba(0,0,0,0) 100%)",
         }}
       />
-      <div
-        className="absolute flex flex-col"
-        style={{ left: "16.4%", width: "64%", top: "33.4%", height: "47.4%", transform: "rotate(3deg)", gap: "3.4%" }}
-      >
-        {MENU_LABELS.map((label, i) => (
-          <button
-            key={label}
-            type="button"
-            onPointerDown={getAudio}
-            onClick={() => {
-              beep();
-              onSelect(i);
-            }}
-            className="group flex flex-1 cursor-pointer items-center border-0 bg-transparent pl-[14.5%] pr-[3.4%] text-left"
-          >
-            <span className="flex-1 truncate font-display text-[13px] font-medium uppercase leading-[1.1] tracking-wide text-[#F2F4F6] transition-colors duration-200 group-hover:text-white group-hover:[text-shadow:0_0_10px_rgba(78,154,209,0.95),0_0_22px_rgba(78,154,209,0.55)]">
-              {label}
-            </span>
-          </button>
-        ))}
-      </div>
+      {menu}
     </div>
   );
 }

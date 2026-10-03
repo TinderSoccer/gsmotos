@@ -81,9 +81,9 @@ export default function HeroBanner({ onSelect }) {
       </header>
 
       {/* Hero mobile: contenido centrado debajo de la franja de video (el
-          título se monta sobre el fundido del final del video, -mt) y el
-          tablero interactivo dentro del flujo, no oculto como en
-          desktop/tablet. */}
+          título se monta sobre el fundido del final del video, -mt). Orden:
+          título → tablero (menú principal) → Agendar → botones → texto, así
+          el menú y la llamada a la acción entran en la primera pantalla. */}
       <div className="relative z-20 -mt-16 flex flex-col items-center gap-3 px-[18px] pb-[26px] text-center sm:hidden">
         <div className="font-display text-[19px] font-semibold uppercase tracking-[5px] text-white">
           Especialistas en
@@ -109,11 +109,13 @@ export default function HeroBanner({ onSelect }) {
           <span className="h-1.5 w-[30px] bg-mCyan" />
           <span className="h-1.5 w-[30px] bg-mRed" />
         </div>
-        <p className="max-w-[320px] text-sm leading-[1.55] text-[#C3C9CE]">
-          15 años de experiencia entregando servicios de excelencia, con estándar profesional y tecnología de última generación.
-        </p>
-        <div className="max-w-[320px] font-display text-[15px] uppercase leading-tight tracking-wide text-white">
-          &ldquo;Nuestra experiencia es nuestra herramienta más importante&rdquo;
+
+        {/* Tablero arriba, justo bajo el título, para que el menú principal
+            se vea en la primera pantalla (antes quedaba al final, casi fuera
+            de pantalla). Recortado a la pantalla del tablero (ver CROP en
+            TableroFoto) para que las filas sean fáciles de tocar. */}
+        <div className="mb-1 mt-1 w-full">
+          <TableroFoto onSelect={onSelect} crop />
         </div>
 
         <Link
@@ -139,10 +141,13 @@ export default function HeroBanner({ onSelect }) {
             <span className="font-body">›</span>
           </Link>
         </div>
-
-        <div className="relative mt-2.5 w-[calc(100%+36px)]">
-          <TableroFoto onSelect={onSelect} fluid />
+        <p className="mt-2 max-w-[320px] text-sm leading-[1.55] text-[#C3C9CE]">
+          15 años de experiencia entregando servicios de excelencia, con estándar profesional y tecnología de última generación.
+        </p>
+        <div className="max-w-[320px] font-display text-[15px] uppercase leading-tight tracking-wide text-white">
+          &ldquo;Nuestra experiencia es nuestra herramienta más importante&rdquo;
         </div>
+
       </div>
 
       {/* Hero desktop/tablet — más chico que el original (580px) pero sin
