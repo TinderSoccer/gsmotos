@@ -4,6 +4,7 @@ import Link from "next/link";
 import { FaWhatsapp } from "react-icons/fa6";
 import ColorBars from "@/components/services/ColorBars";
 import { useSettings, whatsappUrl } from "@/lib/settings";
+import SmartImage from "@/components/common/SmartImage";
 
 // Popup de detalle de servicio — mismo criterio visual y de animación que
 // components/services/ServiceDetailModal.jsx (el que ya usan BMW Motorrad y
@@ -29,7 +30,7 @@ export default function NeumaticosServiceModal({ card, photo, agendarHref, onClo
       >
         <div className="relative h-[180px] flex-none overflow-hidden">
           {photo ? (
-            <div className="absolute inset-0 bg-cover bg-center brightness-125" style={{ backgroundImage: `url(${photo})` }} />
+            <SmartImage src={photo} alt="" className="brightness-125" sizes="(max-width: 639px) 100vw, 760px" priority />
           ) : (
             <div className="absolute inset-0 flex items-center justify-center" style={{ background: "linear-gradient(135deg, #1B5FAE 0%, #4E9AD1 100%)" }}>
               <Icon size={40} strokeWidth={1.3} className="text-white/70" aria-hidden="true" />

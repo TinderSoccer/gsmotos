@@ -1,5 +1,7 @@
 "use client";
 
+import Image from "next/image";
+
 // Popup al hacer clic en una tarjeta de CertificadosGrid.jsx — misma
 // animación (gsmBack/gsmPop, ver app/globals.css) que el resto de los
 // popups del sitio (ServiceDetailModal, NeumaticosServiceModal). Acá solo
@@ -7,6 +9,7 @@
 // agendamiento (no aplica para este contenido).
 export default function CertificadoModal({ cert, photo, onClose }) {
   if (!cert) return null;
+  const isDataUrl = typeof photo === "string" && photo.startsWith("data:");
 
   return (
     <div
@@ -29,9 +32,27 @@ export default function CertificadoModal({ cert, photo, onClose }) {
         </button>
 
         <div className="flex-none overflow-hidden bg-[#F2F2F2]">
-          {photo ? (
+          {photo && isDataUrl ? (
+            // Foto subida desde /administracion (data URL): ya está en el
+            // documento, next/image no gana nada reprocesándola — mismo
+            // criterio que SmartImage.jsx.
             // eslint-disable-next-line @next/next/no-img-element
             <img src={photo} alt={cert.title} className="block max-h-[62vh] w-full object-contain" />
+          ) : photo ? (
+            // Escaneo del proyecto (140-260KB sin comprimir) — next/image
+            // lo redimensiona y convierte a WebP. Sin `fill` (el alto es
+            // variable según la proporción real de cada documento, con
+            // tope en max-h), por eso lleva el tamaño real del archivo
+            // (photoW/photoH, ver lib/certificados.js) para el aspect-ratio.
+            <Image
+              src={photo}
+              alt={cert.title}
+              width={cert.photoW || 1300}
+              height={cert.photoH || 1000}
+              priority
+              className="block max-h-[62vh] w-full object-contain"
+              style={{ height: "auto" }}
+            />
           ) : null}
         </div>
 

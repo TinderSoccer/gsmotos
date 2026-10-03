@@ -6,6 +6,7 @@ import ColorBars from "./ColorBars";
 import { MobileTopBar } from "@/components/mobile/MobileNav";
 import { useServicePhoto } from "@/lib/servicePhotos";
 import { instagramUrl, useSettings, whatsappUrl } from "@/lib/settings";
+import SmartImage from "@/components/common/SmartImage";
 
 // Contenido de detalle de un servicio (kicker/título/lead/texto largo/nota +
 // CTAs). Antes vivía como overlay en components/home/DetailModal.jsx; ahora
@@ -18,7 +19,7 @@ export default function ServiceDetailContent({ card, backHref, backLabel }) {
     <article className="bg-[#0B0B0B]">
       <MobileTopBar />
       <div className="relative h-[280px] overflow-hidden sm:h-[360px]">
-        <div className="absolute inset-0 bg-cover bg-center brightness-125" style={{ backgroundImage: `url(${photo})` }} />
+        <SmartImage src={photo} alt="" className="brightness-125" sizes="100vw" priority />
         <div className="absolute inset-0" style={{ background: "linear-gradient(180deg, rgba(5,5,5,0.25) 0%, rgba(5,5,5,0.75) 70%, #0B0B0B 100%)" }} />
         <div className="relative mx-auto flex h-full max-w-3xl flex-col justify-end gap-3 px-6 pb-8 sm:px-10">
           <div className="flex items-center gap-3">

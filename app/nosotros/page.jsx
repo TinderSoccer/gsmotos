@@ -3,6 +3,7 @@ import ColorBars from "@/components/services/ColorBars";
 import SiteFooter from "@/components/SiteFooter";
 import { MobileTopBar } from "@/components/mobile/MobileNav";
 import { getMenuBySlug } from "@/lib/servicesData";
+import SmartImage from "@/components/common/SmartImage";
 
 export const metadata = { title: "Nosotros — GSmotos" };
 
@@ -15,7 +16,7 @@ function Section({ card }) {
   return (
     <section className="grid grid-cols-1 items-center gap-10 border-t border-[#1c1d20] px-6 py-14 sm:px-10 md:grid-cols-2">
       <div className="relative h-64 overflow-hidden rounded-xl">
-        <div className="absolute inset-0 bg-cover bg-center brightness-125" style={{ backgroundImage: `url(${card.photo})` }} />
+        <SmartImage src={card.photo} alt="" className="brightness-125" sizes="(max-width: 767px) 100vw, 50vw" priority />
         <div className="pointer-events-none absolute inset-0" style={{ background: "linear-gradient(180deg, rgba(5,5,5,0.10) 0%, rgba(5,5,5,0.55) 100%)" }} />
       </div>
       <div className="flex flex-col gap-3">

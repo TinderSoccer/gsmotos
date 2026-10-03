@@ -6,6 +6,7 @@ import { FaInstagram, FaWhatsapp } from "react-icons/fa6";
 import ColorBars from "./ColorBars";
 import { useServicePhoto } from "@/lib/servicePhotos";
 import { instagramUrl, useSettings, whatsappUrl } from "@/lib/settings";
+import SmartImage from "@/components/common/SmartImage";
 
 // Popup de detalle de servicio, fiel a la animación del diseño original de
 // Claude Design (gsmBack/gsmPop, ver app/globals.css). Es la interacción
@@ -31,7 +32,7 @@ export default function ServiceDetailModal({ card, onClose }) {
         onClick={(e) => e.stopPropagation()}
       >
         <div className="relative h-[210px] flex-none overflow-hidden">
-          <div className="absolute inset-0 bg-cover bg-center brightness-125" style={{ backgroundImage: `url(${photo})` }} />
+          <SmartImage src={photo} alt="" className="brightness-125" sizes="(max-width: 639px) 100vw, 940px" priority />
           <div className="absolute inset-0" style={{ background: "linear-gradient(180deg, rgba(5,5,5,0.20) 0%, rgba(5,5,5,0.72) 62%, #0B0D0F 100%)" }} />
           <div className="relative flex h-full flex-col justify-end gap-3 px-6 py-7 sm:px-[34px]">
             <div className="flex items-center gap-3">
