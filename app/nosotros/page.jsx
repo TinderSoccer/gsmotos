@@ -42,7 +42,7 @@ export default function NosotrosPage() {
         <div className="hidden font-display text-base uppercase tracking-wide text-[#6E7780] sm:block">
           15 años de experiencia
         </div>
-        <Link href="/" className="ml-auto font-display text-sm uppercase tracking-wide text-mCyan hover:text-mCyan/80">
+        <Link href="/" className="ml-auto hidden font-display text-sm uppercase tracking-wide text-mCyan hover:text-mCyan/80 sm:block">
           ← Volver al inicio
         </Link>
       </div>

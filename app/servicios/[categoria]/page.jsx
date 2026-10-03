@@ -42,7 +42,7 @@ export default function CategoriaServiciosPage({ params }) {
         </div>
         {menu.slug === "big-trail" && <BrandRow />}
         <ServiceGrid cards={menu.cards} />
-        <Link href="/" className="mt-4 w-fit font-display text-sm uppercase tracking-wide text-mCyan hover:text-mCyan/80">
+        <Link href="/" className="mt-4 hidden w-fit font-display text-sm uppercase tracking-wide text-mCyan hover:text-mCyan/80 sm:block">
           ← Volver al inicio
         </Link>
       </div>

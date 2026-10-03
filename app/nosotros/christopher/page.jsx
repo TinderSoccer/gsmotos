@@ -4,7 +4,6 @@ import ChristopherHeroBg from "@/components/nosotros/ChristopherHeroBg";
 import ColorBars from "@/components/services/ColorBars";
 import SiteFooter from "@/components/SiteFooter";
 import Logo from "@/components/Logo";
-import { MobileMenuButton } from "@/components/mobile/MobileNav";
 import TrayectoriaFoto from "@/components/nosotros/TrayectoriaFoto";
 import { TRAYECTORIA } from "@/lib/certificados";
 
@@ -38,7 +37,6 @@ export default function ChristopherPage() {
         />
 
         <header className="absolute inset-x-0 top-0 z-30 flex items-center justify-between gap-3 px-6 py-3 sm:px-10 sm:py-4">
-          <MobileMenuButton />
           <Link href="/" className="block leading-none">
             <Logo light="mobile" className="block h-auto w-[82px] sm:w-[150px]" />
           </Link>
@@ -48,6 +46,7 @@ export default function ChristopherPage() {
             className="inline-flex items-center gap-3.5 rounded border border-white/40 bg-black/40 px-3 py-2 font-display text-[12px] font-semibold uppercase tracking-[2.2px] text-white transition-colors hover:border-mBlue hover:bg-mBlue sm:px-5 sm:py-3 sm:text-sm"
           >
             <span className="font-body">←</span>
+            <span className="sm:hidden">Inicio</span>
             <span className="hidden sm:inline">Volver al inicio</span>
           </Link>
         </header>

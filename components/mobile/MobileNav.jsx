@@ -157,7 +157,23 @@ export function MobileMenuButton({ className = "" }) {
   );
 }
 
-// Barra superior mobile (logo + hamburguesa) para páginas que hoy no tienen
+// Botón "← Inicio" de mobile — reemplaza al menú hamburguesa (pedido del
+// cliente): el menú del sitio es el tablero del inicio, así que desde
+// cualquier página se vuelve ahí.
+export function MobileHomeButton({ className = "" }) {
+  return (
+    <Link
+      href="/"
+      aria-label="Volver al inicio"
+      className={`inline-flex items-center gap-2 rounded border border-white/40 bg-black/40 px-3.5 py-2.5 font-display text-[13px] font-semibold uppercase tracking-[2px] text-white sm:hidden ${className}`}
+    >
+      <span className="font-body">←</span>
+      <span>Inicio</span>
+    </Link>
+  );
+}
+
+// Barra superior mobile (logo + "← Inicio") para páginas que hoy no tienen
 // header propio (Contacto, Productos, Nosotros, listado de Servicios).
 export function MobileTopBar() {
   return (
@@ -165,7 +181,7 @@ export function MobileTopBar() {
       <Link href="/" className="block leading-none">
         <Logo className="block h-auto w-[130px]" />
       </Link>
-      <MobileMenuButton />
+      <MobileHomeButton />
     </div>
   );
 }
