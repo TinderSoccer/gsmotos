@@ -1,7 +1,7 @@
 import { ClipboardCheck, FileText, Wrench } from "lucide-react";
 import SiteFooter from "@/components/SiteFooter";
 import TallerGallery from "@/components/nosotros/TallerGallery";
-import TallerTimelapse from "@/components/nosotros/TallerTimelapse";
+import TallerPortada from "@/components/nosotros/TallerPortada";
 import TallerVisita from "@/components/nosotros/TallerVisita";
 import { MobileTopBar } from "@/components/mobile/MobileNav";
 
@@ -31,15 +31,15 @@ const COMO_TRABAJAMOS = [
   },
 ];
 
-// Página del taller: el timelapse real arriba (un día de trabajo), cómo se
-// trabaja, la galería de fotos y videos que Christopher administra desde
+// Página del taller: una foto real del taller arriba, cómo se trabaja, la
+// galería de fotos y videos que Christopher administra desde
 // /administracion (pestaña "Taller") y cómo llegar. Es el destino del
 // botón "Nuestro taller" del hero.
 export default function TallerPage() {
   return (
     <main className="flex min-h-screen flex-col bg-[#0B0B0B]">
       <MobileTopBar />
-      <TallerTimelapse />
+      <TallerPortada />
 
       <section className="grid grid-cols-1 gap-6 px-6 pb-4 pt-8 sm:grid-cols-3 sm:gap-8 sm:px-10 sm:pt-10">
         {COMO_TRABAJAMOS.map(({ Icon, title, desc }) => (
