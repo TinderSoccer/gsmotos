@@ -5,6 +5,7 @@ import Link from "next/link";
 import ServiceDetailModal from "./ServiceDetailModal";
 import { servicePhotoKey, useServicePhotos } from "@/lib/servicePhotos";
 import SmartImage from "@/components/common/SmartImage";
+import { ColorEdge } from "./ColorBars";
 
 // Grilla de tarjetas de servicio, fiel al comportamiento del diseño
 // original: una tarjeta con `href` propio (categoría "GSmotos": Nosotros,
@@ -25,6 +26,7 @@ export default function ServiceGrid({ cards, animClass }) {
           const photo = (card.categorySlug && photoOverrides[servicePhotoKey(card.categorySlug, card.slug)]) || card.photo;
           const content = (
             <>
+              <ColorEdge />
               <SmartImage src={photo} alt={card.title} className="brightness-125" sizes="(max-width: 639px) 50vw, (max-width: 1023px) 33vw, 420px" />
               <div className="pointer-events-none absolute inset-0" style={{ background: "linear-gradient(180deg, rgba(5,5,5,0.10) 0%, rgba(5,5,5,0.58) 34%, rgba(5,5,5,0.90) 62%, rgba(5,5,5,0.96) 100%)" }} />
               <div className="relative flex min-h-[168px] flex-col justify-end gap-2 px-3 pb-3.5 pt-3 sm:min-h-[320px] sm:gap-3 sm:px-6 sm:pb-6 sm:pt-6">
@@ -40,7 +42,7 @@ export default function ServiceGrid({ cards, animClass }) {
               </div>
             </>
           );
-          const className = "group relative min-h-[168px] overflow-hidden rounded-xl border border-[#1E2226] bg-black press press-soft hover:border-[#2E3A45] sm:min-h-[320px]";
+          const className = "group relative min-h-[168px] overflow-hidden rounded-xl border border-[#1E2226] bg-black press press-soft hover:border-[#2E3A45] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-mCyan sm:min-h-[320px]";
 
           return card.href ? (
             <Link key={card.title} href={card.href} className={className}>

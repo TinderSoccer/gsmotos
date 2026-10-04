@@ -11,3 +11,20 @@ export default function ColorBars({ size = "sm" }) {
     </div>
   );
 }
+
+// La misma firma como marco: una franja azul/celeste/roja en el borde
+// superior de una tarjeta, que se despliega de izquierda a derecha al pasar
+// el mouse o al llegar con el teclado. Va dentro de un contenedor con
+// `group`, `relative` y `overflow-hidden`.
+export function ColorEdge() {
+  return (
+    <span
+      aria-hidden="true"
+      className="pointer-events-none absolute inset-x-0 top-0 z-10 flex h-[3px] origin-left scale-x-0 gap-[3px] transition-transform duration-300 ease-[cubic-bezier(0.22,0.61,0.36,1)] group-hover:scale-x-100 group-focus-visible:scale-x-100 motion-reduce:transition-none"
+    >
+      <span className="flex-1 bg-mBlue" />
+      <span className="flex-1 bg-mCyan" />
+      <span className="flex-1 bg-mRed" />
+    </span>
+  );
+}
