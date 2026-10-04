@@ -100,9 +100,11 @@ export default function PhotoViewer({ photos, index, onIndex, onClose }) {
           {photo.caption && (
             <div
               className="absolute inset-x-0 bottom-0 px-4 pb-3.5 pt-12 sm:px-6 sm:pb-5 sm:pt-16"
-              style={{ background: "linear-gradient(180deg, rgba(0,0,0,0) 0%, rgba(0,0,0,0.82) 100%)" }}
+              style={{ background: "linear-gradient(180deg, rgba(0,0,0,0) 0%, rgba(0,0,0,0.55) 45%, rgba(0,0,0,0.88) 100%)" }}
             >
-              <p className="text-left text-[15px] font-medium leading-snug text-white [text-shadow:0_1px_6px_rgba(0,0,0,0.6)] sm:text-lg">
+              {/* Sombra doble (contorno cercano + halo) para que el texto se lea
+                  incluso sobre fotos muy claras o blancas. */}
+              <p className="text-left text-[15px] font-semibold leading-snug text-white [text-shadow:0_1px_2px_rgba(0,0,0,0.95),0_2px_12px_rgba(0,0,0,0.85)] sm:text-lg">
                 {photo.caption}
               </p>
             </div>
