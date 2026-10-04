@@ -612,6 +612,8 @@ function NewProductModal({ onClose, onCreate }) {
   const [photo, setPhoto] = useState("");
   const [price, setPrice] = useState("");
   const [stock, setStock] = useState("1");
+  const [aplicacion, setAplicacion] = useState("");
+  const [codigo, setCodigo] = useState("");
   const [estado, setEstado] = useState("nuevo");
   const [uploading, setUploading] = useState(false);
 
@@ -634,6 +636,8 @@ function NewProductModal({ onClose, onCreate }) {
       photo,
       price: Number(price) || 0,
       stock: Number(stock) || 0,
+      aplicacion: aplicacion.trim(),
+      codigo: codigo.trim(),
       estado,
     });
   }
@@ -677,6 +681,26 @@ function NewProductModal({ onClose, onCreate }) {
               className="rounded-md border border-[#E0E0E0] bg-[#FBFBFB] px-3.5 py-2.5 font-display text-base text-[#0B0B0B] outline-none focus:border-mCyan"
             />
           </label>
+          <div className="grid grid-cols-2 gap-3">
+            <label className="flex flex-col gap-1.5 text-sm text-[#3A3A3A]">
+              Sirve para (modelo)
+              <input
+                value={aplicacion}
+                onChange={(ev) => setAplicacion(ev.target.value)}
+                placeholder="Ej. K50/K51"
+                className="rounded-md border border-[#E0E0E0] bg-[#FBFBFB] px-3.5 py-2.5 font-display text-base text-[#0B0B0B] outline-none focus:border-mCyan"
+              />
+            </label>
+            <label className="flex flex-col gap-1.5 text-sm text-[#3A3A3A]">
+              Código
+              <input
+                value={codigo}
+                onChange={(ev) => setCodigo(ev.target.value)}
+                placeholder="Ej. 46 63 8 556 654"
+                className="rounded-md border border-[#E0E0E0] bg-[#FBFBFB] px-3.5 py-2.5 font-display text-base text-[#0B0B0B] outline-none focus:border-mCyan"
+              />
+            </label>
+          </div>
           <div className="grid grid-cols-2 gap-3">
             <label className="flex flex-col gap-1.5 text-sm text-[#3A3A3A]">
               Precio (CLP)
@@ -784,7 +808,7 @@ function ProductosTab() {
     const q = query.trim().toLowerCase();
     const withIndex = products.map((prod, i) => ({ prod, i }));
     if (!q) return withIndex;
-    return withIndex.filter(({ prod }) => `${prod.name} ${prod.cat} ${prod.codigo || ""}`.toLowerCase().includes(q));
+    return withIndex.filter(({ prod }) => `${prod.name} ${prod.cat} ${prod.codigo || ""} ${prod.aplicacion || ""}`.toLowerCase().includes(q));
   }, [products, query]);
 
   const pageCount = Math.max(1, Math.ceil(filtered.length / PRODUCTS_PAGE_SIZE));
@@ -854,7 +878,7 @@ function ProductosTab() {
             type="text"
             value={query}
             onChange={(ev) => handleQueryChange(ev.target.value)}
-            placeholder="Busca por nombre, categoría o código…"
+            placeholder="Busca por nombre, categoría, modelo o código…"
             className="min-w-0 flex-1 bg-transparent py-3 font-body text-base text-[#0B0B0B] outline-none placeholder:text-[#9A9A9A]"
           />
           {query && (
@@ -933,6 +957,30 @@ function ProductosTab() {
                     </button>
                   ))}
                 </div>
+              </div>
+              {/* "Sirve para" y el código son lo que distingue piezas con el
+                  mismo nombre: en la web van a la vista en cada tarjeta. */}
+              <div className="flex flex-wrap gap-2.5">
+                <label className="flex items-center gap-1.5 text-xs uppercase tracking-wide text-[#8A8A8A]">
+                  Sirve para
+                  <input
+                    type="text"
+                    value={prod.aplicacion || ""}
+                    onChange={(ev) => patch(i, { aplicacion: ev.target.value })}
+                    placeholder="Ej. K50/K51"
+                    className="w-[150px] rounded-md border border-[#E0E0E0] bg-[#FBFBFB] px-3 py-2 font-display text-sm normal-case text-[#0B0B0B] outline-none focus:border-mCyan"
+                  />
+                </label>
+                <label className="flex items-center gap-1.5 text-xs uppercase tracking-wide text-[#8A8A8A]">
+                  Código
+                  <input
+                    type="text"
+                    value={prod.codigo || ""}
+                    onChange={(ev) => patch(i, { codigo: ev.target.value })}
+                    placeholder="Ej. 46 63 8 556 654"
+                    className="w-[170px] rounded-md border border-[#E0E0E0] bg-[#FBFBFB] px-3 py-2 font-display text-sm normal-case tabular-nums text-[#0B0B0B] outline-none focus:border-mCyan"
+                  />
+                </label>
               </div>
               {prod.price > 0 && (
                 <div className="font-display text-sm font-semibold text-mBlue">{formatCLP(prod.price)}</div>
