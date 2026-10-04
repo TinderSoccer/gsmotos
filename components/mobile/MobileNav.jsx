@@ -157,29 +157,33 @@ export function MobileMenuButton({ className = "" }) {
   );
 }
 
-// Botón "← Inicio" de mobile — reemplaza al menú hamburguesa (pedido del
-// cliente): el menú del sitio es el tablero del inicio, así que desde
-// cualquier página se vuelve ahí.
+// Botón "← Inicio" — reemplaza al menú hamburguesa (pedido del cliente):
+// el menú del sitio es el tablero del inicio, así que desde cualquier
+// página se vuelve ahí.
 export function MobileHomeButton({ className = "" }) {
   return (
     <Link
       href="/"
       aria-label="Volver al inicio"
-      className={`inline-flex items-center gap-2 rounded border border-white/40 bg-black/40 px-3.5 py-2.5 font-display text-[13px] font-semibold uppercase tracking-[2px] text-white sm:hidden ${className}`}
+      className={`inline-flex items-center gap-2 rounded border border-white/40 bg-black/40 px-3.5 py-2.5 font-display text-[13px] font-semibold uppercase tracking-[2px] text-white transition-colors hover:border-mBlue hover:bg-mBlue sm:px-5 sm:py-3 sm:text-sm ${className}`}
     >
       <span className="font-body">←</span>
-      <span>Inicio</span>
+      <span className="sm:hidden">Inicio</span>
+      <span className="hidden sm:inline">Volver al inicio</span>
     </Link>
   );
 }
 
-// Barra superior mobile (logo + "← Inicio") para páginas que hoy no tienen
-// header propio (Contacto, Productos, Nosotros, listado de Servicios).
+// Barra superior (logo + "← Inicio") para las páginas internas que no
+// tienen header propio (Contacto, Productos, Nosotros, Taller, Grúas,
+// Servicios...). Antes era solo mobile y en computador esas páginas
+// quedaban sin logo ni forma visible de volver; ahora va en todos los
+// tamaños (el nombre se mantiene para no tocar cada página).
 export function MobileTopBar() {
   return (
-    <div className="flex items-center justify-between px-6 pb-2 pt-6 sm:hidden">
-      <Link href="/" className="block leading-none">
-        <Logo className="block h-auto w-[130px]" />
+    <div className="flex items-center justify-between px-6 pb-2 pt-6 sm:px-10">
+      <Link href="/" className="block leading-none" aria-label="GSmotos — inicio">
+        <Logo className="block h-auto w-[130px] sm:w-[150px]" />
       </Link>
       <MobileHomeButton />
     </div>

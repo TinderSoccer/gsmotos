@@ -1,5 +1,4 @@
 import { notFound } from "next/navigation";
-import Link from "next/link";
 import ServiceGrid from "@/components/services/ServiceGrid";
 import BrandRow from "@/components/services/BrandRow";
 import ColorBars from "@/components/services/ColorBars";
@@ -42,9 +41,6 @@ export default function CategoriaServiciosPage({ params }) {
         </div>
         {menu.slug === "big-trail" && <BrandRow />}
         <ServiceGrid cards={menu.cards} />
-        <Link href="/" className="mt-4 hidden w-fit font-display text-sm uppercase tracking-wide text-mCyan hover:text-mCyan/80 sm:block">
-          ← Volver al inicio
-        </Link>
       </div>
       <SiteFooter />
     </main>

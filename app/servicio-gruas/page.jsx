@@ -86,9 +86,6 @@ export default function ServicioGruasPage() {
         <div className="hidden font-display text-base uppercase tracking-wide text-[#6E7780] sm:block">
           Traslado seguro para tu moto
         </div>
-        <Link href="/" className="ml-auto hidden font-display text-sm uppercase tracking-wide text-mCyan hover:text-mCyan/80 sm:block">
-          ← Volver al inicio
-        </Link>
       </div>
 
       <div className="flex flex-col gap-2 px-6 pt-3 sm:px-10">

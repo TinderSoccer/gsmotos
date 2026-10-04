@@ -2,7 +2,6 @@
 
 import { Suspense, useCallback, useEffect, useState } from "react";
 import { useSearchParams } from "next/navigation";
-import Link from "next/link";
 import { ImageOff, Search } from "lucide-react";
 import { FaWhatsapp } from "react-icons/fa6";
 import ColorBars from "@/components/services/ColorBars";
@@ -105,9 +104,6 @@ function ProductosContent() {
           <div className="hidden font-display text-base uppercase tracking-wide text-[#6E7780] sm:block">
             Búsqueda guiada, no vitrina
           </div>
-          <Link href="/" className="ml-auto hidden font-display text-sm uppercase tracking-wide text-mCyan hover:text-mCyan/80 sm:block">
-            ← Volver al inicio
-          </Link>
         </div>
 
         <div className="grid grid-cols-1 gap-3.5 sm:grid-cols-2 lg:grid-cols-4">
