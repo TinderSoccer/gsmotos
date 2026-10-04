@@ -21,6 +21,13 @@ export default function HeroBanner({ onSelect }) {
   useEffect(() => {
     const v = videoRef.current;
     if (!v) return;
+    // Quien activó "reducir movimiento" en su teléfono o computador ve el
+    // video quieto en su primer cuadro (accesibilidad: el video no tiene
+    // botón de pausa).
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+      v.pause();
+      return;
+    }
     let inView = true;
     const tryPlay = () => {
       if (v.paused && inView && !document.hidden) v.play().catch(() => {});
