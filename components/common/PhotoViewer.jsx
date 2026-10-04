@@ -7,6 +7,7 @@
 import { useCallback, useEffect, useRef } from "react";
 import { ChevronLeft, ChevronRight, X } from "lucide-react";
 import SmartImage from "./SmartImage";
+import ColorBars from "@/components/services/ColorBars";
 
 // Foto en grande a pantalla completa: flechas o deslizar para pasar a la
 // siguiente, Escape / X / tocar afuera para cerrar.
@@ -64,8 +65,19 @@ export default function PhotoViewer({ photos, index, onIndex, onClose }) {
       </div>
 
       {(photo.caption || many) && (
-        <div className="mt-3 flex flex-col items-center gap-1 text-center" onClick={(ev) => ev.stopPropagation()}>
-          {photo.caption && <div className="max-w-xl text-sm text-[#E4E7EA]">{photo.caption}</div>}
+        <div className="mt-4 flex w-full flex-col items-center gap-2.5 text-center" onClick={(ev) => ev.stopPropagation()}>
+          {/* El texto de la foto destacado (pedido del cliente): recuadro con
+              las barras de marca, letra grande y blanca. */}
+          {photo.caption && (
+            <div
+              key={photo.id}
+              className="flex w-full max-w-2xl flex-col items-center gap-2.5 rounded-xl border border-white/[0.14] bg-[#111418]/95 px-5 py-4 shadow-[0_10px_30px_rgba(0,0,0,0.5)] sm:px-7 sm:py-5"
+              style={{ animation: "gsmPop 300ms cubic-bezier(0.22,0.61,0.36,1) both" }}
+            >
+              <ColorBars />
+              <p className="text-base font-medium leading-snug text-white sm:text-lg">{photo.caption}</p>
+            </div>
+          )}
           {many && (
             <div className="font-display text-xs uppercase tracking-[2px] text-[#8A939B]">
               {index + 1} / {photos.length}
