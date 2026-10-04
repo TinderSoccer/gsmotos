@@ -67,16 +67,52 @@ function EstadoBadge({ estado }) {
 // Animación del cambio de página del carrusel (ver ProductCarousel). Misma
 // curva que el resto del sitio.
 const CAROUSEL_EASE = "cubic-bezier(0.22,0.61,0.36,1)";
-const CAROUSEL_OUT_MS = 150;
-const CAROUSEL_IN_MS = 260;
+const CAROUSEL_OUT_MS = 260;
 const CAROUSEL_STAGGER_MS = 50;
 
-// Solo las animaciones creadas a mano (no las transiciones CSS de hover ni
-// la de "press").
-function ownAnimations(el) {
-  return el
-    .getAnimations()
-    .filter((a) => !(typeof CSSTransition !== "undefined" && a instanceof CSSTransition) && !(typeof CSSAnimation !== "undefined" && a instanceof CSSAnimation));
+// Pone sobre cada tarjeta de `grid` una copia exacta (mismas fotos, ya
+// cargadas) en la misma posición, y la hace salir hacia atrás con un
+// fundido. Las copias van en una capa en <body>, fuera de React, del tamaño
+// exacto de la fila y con overflow hidden: en el celular la fila se desliza
+// de lado y las tarjetas del borde quedan cortadas igual que las reales.
+// La capa se borra sola al terminar; se devuelve para poder quitarla antes.
+function coverCards(grid, sign) {
+  const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  const g = grid.getBoundingClientRect();
+  const layer = document.createElement("div");
+  layer.setAttribute("aria-hidden", "true");
+  Object.assign(layer.style, {
+    position: "absolute",
+    left: `${g.left + window.scrollX}px`,
+    top: `${g.top + window.scrollY}px`,
+    width: `${g.width}px`,
+    height: `${g.height}px`,
+    overflow: "hidden",
+    zIndex: "40",
+    pointerEvents: "none",
+  });
+  const anims = [...grid.children].map((card, i) => {
+    const r = card.getBoundingClientRect();
+    const copy = card.cloneNode(true);
+    Object.assign(copy.style, {
+      position: "absolute",
+      left: `${r.left - g.left}px`,
+      top: `${r.top - g.top}px`,
+      width: `${r.width}px`,
+      height: `${r.height}px`,
+      margin: "0",
+    });
+    layer.appendChild(copy);
+    return copy.animate(
+      [{ opacity: 1, transform: "none" }, { opacity: 0, transform: reduce ? "none" : `translateX(${-sign * 14}px)` }],
+      { duration: CAROUSEL_OUT_MS, delay: reduce ? 0 : i * CAROUSEL_STAGGER_MS, easing: CAROUSEL_EASE, fill: "both" }
+    );
+  });
+  document.body.appendChild(layer);
+  Promise.all(anims.map((a) => a.finished))
+    .then(() => layer.remove())
+    .catch(() => {});
+  return [layer];
 }
 
 function ProductCarousel({ query, onQueryChange, products, pageLabel, dir, resultLabel, empty, onPrev, onNext, animClass }) {
@@ -85,90 +121,33 @@ function ProductCarousel({ query, onQueryChange, products, pageLabel, dir, resul
   const gridRef = useRef(null);
   const prevLabelRef = useRef(null);
 
-  // Cambio de página en dos tiempos, tarjeta por tarjeta: las actuales se
-  // van (fundido + leve corrimiento hacia atrás) y recién entonces se
-  // cambia el contenido y entran las nuevas desde el lado hacia donde se
-  // avanzó, una tras otra. Antes el contenido cambiaba de golpe y después
-  // toda la fila se corría 36px, y no se leía como un carrusel.
+  // Cambio de página sin que nunca se vea el fondo: justo antes de cambiar
+  // el contenido se pone encima de cada tarjeta una copia de cómo se veía
+  // (ver coverCards), se cambia el contenido debajo y la copia se desliza y
+  // se desvanece hacia atrás, escalonada, dejando ver los productos nuevos.
+  // Siempre hay algo opaco en cada tarjeta.
   //
-  // Se mantienen dos arreglos anteriores:
-  // - El contenedor y las tarjetas no se desmontan (`key={i}`, por
-  //   posición): recrear los <img> en cada página los hacía parpadear.
-  // - Nunca se cambia el contenido a la vista: el cambio ocurre cuando las
-  //   tarjetas ya están invisibles, y las nuevas entran desde opacity 0.
-  //   (Antes, un fundido de la grilla entera mostraba un cuadro negro.)
-  //   Las fotos de la página siguiente se precargan (HeroExperience.jsx),
-  //   así que llegan listas.
+  // Historia: antes el contenido cambiaba de golpe y la fila se corría 36px;
+  // después las tarjetas se desvanecían y entraban de nuevo, pero entre
+  // medio se veía el fondo negro ("parpadeo"). Y se mantiene `key={i}` (por
+  // posición) para no recrear los <img> en cada página.
   //
-  // Web Animations API (sin librería). `shown` es lo que se dibuja; puede
-  // ir atrasado respecto de `products` mientras corre la salida.
+  // `shown` es lo que se dibuja: se actualiza recién después de copiar lo
+  // que estaba a la vista. useLayoutEffect: todo ocurre antes de pintar.
   const [shown, setShown] = useState(products);
-  const latest = useRef({ products, dir });
-  latest.current = { products, dir };
-  const exiting = useRef(false);
-  const enterDir = useRef(null);
+  const covers = useRef([]);
 
-  useEffect(() => {
-    if (prevLabelRef.current === null || prevLabelRef.current === pageLabel) {
-      // Primera vez, o mismos datos con otra identidad (ej. búsqueda que
-      // vuelve a la página 1): sin animación.
-      prevLabelRef.current = pageLabel;
-      if (!exiting.current) setShown(products);
-      return;
-    }
+  useLayoutEffect(() => {
+    const changedPage = prevLabelRef.current !== null && prevLabelRef.current !== pageLabel;
     prevLabelRef.current = pageLabel;
-    if (exiting.current) return; // al terminar la salida se usa lo último
-    const cards = gridRef.current ? [...gridRef.current.children] : [];
-    if (!cards.length) {
-      setShown(products);
-      return;
+    if (changedPage && gridRef.current) {
+      covers.current.forEach((c) => c.remove()); // clic rápido: se descarta la anterior
+      covers.current = coverCards(gridRef.current, dir === "prev" ? -1 : 1);
     }
-    exiting.current = true;
-    const sign = dir === "prev" ? -1 : 1;
-    const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-    const anims = cards.map((card) => {
-      ownAnimations(card).forEach((a) => {
-        // Si todavía estaba entrando, sale desde donde está.
-        a.commitStyles();
-        a.cancel();
-      });
-      return card.animate([{ opacity: 0, transform: reduce ? "none" : `translateX(${-sign * 12}px)` }], {
-        duration: CAROUSEL_OUT_MS,
-        easing: CAROUSEL_EASE,
-        fill: "forwards",
-      });
-    });
-    Promise.all(anims.map((a) => a.finished))
-      .then(() => {
-        exiting.current = false;
-        enterDir.current = latest.current.dir;
-        setShown(latest.current.products);
-      })
-      .catch(() => {
-        exiting.current = false;
-      });
+    setShown(products);
   }, [pageLabel, products, dir]);
 
-  // Entrada: corre antes de pintar, en el mismo cuadro en que se cancela la
-  // salida, así las tarjetas nuevas nunca se ven quietas antes de animarse.
-  useLayoutEffect(() => {
-    if (enterDir.current === null || !gridRef.current) return;
-    const sign = enterDir.current === "prev" ? -1 : 1;
-    enterDir.current = null;
-    const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-    [...gridRef.current.children].forEach((card, i) => {
-      ownAnimations(card).forEach((a) => a.cancel());
-      card.style.opacity = "";
-      card.style.transform = "";
-      card.animate(
-        [
-          { opacity: 0, transform: reduce ? "none" : `translateX(${sign * 16}px)` },
-          { opacity: 1, transform: "none" },
-        ],
-        { duration: CAROUSEL_IN_MS, delay: reduce ? 0 : i * CAROUSEL_STAGGER_MS, easing: CAROUSEL_EASE, fill: "backwards" }
-      );
-    });
-  }, [shown]);
+  useEffect(() => () => covers.current.forEach((c) => c.remove()), []);
 
   return (
     <div className="flex flex-col gap-5" style={{ animation: `${animClass} 760ms cubic-bezier(0.33,0.02,0.16,1) both` }}>
