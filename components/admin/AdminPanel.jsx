@@ -151,8 +151,12 @@ function Tab({ active, onClick, children }) {
   return (
     <button
       type="button"
-      onClick={onClick}
-      className={`border-b-[3px] px-6 py-[18px] font-display text-[17px] font-semibold uppercase tracking-[2.4px] transition-colors ${
+      onClick={(ev) => {
+        // En el celular las pestañas se desplazan de lado: la elegida queda a la vista.
+        ev.currentTarget.scrollIntoView({ block: "nearest", inline: "nearest", behavior: "smooth" });
+        onClick();
+      }}
+      className={`flex-none border-b-[3px] px-4 py-4 font-display text-[15px] font-semibold uppercase tracking-[2px] transition-colors sm:px-6 sm:py-[18px] sm:text-[17px] sm:tracking-[2.4px] ${
         active ? "border-mBlue text-white" : "border-transparent text-[#7A828A] hover:text-white"
       }`}
     >
@@ -433,14 +437,8 @@ function ServiciosTab() {
                         style={{ background: "linear-gradient(180deg, rgba(5,5,5,0.10) 0%, rgba(5,5,5,0.58) 34%, rgba(5,5,5,0.90) 62%, rgba(5,5,5,0.96) 100%)" }}
                       />
                       <div className="relative flex min-h-[260px] flex-col justify-end gap-2.5 px-5 pb-5 pt-5">
-                        <div className="flex items-center gap-3">
-                          <ColorBars />
-                          <span className="whitespace-nowrap font-display text-[13px] uppercase tracking-[2.2px] text-[#D6DADE]">{card.kicker}</span>
-                          {card.kicker?.includes("BMW") && (
-                            // eslint-disable-next-line @next/next/no-img-element
-                            <img src="/images/marcas/bmw.svg" alt="BMW" className="h-5 w-5 flex-none" />
-                          )}
-                        </div>
+                        {/* Igual que la tarjeta de la web (ServiceGrid.jsx): sin
+                            la etiqueta de categoría encima del título. */}
                         <div className="font-display text-[24px] font-bold italic uppercase leading-tight text-white">{card.title}</div>
                         <div className="flex items-center gap-2.5 font-display text-sm uppercase tracking-wide text-mCyan">
                           <span>Ver detalle</span>
@@ -1657,31 +1655,40 @@ export default function AdminPanel() {
         </div>
       </header>
 
-      <div className="flex gap-0 overflow-x-auto border-b border-[#23272B] bg-[#141719] px-6 sm:px-10">
-        <Tab active={tab === "certs"} onClick={() => setTab("certs")}>
-          Christopher
-        </Tab>
-        <Tab active={tab === "servicios"} onClick={() => setTab("servicios")}>
-          Servicios
-        </Tab>
-        <Tab active={tab === "neumaticos"} onClick={() => setTab("neumaticos")}>
-          Neumáticos
-        </Tab>
-        <Tab active={tab === "prods"} onClick={() => setTab("prods")}>
-          Productos
-        </Tab>
-        <Tab active={tab === "taller"} onClick={() => setTab("taller")}>
-          Taller
-        </Tab>
-        <Tab active={tab === "gruas"} onClick={() => setTab("gruas")}>
-          Grúas
-        </Tab>
-        <Tab active={tab === "contacto"} onClick={() => setTab("contacto")}>
-          Contacto
-        </Tab>
-        <Tab active={tab === "general"} onClick={() => setTab("general")}>
-          General
-        </Tab>
+      {/* En el celular no caben todas: se desplazan de lado, y el degradado
+          de la derecha avisa que hay más. */}
+      <div className="relative">
+        <div className="flex gap-0 overflow-x-auto border-b border-[#23272B] bg-[#141719] px-2 [scrollbar-width:none] sm:px-10 [&::-webkit-scrollbar]:hidden">
+          <Tab active={tab === "certs"} onClick={() => setTab("certs")}>
+            Christopher
+          </Tab>
+          <Tab active={tab === "servicios"} onClick={() => setTab("servicios")}>
+            Servicios
+          </Tab>
+          <Tab active={tab === "neumaticos"} onClick={() => setTab("neumaticos")}>
+            Neumáticos
+          </Tab>
+          <Tab active={tab === "prods"} onClick={() => setTab("prods")}>
+            Productos
+          </Tab>
+          <Tab active={tab === "taller"} onClick={() => setTab("taller")}>
+            Taller
+          </Tab>
+          <Tab active={tab === "gruas"} onClick={() => setTab("gruas")}>
+            Grúas
+          </Tab>
+          <Tab active={tab === "contacto"} onClick={() => setTab("contacto")}>
+            Contacto
+          </Tab>
+          <Tab active={tab === "general"} onClick={() => setTab("general")}>
+            General
+          </Tab>
+        </div>
+        <div
+          aria-hidden="true"
+          className="pointer-events-none absolute inset-y-0 right-0 w-12 sm:hidden"
+          style={{ background: "linear-gradient(90deg, rgba(20,23,25,0) 0%, #141719 85%)" }}
+        />
       </div>
 
       <ActiveTab />
