@@ -74,7 +74,12 @@ export default function ContactoPage({ searchParams }) {
 
         <div className="rounded-xl border border-[#1E2226] bg-white/[0.02] p-6 sm:p-8">
           {status === "done" ? (
-            <div className="flex flex-col items-center gap-3 py-10 text-center">
+            // Momento único para el cliente: entra con un pequeño rebote
+            // (misma curva que la franja fija). Ver gsmSuccessIn.
+            <div
+              className="flex flex-col items-center gap-3 py-10 text-center"
+              style={{ animation: "gsmSuccessIn 400ms cubic-bezier(0.34,1.56,0.64,1) both" }}
+            >
               <div className="font-display text-2xl font-bold italic uppercase text-white">¡Hora agendada!</div>
               <p className="text-[14.5px] text-[#B9C0C7]">
                 Te contactaremos para confirmar. Código de reserva:{" "}

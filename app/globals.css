@@ -99,6 +99,12 @@ body {
   to { opacity: 1; transform: none; }
 }
 
+/* "¡Hora agendada!" en /contacto. */
+@keyframes gsmSuccessIn {
+  from { opacity: 0; transform: scale(0.96); }
+  to { opacity: 1; transform: none; }
+}
+
 /* "Reducir movimiento" (ajuste del teléfono o computador): las mismas
    animaciones, pero solo con fundido — sin desplazamientos, escalas ni el
    brillo que se repite. Los keyframes definidos acá reemplazan a los de
@@ -114,6 +120,7 @@ body {
   @keyframes gsmPopOut { from { opacity: 1; } to { opacity: 0; } }
   @keyframes gsmFromRight { from { opacity: 0; } to { opacity: 1; } }
   @keyframes gsmFromLeft { from { opacity: 0; } to { opacity: 1; } }
+  @keyframes gsmSuccessIn { from { opacity: 0; } to { opacity: 1; } }
   @keyframes gsmNoteGlow {
     0%, 100% { box-shadow: 0 0 0 0 rgba(78, 154, 209, 0.3); border-left-color: #4E9AD1; }
   }
