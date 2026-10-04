@@ -1,71 +1,23 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
-import { ImageOff, Search } from "lucide-react";
+import { Search } from "lucide-react";
 import { FaWhatsapp } from "react-icons/fa6";
 import ColorBars from "@/components/services/ColorBars";
 import SiteFooter from "@/components/SiteFooter";
 import { MobileTopBar } from "@/components/mobile/MobileNav";
 import { menus } from "@/lib/servicesData";
 import { checkStock, stockSnapshot } from "@/lib/tallergp";
-import { formatCLP, productConsultMessage, useProductosChanged } from "@/lib/catalogo";
-import { PLACEHOLDER_PHOTO } from "@/lib/productosData";
+import { useProductosChanged } from "@/lib/catalogo";
 import { useSettings, whatsappUrl } from "@/lib/settings";
-import SmartImage from "@/components/common/SmartImage";
+import ProductCard from "@/components/common/ProductCard";
+import ProductModal from "@/components/home/ProductModal";
 
 // Plantilla de catálogo/listado — hoy solo la usa "Productos", pensada para
 // cualquier categoría futura que necesite consulta de stock en vez de una
 // grilla de servicios. La consulta de stock viene de lib/tallergp.js
 // (mock; ver ese archivo para dónde conectar la API real de TallerGP).
 const INTRO_CARDS = menus.find((m) => m.kind === "catalog")?.cards ?? [];
-
-// Foto del producto o, si todavía no tiene una propia, un aviso honesto de
-// "sin foto" — antes se mostraba la foto genérica del taller en su lugar,
-// que quedaba repetida en decenas de productos distintos (ej. 4 mochilas
-// con la misma foto de una manga de chaqueta) y podía confundir al cliente
-// pensando que esa era la foto real del producto.
-function ProductPhoto({ photo, name }) {
-  if (photo === PLACEHOLDER_PHOTO) {
-    return (
-      <div className="flex h-full flex-col items-center justify-center gap-2 bg-[repeating-linear-gradient(135deg,#EDEBE7_0_10px,#E4E1DB_10px_20px)]">
-        <ImageOff size={24} strokeWidth={1.4} className="text-[#A6A099]" />
-        <span className="font-display text-[10.5px] uppercase tracking-[2px] text-[#8C857C]">Foto próximamente</span>
-      </div>
-    );
-  }
-  return <SmartImage src={photo} alt={name} fit="contain" className="p-3" sizes="(max-width: 639px) 100vw, (max-width: 1023px) 50vw, 330px" />;
-}
-
-// Antes solo se marcaba "Usado" (si no, no decía nada) — a pedido del
-// cliente ahora siempre dice el estado, para que nunca quede ambiguo.
-// "Usado" va a la izquierda y más destacado (rojo de marca, más grande)
-// que "Nuevo": es el dato que más le importa notar a alguien mirando el
-// catálogo.
-function EstadoBadge({ estado }) {
-  const usado = estado === "usado";
-  return (
-    <span
-      className={`absolute left-3 top-3 rounded-sm border border-white/15 font-display font-bold uppercase tracking-[1.5px] text-white ${
-        usado ? "px-2.5 py-1.5 text-[11px] shadow-[0_2px_8px_rgba(231,0,42,0.5)]" : "px-2 py-1 text-[10px]"
-      }`}
-      style={{ background: usado ? "#E7002A" : "rgba(27,95,174,0.9)" }}
-    >
-      {usado ? "Usado" : "Nuevo"}
-    </span>
-  );
-}
-
-function StockBadge({ stock }) {
-  return stock > 0 ? (
-    <span className="rounded border border-mCyan/40 bg-mCyan/10 px-2.5 py-1 font-display text-[11px] uppercase tracking-wide text-mCyan">
-      En stock · {stock}
-    </span>
-  ) : (
-    <span className="rounded border border-mRed/40 bg-mRed/10 px-2.5 py-1 font-display text-[11px] uppercase tracking-wide text-mRed">
-      Consultar disponibilidad
-    </span>
-  );
-}
 
 // `searchParams` llega como prop (y no con useSearchParams), y la lista
 // parte calculada, para que la página se arme completa en el servidor y
@@ -75,6 +27,7 @@ export default function ProductosPage({ searchParams }) {
   const [query, setQuery] = useState(() => (typeof searchParams?.q === "string" ? searchParams.q : ""));
   const [items, setItems] = useState(() => stockSnapshot(query));
   const [loading, setLoading] = useState(false);
+  const [openProduct, setOpenProduct] = useState(null);
 
   const reload = useCallback(() => {
     let active = true;
@@ -146,45 +99,22 @@ export default function ProductosPage({ searchParams }) {
             </a>
           </div>
         ) : (
-          <div className="grid grid-cols-1 gap-3.5 sm:grid-cols-2 lg:grid-cols-4">
+          // La misma tarjeta y el mismo popup de la home. En el celular van
+          // de a 2 por fila: de a 1, con todo el catálogo, la página se
+          // hacía eterna.
+          <div className="grid grid-cols-2 gap-3 sm:gap-3.5 lg:grid-cols-4">
             {items.map((prod) => (
-              <div
+              <ProductCard
                 key={prod.slug}
-                className="flex flex-col overflow-hidden rounded-xl border border-[#1E2226] bg-[#0B0D0F] text-[#E4E7EA] shadow-[0_10px_28px_rgba(0,0,0,0.4)]"
-              >
-                <div className="relative h-[160px] overflow-hidden bg-[#EFEDE9]">
-                  <ProductPhoto photo={prod.photo} name={prod.name} />
-                  <EstadoBadge estado={prod.estado} />
-                </div>
-                <div className="flex flex-col gap-1.5 px-5 pb-5 pt-4">
-                  <div className="font-display text-[12px] uppercase tracking-[2px] text-[#7A838C]">{prod.cat}</div>
-                  <div className="font-display text-xl font-semibold uppercase leading-tight tracking-wide text-white">{prod.name}</div>
-                  {prod.aplicacion && (
-                    <div className="font-display text-[11.5px] uppercase tracking-wide text-mCyan/85">
-                      Compatible: {prod.aplicacion}
-                    </div>
-                  )}
-                  {prod.price > 0 && (
-                    <div className="mt-0.5 font-display text-xl font-bold text-white">{formatCLP(prod.price)}</div>
-                  )}
-                  <div className="mt-0.5">
-                    <StockBadge stock={prod.stock} />
-                  </div>
-                  <a
-                    href={whatsappUrl(s.phoneDigits, productConsultMessage(prod))}
-                    target="_blank"
-                    rel="noreferrer"
-                    className="mt-2 inline-flex items-center justify-center gap-2 rounded border border-mCyan px-4 py-2.5 font-display text-[13px] font-semibold uppercase tracking-wide text-white press hover:bg-mCyan/[0.16]"
-                  >
-                    <FaWhatsapp size={16} color="#25D366" />
-                    Consultar por el producto
-                  </a>
-                </div>
-              </div>
+                prod={prod}
+                onOpen={setOpenProduct}
+                sizes="(max-width: 639px) 46vw, (max-width: 1023px) 50vw, 330px"
+              />
             ))}
           </div>
         )}
       </div>
+      <ProductModal prod={openProduct} onClose={() => setOpenProduct(null)} />
       <SiteFooter />
     </main>
   );

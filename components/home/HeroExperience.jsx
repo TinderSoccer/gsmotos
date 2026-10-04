@@ -108,8 +108,8 @@ export default function HeroExperience() {
   // (1x1px, fuera de pantalla) para que el navegador las tenga en caché
   // ANTES de que el usuario toque "Productos", sin ocupar espacio ni
   // duplicar nada visible.
-  // El `sizes` tiene que ser EXACTAMENTE el mismo que usa ProductPhoto
-  // (SelectorPanel.jsx): next/image elige qué variante de la imagen pedir
+  // El `sizes` tiene que ser EXACTAMENTE el mismo que usa la tarjeta
+  // (ProductCard en SelectorPanel.jsx): next/image elige qué variante de la imagen pedir
   // en base al string de `sizes`, no al tamaño real del elemento — con un
   // `sizes` distinto (o un `width`/`height` chico) se precarga una URL
   // distinta a la que la foto real termina pidiendo, y no sirve de nada.
