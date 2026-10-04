@@ -18,7 +18,7 @@ import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import Logo from "@/components/Logo";
 import { useRouter } from "next/navigation";
-import { Award, Camera, ChevronLeft, ChevronRight, ExternalLink, ImageOff, LogOut, PlayCircle, Search } from "lucide-react";
+import { Award, Camera, ChevronLeft, ChevronRight, ExternalLink, ImageOff, Loader2, LogOut, PlayCircle, Search } from "lucide-react";
 import ColorBars from "@/components/services/ColorBars";
 import { CERTIFICADOS } from "@/lib/certificados";
 import { setCertPhoto, useCertPhotos } from "@/lib/useCertPhotos";
@@ -56,7 +56,7 @@ async function warnIfFailed(promise, okMsg) {
   const ok = await promise;
   if (announced.has(promise)) return ok;
   announced.add(promise);
-  if (!ok) alert(lastSaveError());
+  if (!ok) avisar(lastSaveError());
   else notifySaved(okMsg);
   return ok;
 }
@@ -73,21 +73,119 @@ async function readAndUpload(ev, opts) {
     dataUrl = await readImageFile(file, opts);
   } catch {
     notifySaved("");
-    alert("No se pudo leer ese archivo. Prueba con una foto JPG o PNG.");
+    avisar("No se pudo leer ese archivo. Prueba con una foto JPG o PNG.");
     return "";
   }
   const url = await uploadImage(dataUrl);
   if (!url) {
     notifySaved("");
-    alert(lastSaveError());
+    avisar(lastSaveError());
   }
   return url;
 }
 
 // Pregunta antes de borrar o restaurar algo — un clic accidental en
-// "Eliminar" o "Quitar" antes no tenía vuelta atrás.
+// "Eliminar" o "Quitar" antes no tenía vuelta atrás. Es un cuadro propio
+// del panel (ConfirmDialog, más abajo) y no el del navegador, que decía
+// "gsmotos.vercel.app dice…" y parecía un error. Devuelve una promesa con
+// true/false. `avisar` es lo mismo con un solo botón, para los errores.
+let showDialog = null;
+
 function confirmar(msg) {
-  return window.confirm(msg);
+  return showDialog ? showDialog({ msg, kind: "confirm" }) : Promise.resolve(window.confirm(msg));
+}
+
+function avisar(msg) {
+  if (showDialog) return showDialog({ msg, kind: "alert" });
+  window.alert(msg);
+  return Promise.resolve(true);
+}
+
+function ConfirmDialog() {
+  const [req, setReq] = useState(null);
+
+  useEffect(() => {
+    showDialog = (r) => new Promise((resolve) => setReq({ ...r, resolve }));
+    return () => {
+      showDialog = null;
+    };
+  }, []);
+
+  useEffect(() => {
+    if (!req) return undefined;
+    const onKey = (ev) => ev.key === "Escape" && answer(false);
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  });
+
+  if (!req) return null;
+
+  function answer(ok) {
+    req.resolve(ok);
+    setReq(null);
+  }
+
+  // "¿Eliminar esta foto? No se puede deshacer." → título "¿Eliminar esta
+  // foto?", detalle "No se puede deshacer." y botón "Sí, eliminar".
+  // En un aviso de error, la primera oración es el título: "No se pudo
+  // guardar." y debajo "Revisa tu conexión…".
+  const cut = req.kind === "alert" ? req.msg.indexOf(". ") : req.msg.indexOf("?");
+  const title = cut > 0 ? req.msg.slice(0, cut + 1) : req.msg;
+  const detail = cut > 0 ? req.msg.slice(cut + 1).trim() : "";
+  const verb = req.msg.match(/^¿(\S+)/)?.[1]?.toLowerCase();
+  const confirmLabel = verb ? `Sí, ${verb}` : "Sí";
+
+  return (
+    <div
+      className="fixed inset-0 z-[400] flex items-end justify-center bg-black/60 p-4 sm:items-center"
+      style={{ animation: "gsmBack 200ms ease both" }}
+      onClick={() => answer(false)}
+    >
+      <div
+        role="alertdialog"
+        aria-modal="true"
+        aria-labelledby="panel-dialog-title"
+        className="w-full max-w-[420px] rounded-xl bg-white p-6 shadow-[0_24px_60px_rgba(0,0,0,0.35)]"
+        style={{ animation: "gsmPop 260ms cubic-bezier(0.22,0.61,0.36,1) both" }}
+        onClick={(ev) => ev.stopPropagation()}
+      >
+        <div id="panel-dialog-title" className="font-display text-[22px] font-bold uppercase leading-tight text-[#0B0B0B]">
+          {title}
+        </div>
+        {detail && <p className="mt-2 text-[15px] leading-[1.55] text-[#4A4A4A]">{detail}</p>}
+        <div className="mt-6 flex flex-col-reverse gap-2.5 sm:flex-row sm:justify-end">
+          {req.kind === "confirm" ? (
+            <>
+              <button
+                type="button"
+                autoFocus
+                onClick={() => answer(false)}
+                className="rounded border border-[#D6D6D6] bg-white px-5 py-3 font-display text-sm font-semibold uppercase tracking-wide text-[#0B0B0B] transition-colors hover:border-[#0B0B0B]"
+              >
+                No, dejarlo así
+              </button>
+              <button
+                type="button"
+                onClick={() => answer(true)}
+                className="rounded border border-mRed bg-mRed px-5 py-3 font-display text-sm font-semibold uppercase tracking-wide text-white transition-colors hover:bg-[#C40024]"
+              >
+                {confirmLabel}
+              </button>
+            </>
+          ) : (
+            <button
+              type="button"
+              autoFocus
+              onClick={() => answer(true)}
+              className="rounded border border-mBlue bg-mBlue px-5 py-3 font-display text-sm font-semibold uppercase tracking-wide text-white transition-colors hover:bg-mCyan"
+            >
+              Entendido
+            </button>
+          )}
+        </div>
+      </div>
+    </div>
+  );
 }
 
 function SavedToast() {
@@ -171,19 +269,43 @@ function Tab({ active, onClick, children }) {
 // Toda la foto es clickeable: al tocarla se elige el archivo nuevo.
 
 function PhotoPicker({ onFile, className = "", children }) {
+  // Mientras la foto se sube, la misma foto dice "Subiendo…" (antes solo
+  // lo decía un aviso abajo, fácil de no ver con una conexión lenta).
+  const [busy, setBusy] = useState(false);
+
+  async function handle(ev) {
+    setBusy(true);
+    try {
+      await onFile(ev);
+    } finally {
+      setBusy(false);
+    }
+  }
+
   return (
-    <label className={`group/photo relative block cursor-pointer ${className}`}>
+    <label className={`group/photo relative block ${busy ? "cursor-wait" : "cursor-pointer"} ${className}`}>
       {children}
-      <input type="file" accept="image/*" className="hidden" onChange={onFile} />
-      {/* Ícono siempre visible (en el celular no hay "pasar el mouse"). */}
-      <span className="pointer-events-none absolute right-2.5 top-2.5 z-20 flex h-9 w-9 items-center justify-center rounded-full bg-white/95 text-[#0B0B0B] shadow-[0_2px_8px_rgba(0,0,0,0.35)] transition-opacity group-hover/photo:opacity-0">
-        <Camera size={17} strokeWidth={2} />
-      </span>
-      <span className="pointer-events-none absolute inset-0 z-10 flex items-center justify-center bg-black/50 opacity-0 transition-opacity group-hover/photo:opacity-100">
-        <span className="inline-flex items-center gap-2 rounded-full bg-white px-4 py-2.5 font-display text-sm font-semibold uppercase tracking-wide text-[#0B0B0B] shadow-[0_4px_14px_rgba(0,0,0,0.35)]">
-          <Camera size={16} strokeWidth={2} /> Cambiar foto
+      <input type="file" accept="image/*" className="hidden" onChange={handle} disabled={busy} />
+      {busy && (
+        <span className="absolute inset-0 z-30 flex flex-col items-center justify-center gap-2 bg-black/65 text-white" role="status">
+          <Loader2 size={26} className="animate-spin motion-reduce:animate-none" />
+          <span className="font-display text-sm font-semibold uppercase tracking-wide">Subiendo…</span>
         </span>
-      </span>
+      )}
+      {/* Ícono siempre visible (en el celular no hay "pasar el mouse").
+          Mientras sube, solo se ve "Subiendo…". */}
+      {!busy && (
+        <>
+          <span className="pointer-events-none absolute right-2.5 top-2.5 z-20 flex h-9 w-9 items-center justify-center rounded-full bg-white/95 text-[#0B0B0B] shadow-[0_2px_8px_rgba(0,0,0,0.35)] transition-opacity group-hover/photo:opacity-0">
+            <Camera size={17} strokeWidth={2} />
+          </span>
+          <span className="pointer-events-none absolute inset-0 z-10 flex items-center justify-center bg-black/50 opacity-0 transition-opacity group-hover/photo:opacity-100">
+            <span className="inline-flex items-center gap-2 rounded-full bg-white px-4 py-2.5 font-display text-sm font-semibold uppercase tracking-wide text-[#0B0B0B] shadow-[0_4px_14px_rgba(0,0,0,0.35)]">
+              <Camera size={16} strokeWidth={2} /> Cambiar foto
+            </span>
+          </span>
+        </>
+      )}
     </label>
   );
 }
@@ -290,7 +412,7 @@ function FounderHeroPhoto() {
           {photo && (
             <button
               type="button"
-              onClick={() => confirmar("¿Quitar tu foto? Vuelve a verse la foto provisoria.") && warnIfFailed(setFounderPhoto(""))}
+              onClick={async () => await confirmar("¿Quitar tu foto? Vuelve a verse la foto provisoria.") && warnIfFailed(setFounderPhoto(""))}
               className="rounded border border-[#D6D6D6] bg-white px-5 py-3 font-display text-sm font-semibold uppercase tracking-wide text-[#0B0B0B] transition-colors hover:border-mRed hover:text-mRed"
             >
               Volver a la provisoria
@@ -369,8 +491,8 @@ function CertificadosTab() {
                 <PhotoStatus
                   custom={Boolean(custom)}
                   baseLabel={cert.defaultPhoto ? "Foto original" : "Sin foto"}
-                  onRemove={() =>
-                    confirmar("¿Quitar tu foto? Vuelve a verse la foto original del certificado.") && warnIfFailed(setCertPhoto(cert.slot, ""))
+                  onRemove={async () =>
+                    await confirmar("¿Quitar tu foto? Vuelve a verse la foto original del certificado.") && warnIfFailed(setCertPhoto(cert.slot, ""))
                   }
                 />
               </div>
@@ -449,7 +571,7 @@ function ServiciosTab() {
                     <PhotoStatus
                       dark
                       custom={custom}
-                      onRemove={() => confirmar("¿Quitar tu foto? Vuelve a verse la foto de ejemplo.") && warnIfFailed(setServicePhoto(key, ""))}
+                      onRemove={async () => await confirmar("¿Quitar tu foto? Vuelve a verse la foto de ejemplo.") && warnIfFailed(setServicePhoto(key, ""))}
                     />
                   </div>
                 );
@@ -470,8 +592,8 @@ function ServiciosTab() {
           </div>
           <button
             type="button"
-            onClick={() => {
-              if (confirmar("¿Quitar todas tus fotos de servicios? Todas vuelven a la foto de ejemplo.")) {
+            onClick={async () => {
+              if (await confirmar("¿Quitar todas tus fotos de servicios? Todas vuelven a la foto de ejemplo.")) {
                 warnIfFailed(resetServicePhotos(), "Fotos restauradas ✓");
               }
             }}
@@ -497,7 +619,7 @@ function NeumaticosTab() {
   }
 
   function removeFor(slot) {
-    return () => confirmar("¿Quitar tu foto? Vuelve a verse la foto de ejemplo.") && warnIfFailed(setNeumaticosPhoto(slot, ""));
+    return async () => await confirmar("¿Quitar tu foto? Vuelve a verse la foto de ejemplo.") && warnIfFailed(setNeumaticosPhoto(slot, ""));
   }
 
   const overlay = { background: "linear-gradient(180deg, rgba(5,5,5,0) 40%, rgba(5,5,5,0.9) 100%)" };
@@ -589,8 +711,8 @@ function NeumaticosTab() {
           </div>
           <button
             type="button"
-            onClick={() => {
-              if (confirmar("¿Quitar todas tus fotos de Neumáticos? Todas vuelven a la foto de ejemplo.")) {
+            onClick={async () => {
+              if (await confirmar("¿Quitar todas tus fotos de Neumáticos? Todas vuelven a la foto de ejemplo.")) {
                 warnIfFailed(resetNeumaticosPhotos(), "Fotos restauradas ✓");
               }
             }}
@@ -792,11 +914,30 @@ function ProductPhotoPreview({ photo, name, estado }) {
 
 const PRODUCTS_PAGE_SIZE = 20;
 
+// Filtros de la lista de productos, con su conteo: sirven sobre todo para
+// encontrar lo que falta completar (sin foto, sin modelo, sin código…) sin
+// recorrer las 10 páginas del catálogo.
+const PRODUCT_FILTERS = [
+  { id: "todos", label: "Todos", test: () => true },
+  { id: "usados", label: "Usados", test: (p) => p.estado === "usado" },
+  { id: "nuevos", label: "Nuevos", test: (p) => (p.estado || "nuevo") === "nuevo" },
+  { id: "sinfoto", label: "Sin foto", test: (p) => !p.photo || p.photo === PLACEHOLDER_PHOTO, falta: true },
+  { id: "sinmodelo", label: "Sin modelo", test: (p) => !p.aplicacion?.trim(), falta: true },
+  { id: "sincodigo", label: "Sin código", test: (p) => !p.codigo?.trim(), falta: true },
+  { id: "sinprecio", label: "Sin precio", test: (p) => !(p.price > 0), falta: true },
+  { id: "sinstock", label: "Sin stock", test: (p) => !(p.stock > 0), falta: true },
+];
+
 function ProductosTab() {
   const products = useProductos();
   const [showNew, setShowNew] = useState(false);
   const [query, setQuery] = useState("");
+  const [filter, setFilter] = useState("todos");
   const [page, setPage] = useState(0);
+  // En el celular cada producto se muestra cerrado (foto, nombre, precio) y
+  // "Editar datos" abre el resto; en computador siempre va todo abierto.
+  const [openRow, setOpenRow] = useState(null);
+  const activeFilter = PRODUCT_FILTERS.find((f) => f.id === filter) || PRODUCT_FILTERS[0];
 
   // Guarda el índice real en el array completo junto a cada producto —
   // patch/removeProduct/handleFile siguen operando sobre products (para no
@@ -804,10 +945,12 @@ function ProductosTab() {
   // y paginado, así que ese índice no coincide con la posición visible.
   const filtered = useMemo(() => {
     const q = query.trim().toLowerCase();
-    const withIndex = products.map((prod, i) => ({ prod, i }));
+    const withIndex = products.map((prod, i) => ({ prod, i })).filter(({ prod }) => activeFilter.test(prod));
     if (!q) return withIndex;
     return withIndex.filter(({ prod }) => `${prod.name} ${prod.cat} ${prod.codigo || ""} ${prod.aplicacion || ""}`.toLowerCase().includes(q));
-  }, [products, query]);
+  }, [products, query, activeFilter]);
+
+  const counts = useMemo(() => Object.fromEntries(PRODUCT_FILTERS.map((f) => [f.id, products.filter(f.test).length])), [products]);
 
   const pageCount = Math.max(1, Math.ceil(filtered.length / PRODUCTS_PAGE_SIZE));
   const pageSafe = Math.min(page, pageCount - 1);
@@ -877,6 +1020,7 @@ function ProductosTab() {
             value={query}
             onChange={(ev) => handleQueryChange(ev.target.value)}
             placeholder="Busca por nombre, categoría, modelo o código…"
+            aria-label="Buscar productos"
             className="min-w-0 flex-1 bg-transparent py-3 font-body text-base text-[#0B0B0B] outline-none placeholder:text-[#9A9A9A]"
           />
           {query && (
@@ -885,115 +1029,171 @@ function ProductosTab() {
             </span>
           )}
         </div>
+        <div className="-mx-6 mt-3 flex gap-2 overflow-x-auto px-6 pb-1 [scrollbar-width:none] sm:mx-0 sm:flex-wrap sm:overflow-visible sm:px-0 [&::-webkit-scrollbar]:hidden">
+          {PRODUCT_FILTERS.map((f) => {
+            const on = f.id === filter;
+            const n = counts[f.id];
+            return (
+              <button
+                key={f.id}
+                type="button"
+                aria-pressed={on}
+                onClick={() => {
+                  setFilter(f.id);
+                  setPage(0);
+                }}
+                className={`inline-flex flex-none items-center gap-2 rounded-full border px-3.5 py-2 font-display text-[13px] font-semibold uppercase tracking-wide transition-colors ${
+                  on ? "border-[#0B0B0B] bg-[#0B0B0B] text-white" : "border-[#D6D6D6] bg-white text-[#3A3A3A] hover:border-[#0B0B0B]"
+                }`}
+              >
+                {f.label}
+                <span
+                  className={`rounded-full px-1.5 py-0.5 text-[11px] leading-none tabular-nums ${
+                    on ? "bg-white/20 text-white" : f.falta && n > 0 ? "bg-[#FDE8EC] text-mRed" : "bg-[#F0F0F0] text-[#6A6A6A]"
+                  }`}
+                >
+                  {n}
+                </span>
+              </button>
+            );
+          })}
+        </div>
       </div>
 
       <div className="flex flex-col gap-3 px-6 pb-5 sm:px-10">
         {pageItems.length === 0 && (
           <div className="rounded-xl border border-dashed border-[#D6D6D6] bg-white px-5 py-10 text-center font-display text-sm uppercase tracking-wide text-[#9A9A9A]">
-            Sin resultados para &ldquo;{query}&rdquo;
+            {query
+              ? `Sin resultados para "${query}"${filter !== "todos" ? ` en "${activeFilter.label}"` : ""}`
+              : activeFilter.falta
+                ? `Ningún producto "${activeFilter.label.toLowerCase()}". Todo completo ✓`
+                : `No hay productos "${activeFilter.label.toLowerCase()}"`}
           </div>
         )}
+        {/* Celular: foto chica, nombre y precio; "Editar datos" abre el
+            resto (antes cada producto ocupaba casi una pantalla). Desde sm,
+            foto a la izquierda y todo abierto en una fila. */}
         {pageItems.map(({ prod, i }) => (
           <div
             key={i}
-            className="grid grid-cols-[140px_1fr] items-center gap-4 rounded-xl border border-[#E0E0E0] bg-white p-4 shadow-[0_2px_10px_rgba(11,11,11,0.05)] sm:grid-cols-[190px_1fr_auto] sm:gap-5 sm:p-5"
+            className="grid grid-cols-[104px_1fr] items-center gap-3 rounded-xl border border-[#E0E0E0] bg-white p-3 shadow-[0_2px_10px_rgba(11,11,11,0.05)] sm:grid-cols-[190px_1fr_auto] sm:gap-x-5 sm:gap-y-2.5 sm:p-5"
           >
-            <PhotoPicker onFile={(ev) => handleFile(i, ev)} className="h-[100px] overflow-hidden rounded-lg border border-[#1E2226] bg-[#EFEDE9] sm:h-[130px]">
+            <PhotoPicker onFile={(ev) => handleFile(i, ev)} className="h-[96px] overflow-hidden rounded-lg border border-[#1E2226] bg-[#EFEDE9] sm:row-span-2 sm:h-[130px]">
               <ProductPhotoPreview photo={prod.photo} name={prod.name} estado={prod.estado} />
             </PhotoPicker>
 
-            <div className="col-span-2 flex min-w-0 flex-col gap-2.5 sm:col-span-1">
+            <div className="flex min-w-0 flex-col gap-1 sm:col-start-2 sm:row-start-1">
               <input
                 type="text"
                 value={prod.name}
                 onChange={(ev) => patch(i, { name: ev.target.value })}
                 placeholder="Nombre del producto"
-                className="w-full rounded-md border border-[#E0E0E0] bg-[#FBFBFB] px-3.5 py-2.5 font-display text-lg font-semibold uppercase tracking-wide text-[#0B0B0B] outline-none focus:border-mCyan"
+                aria-label="Nombre del producto"
+                className="w-full rounded-md border border-[#E0E0E0] bg-[#FBFBFB] px-3 py-2 font-display text-base font-semibold uppercase tracking-wide text-[#0B0B0B] outline-none focus:border-mCyan sm:px-3.5 sm:py-2.5 sm:text-lg"
               />
-              <div className="flex flex-wrap gap-2.5">
-                <input
-                  type="text"
-                  value={prod.cat}
-                  onChange={(ev) => patch(i, { cat: ev.target.value })}
-                  placeholder="Categoría"
-                  className="w-[180px] rounded-md border border-[#E0E0E0] bg-[#FBFBFB] px-3.5 py-2 font-display text-sm uppercase tracking-wide text-[#3A3A3A] outline-none focus:border-mCyan"
-                />
-                <label className="flex items-center gap-1.5 text-xs uppercase tracking-wide text-[#8A8A8A]">
-                  Precio
-                  <input
-                    type="number"
-                    min="0"
-                    value={prod.price ?? 0}
-                    onChange={(ev) => patch(i, { price: Number(ev.target.value) || 0 })}
-                    className="w-[110px] rounded-md border border-[#E0E0E0] bg-[#FBFBFB] px-3 py-2 font-display text-sm text-[#0B0B0B] outline-none focus:border-mCyan"
-                  />
-                </label>
-                <label className="flex items-center gap-1.5 text-xs uppercase tracking-wide text-[#8A8A8A]">
-                  Stock
-                  <input
-                    type="number"
-                    min="0"
-                    value={prod.stock ?? 0}
-                    onChange={(ev) => patch(i, { stock: Number(ev.target.value) || 0 })}
-                    className="w-[70px] rounded-md border border-[#E0E0E0] bg-[#FBFBFB] px-3 py-2 font-display text-sm text-[#0B0B0B] outline-none focus:border-mCyan"
-                  />
-                </label>
-                <div className="flex overflow-hidden rounded-md border border-[#E0E0E0]">
-                  {[
-                    { value: "nuevo", label: "Nuevo" },
-                    { value: "usado", label: "Usado" },
-                  ].map((opt) => (
-                    <button
-                      key={opt.value}
-                      type="button"
-                      onClick={() => patch(i, { estado: opt.value })}
-                      className={`px-3 py-2 font-display text-xs font-semibold uppercase tracking-wide transition-colors ${
-                        (prod.estado || "nuevo") === opt.value ? "bg-mBlue text-white" : "bg-[#FBFBFB] text-[#5A5A5A] hover:bg-[#F0F0F0]"
-                      }`}
-                    >
-                      {opt.label}
-                    </button>
-                  ))}
-                </div>
+              <div className="flex items-center justify-between gap-2 pl-1">
+                <span className="font-display text-sm font-semibold text-mBlue">{prod.price > 0 ? formatCLP(prod.price) : ""}</span>
+                <button
+                  type="button"
+                  aria-expanded={openRow === i}
+                  onClick={() => setOpenRow(openRow === i ? null : i)}
+                  className="flex min-h-9 items-center gap-1 rounded px-1.5 font-display text-[13px] font-semibold uppercase tracking-wide text-mBlue sm:hidden"
+                >
+                  {openRow === i ? "Cerrar" : "Editar datos"}
+                  <ChevronRight size={15} className={`transition-transform ${openRow === i ? "-rotate-90" : "rotate-90"}`} />
+                </button>
               </div>
-              {/* "Sirve para" y el código son lo que distingue piezas con el
-                  mismo nombre: en la web van a la vista en cada tarjeta. */}
-              <div className="flex flex-wrap gap-2.5">
-                <label className="flex items-center gap-1.5 text-xs uppercase tracking-wide text-[#8A8A8A]">
-                  Sirve para
-                  <input
-                    type="text"
-                    value={prod.aplicacion || ""}
-                    onChange={(ev) => patch(i, { aplicacion: ev.target.value })}
-                    placeholder="Ej. K50/K51"
-                    className="w-[150px] rounded-md border border-[#E0E0E0] bg-[#FBFBFB] px-3 py-2 font-display text-sm normal-case text-[#0B0B0B] outline-none focus:border-mCyan"
-                  />
-                </label>
-                <label className="flex items-center gap-1.5 text-xs uppercase tracking-wide text-[#8A8A8A]">
-                  Código
-                  <input
-                    type="text"
-                    value={prod.codigo || ""}
-                    onChange={(ev) => patch(i, { codigo: ev.target.value })}
-                    placeholder="Ej. 46 63 8 556 654"
-                    className="w-[170px] rounded-md border border-[#E0E0E0] bg-[#FBFBFB] px-3 py-2 font-display text-sm normal-case tabular-nums text-[#0B0B0B] outline-none focus:border-mCyan"
-                  />
-                </label>
-              </div>
-              {prod.price > 0 && (
-                <div className="font-display text-sm font-semibold text-mBlue">{formatCLP(prod.price)}</div>
-              )}
             </div>
 
-            <div className="col-span-2 flex gap-2.5 sm:col-span-1 sm:flex-col">
+            <div
+              className={`col-span-2 grid-cols-2 gap-2 sm:col-span-1 sm:col-start-2 sm:row-start-2 sm:flex sm:flex-wrap sm:gap-2.5 ${
+                openRow === i ? "grid" : "hidden"
+              }`}
+            >
+              <input
+                type="text"
+                value={prod.cat}
+                onChange={(ev) => patch(i, { cat: ev.target.value })}
+                placeholder="Categoría"
+                aria-label="Categoría"
+                className="col-span-2 rounded-md border border-[#E0E0E0] bg-[#FBFBFB] px-3 py-2 font-display text-sm uppercase tracking-wide text-[#3A3A3A] outline-none focus:border-mCyan sm:w-[180px] sm:px-3.5"
+              />
+              <label className="flex items-center gap-1.5 text-xs uppercase tracking-wide text-[#8A8A8A]">
+                Precio
+                <input
+                  type="number"
+                  min="0"
+                  value={prod.price ?? 0}
+                  onChange={(ev) => patch(i, { price: Number(ev.target.value) || 0 })}
+                  className="min-w-0 flex-1 rounded-md border border-[#E0E0E0] bg-[#FBFBFB] px-3 py-2 font-display text-sm text-[#0B0B0B] outline-none focus:border-mCyan sm:w-[110px] sm:flex-none"
+                />
+              </label>
+              <label className="flex items-center gap-1.5 text-xs uppercase tracking-wide text-[#8A8A8A]">
+                Stock
+                <input
+                  type="number"
+                  min="0"
+                  value={prod.stock ?? 0}
+                  onChange={(ev) => patch(i, { stock: Number(ev.target.value) || 0 })}
+                  className="min-w-0 flex-1 rounded-md border border-[#E0E0E0] bg-[#FBFBFB] px-3 py-2 font-display text-sm text-[#0B0B0B] outline-none focus:border-mCyan sm:w-[70px] sm:flex-none"
+                />
+              </label>
+              {/* "Sirve para" y el código son lo que distingue piezas con el
+                  mismo nombre: en la web van a la vista en cada tarjeta. */}
+              <label className="col-span-2 flex items-center gap-1.5 text-xs uppercase tracking-wide text-[#8A8A8A]">
+                Sirve para
+                <input
+                  type="text"
+                  value={prod.aplicacion || ""}
+                  onChange={(ev) => patch(i, { aplicacion: ev.target.value })}
+                  placeholder="Ej. K50/K51"
+                  className="min-w-0 flex-1 rounded-md border border-[#E0E0E0] bg-[#FBFBFB] px-3 py-2 font-display text-sm text-[#0B0B0B] outline-none focus:border-mCyan normal-case sm:w-[150px] sm:flex-none"
+                />
+              </label>
+              <label className="col-span-2 flex items-center gap-1.5 text-xs uppercase tracking-wide text-[#8A8A8A]">
+                Código
+                <input
+                  type="text"
+                  value={prod.codigo || ""}
+                  onChange={(ev) => patch(i, { codigo: ev.target.value })}
+                  placeholder="Ej. 46 63 8 556 654"
+                  className="min-w-0 flex-1 rounded-md border border-[#E0E0E0] bg-[#FBFBFB] px-3 py-2 font-display text-sm text-[#0B0B0B] outline-none focus:border-mCyan normal-case tabular-nums sm:w-[170px] sm:flex-none"
+                />
+              </label>
+              <div className="flex overflow-hidden rounded-md border border-[#E0E0E0]" role="group" aria-label="Estado">
+                {[
+                  { value: "nuevo", label: "Nuevo" },
+                  { value: "usado", label: "Usado" },
+                ].map((opt) => (
+                  <button
+                    key={opt.value}
+                    type="button"
+                    aria-pressed={(prod.estado || "nuevo") === opt.value}
+                    onClick={() => patch(i, { estado: opt.value })}
+                    className={`flex-1 px-3 py-2 font-display text-xs font-semibold uppercase tracking-wide transition-colors ${
+                      (prod.estado || "nuevo") === opt.value ? "bg-mBlue text-white" : "bg-[#FBFBFB] text-[#5A5A5A] hover:bg-[#F0F0F0]"
+                    }`}
+                  >
+                    {opt.label}
+                  </button>
+                ))}
+              </div>
               <button
                 type="button"
-                onClick={() => confirmar(`¿Eliminar "${prod.name || "este producto"}"? No se puede deshacer.`) && removeProduct(i)}
-                className="whitespace-nowrap rounded border border-[#D6D6D6] bg-white px-4 py-2.5 font-display text-sm font-semibold uppercase tracking-wide text-[#0B0B0B] transition-colors hover:border-mRed hover:text-mRed"
+                onClick={async () => (await confirmar(`¿Eliminar "${prod.name || "este producto"}"? No se puede deshacer.`)) && removeProduct(i)}
+                className="whitespace-nowrap rounded border border-[#D6D6D6] bg-white px-4 py-2 font-display text-sm font-semibold uppercase tracking-wide text-[#0B0B0B] transition-colors hover:border-mRed hover:text-mRed sm:hidden"
               >
                 Eliminar
               </button>
             </div>
+
+            <button
+              type="button"
+              onClick={async () => (await confirmar(`¿Eliminar "${prod.name || "este producto"}"? No se puede deshacer.`)) && removeProduct(i)}
+              className="hidden whitespace-nowrap rounded border border-[#D6D6D6] bg-white px-4 py-2.5 font-display text-sm font-semibold uppercase tracking-wide text-[#0B0B0B] transition-colors hover:border-mRed hover:text-mRed sm:col-start-3 sm:row-span-2 sm:row-start-1 sm:block"
+            >
+              Eliminar
+            </button>
           </div>
         ))}
       </div>
@@ -1036,8 +1236,8 @@ function ProductosTab() {
           </div>
           <button
             type="button"
-            onClick={() => {
-              if (confirmar("¿Restaurar el catálogo? Se pierden todos los cambios hechos acá (fotos, precios, stock, productos nuevos o eliminados) y vuelve la lista original.")) {
+            onClick={async () => {
+              if (await confirmar("¿Restaurar el catálogo? Se pierden todos los cambios hechos acá (fotos, precios, stock, productos nuevos o eliminados) y vuelve la lista original.")) {
                 warnIfFailed(resetProductos(), "Catálogo restaurado ✓");
               }
             }}
@@ -1125,6 +1325,7 @@ function TallerTab() {
             value={videoUrl}
             onChange={(ev) => setVideoUrl(ev.target.value)}
             placeholder="Link del video (YouTube, Vimeo o .mp4)"
+            aria-label="Link del video"
             className="min-w-0 flex-1 rounded-md border border-[#E0E0E0] bg-[#FBFBFB] px-3.5 py-2.5 text-sm text-[#0B0B0B] outline-none focus:border-mCyan"
           />
           <input
@@ -1132,6 +1333,7 @@ function TallerTab() {
             value={videoCaption}
             onChange={(ev) => setVideoCaption(ev.target.value)}
             placeholder="Descripción (opcional)"
+            aria-label="Descripción del video"
             className="min-w-0 flex-1 rounded-md border border-[#E0E0E0] bg-[#FBFBFB] px-3.5 py-2.5 text-sm text-[#0B0B0B] outline-none focus:border-mCyan sm:max-w-[220px]"
           />
           <button
@@ -1172,6 +1374,7 @@ function TallerTab() {
                   value={item.caption || ""}
                   onChange={(ev) => patch(item.id, { caption: ev.target.value })}
                   placeholder="Escribe una descripción (opcional)"
+                  aria-label="Descripción de la foto"
                   className="w-full border-0 border-t border-[#1E2226] bg-transparent px-4 py-3 text-sm text-[#C3C9CE] outline-none placeholder:text-[#5E666D] focus:bg-white/[0.04]"
                 />
                 <div className="flex flex-wrap items-center gap-2 border-t border-[#1E2226] px-3 py-2.5">
@@ -1218,7 +1421,7 @@ function TallerTab() {
                   </div>
                   <button
                     type="button"
-                    onClick={() => confirmar(`¿Eliminar ${item.type === "photo" ? "esta foto" : "este video"}? No se puede deshacer.`) && removeItem(item.id)}
+                    onClick={async () => await confirmar(`¿Eliminar ${item.type === "photo" ? "esta foto" : "este video"}? No se puede deshacer.`) && removeItem(item.id)}
                     className="ml-auto px-1.5 py-1.5 font-display text-[12px] font-semibold uppercase tracking-wide text-[#8A939B] transition-colors hover:text-mRed"
                   >
                     Eliminar
@@ -1254,8 +1457,8 @@ function TallerTab() {
           </div>
           <button
             type="button"
-            onClick={() => {
-              if (confirmar("¿Volver a la galería original? Se borran las fotos y videos que agregaste.")) {
+            onClick={async () => {
+              if (await confirmar("¿Volver a la galería original? Se borran las fotos y videos que agregaste.")) {
                 warnIfFailed(resetTallerItems(), "Galería restaurada ✓");
               }
             }}
@@ -1335,6 +1538,7 @@ function GruasTab() {
                   value={item.caption || ""}
                   onChange={(ev) => patch(item.id, { caption: ev.target.value })}
                   placeholder="Texto al abrir la foto (opcional)"
+                  aria-label="Texto de la foto"
                   className="w-full resize-none border-0 border-t border-[#1E2226] bg-transparent px-4 py-3 text-sm text-[#C3C9CE] outline-none placeholder:text-[#5E666D] focus:bg-white/[0.04]"
                 />
                 <div className="flex items-center gap-2 border-t border-[#1E2226] px-3 py-2.5">
@@ -1358,7 +1562,7 @@ function GruasTab() {
                   </div>
                   <button
                     type="button"
-                    onClick={() => confirmar("¿Eliminar esta foto? No se puede deshacer.") && save(items.filter((it) => it.id !== item.id))}
+                    onClick={async () => await confirmar("¿Eliminar esta foto? No se puede deshacer.") && save(items.filter((it) => it.id !== item.id))}
                     className="ml-auto px-1.5 py-1.5 font-display text-[12px] font-semibold uppercase tracking-wide text-[#8A939B] transition-colors hover:text-mRed"
                   >
                     Eliminar
@@ -1426,7 +1630,7 @@ function LogoSlot({ title, where, dark, custom, onSet }) {
         {custom && (
           <button
             type="button"
-            onClick={() => confirmar("¿Volver al logo original?") && warnIfFailed(onSet(""))}
+            onClick={async () => await confirmar("¿Volver al logo original?") && warnIfFailed(onSet(""))}
             className="rounded border border-[#D6D6D6] bg-white px-5 py-3 font-display text-sm font-semibold uppercase tracking-wide text-[#0B0B0B] transition-colors hover:border-mRed hover:text-mRed"
           >
             Volver al original
@@ -1495,8 +1699,8 @@ function ContactoTab() {
     warnIfFailed(writeSettings({ [key]: value }));
   }
 
-  function handleReset() {
-    if (!confirmar("¿Volver a los datos de contacto originales? Se pierden los cambios que hiciste acá.")) return;
+  async function handleReset() {
+    if (!(await confirmar("¿Volver a los datos de contacto originales? Se pierden los cambios que hiciste acá."))) return;
     warnIfFailed(resetSettings(), "Valores restaurados ✓");
   }
 
@@ -1693,6 +1897,7 @@ export default function AdminPanel() {
 
       <ActiveTab />
       <SavedToast />
+      <ConfirmDialog />
     </div>
   );
 }
