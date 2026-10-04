@@ -4,6 +4,7 @@ import SiteFooter from "@/components/SiteFooter";
 import { MobileTopBar } from "@/components/mobile/MobileNav";
 import { getMenuBySlug } from "@/lib/servicesData";
 import SmartImage from "@/components/common/SmartImage";
+import NosotrosEnlaces from "@/components/nosotros/NosotrosEnlaces";
 
 export const metadata = {
   title: "Nosotros — GSmotos",
@@ -19,9 +20,8 @@ const christopher = gsmotos.cards.find((c) => c.slug === "christopher-fundador")
 function Section({ card }) {
   return (
     <section className="grid grid-cols-1 items-center gap-10 border-t border-[#1c1d20] px-6 py-14 sm:px-10 md:grid-cols-2">
-      <div className="relative h-64 overflow-hidden rounded-xl">
-        <SmartImage src={card.photo} alt="" className="brightness-125" sizes="(max-width: 767px) 100vw, 50vw" priority />
-        <div className="pointer-events-none absolute inset-0" style={{ background: "linear-gradient(180deg, rgba(5,5,5,0.10) 0%, rgba(5,5,5,0.55) 100%)" }} />
+      <div className="relative aspect-[4/3] overflow-hidden rounded-xl border border-[#1E2226]">
+        <SmartImage src={card.photo} alt="" className="brightness-110" sizes="(max-width: 767px) 100vw, 50vw" priority />
       </div>
       <div className="flex flex-col gap-3">
         <h2 className="font-display text-[30px] font-bold italic uppercase leading-tight text-white">{card.title}</h2>
@@ -46,41 +46,11 @@ export default function NosotrosPage() {
 
       <Section card={nosotros} />
 
-      {/* Antes acá iba el bloque largo de "Nuestro taller" (texto + foto,
-          igual que arriba), duplicando lo que ya cuenta su propia página
-          — el cliente notó que al entrar a "Nosotros" también le aparecía
-          "Nuestro taller" ahí mismo. Ahora es solo una tarjeta chica que
-          lleva a /nosotros/taller (la galería real de fotos y videos). */}
+      {/* El taller y Christopher: tarjetas con foto que llevan a sus
+          páginas (antes de eso, el bloque largo de "Nuestro taller" se
+          repetía acá; luego fueron cajas planas solo con texto). */}
       <section className="border-t border-[#1c1d20] px-6 py-14 sm:px-10">
-        <Link
-          href="/nosotros/taller"
-          className="group flex flex-col gap-3 rounded-xl border border-[#1E2226] bg-white/[0.02] p-8 transition-colors hover:border-mCyan sm:flex-row sm:items-center sm:justify-between"
-        >
-          <div>
-            <div className="font-display text-2xl font-bold italic uppercase text-white">{taller.title}</div>
-            <p className="mt-1.5 max-w-xl text-[14.5px] leading-relaxed text-[#B9C0C7]">{taller.desc}</p>
-          </div>
-          <div className="flex items-center gap-2.5 font-display text-sm uppercase tracking-wide text-mCyan">
-            <span>Ver fotos y videos</span>
-            <span className="font-body">→</span>
-          </div>
-        </Link>
-      </section>
-
-      <section className="border-t border-[#1c1d20] px-6 py-14 sm:px-10">
-        <Link
-          href="/nosotros/christopher"
-          className="group flex flex-col gap-3 rounded-xl border border-[#1E2226] bg-white/[0.02] p-8 transition-colors hover:border-mCyan sm:flex-row sm:items-center sm:justify-between"
-        >
-          <div>
-            <div className="font-display text-2xl font-bold italic uppercase text-white">{christopher.title}</div>
-            <p className="mt-1.5 max-w-xl text-[14.5px] leading-relaxed text-[#B9C0C7]">{christopher.desc}</p>
-          </div>
-          <div className="flex items-center gap-2.5 font-display text-sm uppercase tracking-wide text-mCyan">
-            <span>Ver historia y certificados</span>
-            <span className="font-body">→</span>
-          </div>
-        </Link>
+        <NosotrosEnlaces taller={taller} christopher={christopher} />
       </section>
 
       <section className="flex flex-col items-center gap-4 border-t border-[#1c1d20] px-6 py-14 text-center sm:px-10">
