@@ -28,7 +28,10 @@ export default function ServiceGrid({ cards, animClass }) {
             <>
               <ColorEdge />
               <SmartImage src={photo} alt={card.title} className="brightness-125" sizes="(max-width: 639px) 50vw, (max-width: 1023px) 33vw, 420px" />
-              <div className="pointer-events-none absolute inset-0" style={{ background: "linear-gradient(180deg, rgba(5,5,5,0.10) 0%, rgba(5,5,5,0.58) 34%, rgba(5,5,5,0.90) 62%, rgba(5,5,5,0.96) 100%)" }} />
+              {/* Velo solo en la mitad de abajo, donde va el texto: antes
+                  empezaba a oscurecer desde un tercio de la tarjeta y la
+                  foto se veía apagada. */}
+              <div className="pointer-events-none absolute inset-0" style={{ background: "linear-gradient(180deg, rgba(5,5,5,0) 0%, rgba(5,5,5,0.12) 38%, rgba(5,5,5,0.78) 70%, rgba(5,5,5,0.93) 100%)" }} />
               <div className="relative flex min-h-[168px] flex-col justify-end gap-2 px-3 pb-3.5 pt-3 sm:min-h-[320px] sm:gap-3 sm:px-6 sm:pb-6 sm:pt-6">
                 {/* Sin etiqueta de categoría ("Servicio BMW Motorrad") en cada
                     tarjeta: la repetía igual en todas y el título de la

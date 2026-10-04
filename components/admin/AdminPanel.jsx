@@ -577,7 +577,7 @@ function ServiciosTab() {
                       <SmartImage src={overrides[key] || card.photo} alt={card.title} className="brightness-125" sizes="(max-width: 639px) 90vw, 420px" />
                       <div
                         className="pointer-events-none absolute inset-0"
-                        style={{ background: "linear-gradient(180deg, rgba(5,5,5,0.10) 0%, rgba(5,5,5,0.58) 34%, rgba(5,5,5,0.90) 62%, rgba(5,5,5,0.96) 100%)" }}
+                        style={{ background: "linear-gradient(180deg, rgba(5,5,5,0) 0%, rgba(5,5,5,0.12) 38%, rgba(5,5,5,0.78) 70%, rgba(5,5,5,0.93) 100%)" }}
                       />
                       <div className="relative flex min-h-[260px] flex-col justify-end gap-2.5 px-5 pb-5 pt-5">
                         {/* Igual que la tarjeta de la web (ServiceGrid.jsx): sin
