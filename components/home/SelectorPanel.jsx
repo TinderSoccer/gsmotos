@@ -99,13 +99,13 @@ function ProductCarousel({ query, onQueryChange, products, pageLabel, dir, resul
   return (
     <div className="flex flex-col gap-5" style={{ animation: `${animClass} 760ms cubic-bezier(0.33,0.02,0.16,1) both` }}>
       <div className="flex items-center gap-3 rounded-[10px] border border-white/10 py-1 pl-5 pr-2.5" style={{ background: "linear-gradient(180deg, #1A1D21 0%, #0C0E10 100%)" }}>
-        <Search size={20} strokeWidth={1.8} color="#6E7780" style={{ flexShrink: 0 }} />
+        <Search size={20} strokeWidth={1.8} color="#7A838C" style={{ flexShrink: 0 }} />
         <input
           type="text"
           value={query}
           onChange={(e) => onQueryChange(e.target.value)}
           placeholder="Busca aceites, filtros, neumáticos, accesorios…"
-          className="min-w-0 flex-1 bg-transparent py-3.5 font-body text-base text-white outline-none placeholder:text-[#6E7780]"
+          className="min-w-0 flex-1 bg-transparent py-3.5 font-body text-base text-white outline-none placeholder:text-[#7A838C]"
         />
         <Link
           href={query.trim() ? `/productos?q=${encodeURIComponent(query.trim())}` : "/productos"}
@@ -118,9 +118,9 @@ function ProductCarousel({ query, onQueryChange, products, pageLabel, dir, resul
 
       <div className="flex flex-wrap items-center justify-between gap-5">
         <div className="flex flex-wrap items-center gap-4">
-          <div className="font-display text-[15px] uppercase tracking-[2.2px] text-[#6E7780]">Destacados de esta semana</div>
+          <div className="font-display text-[15px] uppercase tracking-[2.2px] text-[#7A838C]">Destacados de esta semana</div>
           <div className="font-display text-sm tracking-wide text-mCyan">{pageLabel}</div>
-          {resultLabel && <div className="font-display text-sm uppercase tracking-wide text-[#6E7780]">{resultLabel}</div>}
+          {resultLabel && <div className="font-display text-sm uppercase tracking-wide text-[#7A838C]">{resultLabel}</div>}
         </div>
         <div className="flex gap-2.5">
           <button type="button" aria-label="Anterior" onClick={onPrev} className="flex h-[42px] w-[42px] items-center justify-center rounded-full border border-white/[0.18] bg-white/[0.03] font-body text-xl leading-none text-white transition-colors hover:border-mBlue hover:bg-mBlue">←</button>
@@ -167,7 +167,7 @@ function ProductCarousel({ query, onQueryChange, products, pageLabel, dir, resul
                   <EstadoBadge estado={prod.estado} />
                 </div>
                 <div className="flex flex-col gap-1.5 px-3.5 pt-3.5 sm:gap-2 sm:px-5 sm:pt-4.5">
-                  <div className="font-display text-[11px] uppercase tracking-[1.6px] text-[#6E7780] sm:text-[13px] sm:tracking-[2px]">{prod.cat}</div>
+                  <div className="font-display text-[11px] uppercase tracking-[1.6px] text-[#7A838C] sm:text-[13px] sm:tracking-[2px]">{prod.cat}</div>
                   <div className="font-display text-[15px] font-semibold uppercase leading-tight tracking-wide text-white sm:text-xl">{prod.name}</div>
                   {prod.price > 0 && (
                     <div className="font-display text-base font-bold text-white sm:text-lg">{formatCLP(prod.price)}</div>
@@ -241,7 +241,7 @@ export default function SelectorPanel({
       <div key={menuTitle} className="flex items-center gap-4" style={{ animation: `${animTitle} 640ms cubic-bezier(0.33,0.02,0.16,1) both` }}>
         <ColorBars size="lg" />
         <div className="font-display text-[32px] font-bold italic uppercase leading-none text-white">{menuTitle}</div>
-        <div className="hidden font-display text-base uppercase tracking-wide text-[#6E7780] sm:block">{menuHint}</div>
+        <div className="hidden font-display text-base uppercase tracking-wide text-[#7A838C] sm:block">{menuHint}</div>
       </div>
 
       {isProductos ? (

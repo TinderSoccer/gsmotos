@@ -39,7 +39,7 @@ export default function CategoriaServiciosPage({ params }) {
           <h1 className="font-display text-[32px] font-bold italic uppercase leading-none text-white">
             {menu.title}
           </h1>
-          <div className="hidden font-display text-base uppercase tracking-wide text-[#6E7780] sm:block">
+          <div className="hidden font-display text-base uppercase tracking-wide text-[#7A838C] sm:block">
             {menu.hint}
           </div>
         </div>

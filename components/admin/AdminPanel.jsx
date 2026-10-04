@@ -1190,7 +1190,7 @@ function TallerTab() {
             <label className="flex aspect-video cursor-pointer flex-col items-center justify-center gap-2 rounded-xl border-2 border-dashed border-[#2E3A45] text-[#8FC2E6] transition-colors hover:border-mCyan hover:text-mCyan">
               <Camera size={28} strokeWidth={1.6} />
               <span className="font-display text-sm font-semibold uppercase tracking-wide">Agregar banner</span>
-              <span className="text-xs text-[#6E7780]">Foto ancha, ocupa toda la fila</span>
+              <span className="text-xs text-[#7A838C]">Foto ancha, ocupa toda la fila</span>
               <input type="file" accept="image/*" className="hidden" onChange={(ev) => handleFile(ev, "banner")} />
             </label>
           </div>

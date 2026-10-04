@@ -63,7 +63,7 @@ export function MobileChrome({ children }) {
                 className="flex items-center justify-between gap-3 border-b border-white/[0.09] py-[17px] font-display text-xl font-medium uppercase tracking-wide text-[#E8EBEE]"
               >
                 <span>{menu.title}</span>
-                <span className="font-body text-[#6E7780]">›</span>
+                <span className="font-body text-[#7A838C]">›</span>
               </Link>
             ))}
             <Link
@@ -72,7 +72,7 @@ export function MobileChrome({ children }) {
               className="flex items-center justify-between border-b border-white/[0.09] py-[17px] font-display text-xl uppercase tracking-wide text-[#E8EBEE]"
             >
               <span>Nuestro fundador</span>
-              <span className="font-body text-[#6E7780]">›</span>
+              <span className="font-body text-[#7A838C]">›</span>
             </Link>
 
             <Link

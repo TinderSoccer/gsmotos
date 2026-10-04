@@ -24,7 +24,7 @@ export default function NeumaticosServicios({ agendarHref }) {
           <ColorBars />
           <h2 className="font-display text-2xl font-bold italic uppercase leading-none tracking-wide text-white">Servicios</h2>
         </div>
-        <p className="mt-1.5 text-[13px] uppercase tracking-wide text-[#6E7780]">{NEUMATICOS_SERVICIOS_HINT}</p>
+        <p className="mt-1.5 text-[13px] uppercase tracking-wide text-[#7A838C]">{NEUMATICOS_SERVICIOS_HINT}</p>
       </div>
       <div className="grid grid-cols-2 gap-4">
         {NEUMATICOS_SERVICIOS.map(({ slot, Icon, title, defaultPhoto }) => (

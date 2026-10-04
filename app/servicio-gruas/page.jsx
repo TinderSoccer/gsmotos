@@ -99,13 +99,13 @@ export default function ServicioGruasPage() {
       <div className="flex items-center gap-4 px-6 pt-6 sm:px-10">
         <ColorBars size="lg" />
         <h1 className="font-display text-[26px] font-bold italic uppercase leading-none text-white sm:text-[30px]">Servicio de grúas</h1>
-        <div className="hidden font-display text-base uppercase tracking-wide text-[#6E7780] sm:block">
+        <div className="hidden font-display text-base uppercase tracking-wide text-[#7A838C] sm:block">
           Traslado seguro para tu moto
         </div>
       </div>
 
       <div className="flex flex-col gap-2 px-6 pt-3 sm:px-10">
-        <div className="font-display text-[12px] uppercase tracking-[2px] text-[#6E7780]">{INTRO.kicker}</div>
+        <div className="font-display text-[12px] uppercase tracking-[2px] text-[#7A838C]">{INTRO.kicker}</div>
         <div className="max-w-2xl font-display text-xl font-bold italic uppercase leading-[1.1] text-white sm:text-[24px]">
           {INTRO.lead}
         </div>

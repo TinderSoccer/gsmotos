@@ -64,7 +64,7 @@ export default function ContactoPage({ searchParams }) {
       <div className="flex items-center gap-4 px-6 pt-10 sm:px-10">
         <ColorBars size="lg" />
         <h1 className="font-display text-[32px] font-bold italic uppercase leading-none text-white">Contacto</h1>
-        <div className="hidden font-display text-base uppercase tracking-wide text-[#6E7780] sm:block">
+        <div className="hidden font-display text-base uppercase tracking-wide text-[#7A838C] sm:block">
           Agenda tu servicio
         </div>
       </div>

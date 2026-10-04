@@ -102,7 +102,7 @@ export default function ProductosPage({ searchParams }) {
         <div className="flex flex-wrap items-center gap-4">
           <ColorBars size="lg" />
           <h1 className="font-display text-[32px] font-bold italic uppercase leading-none text-white">Productos</h1>
-          <div className="hidden font-display text-base uppercase tracking-wide text-[#6E7780] sm:block">
+          <div className="hidden font-display text-base uppercase tracking-wide text-[#7A838C] sm:block">
             Búsqueda guiada, no vitrina
           </div>
         </div>
@@ -110,7 +110,7 @@ export default function ProductosPage({ searchParams }) {
         <div className="grid grid-cols-1 gap-3.5 sm:grid-cols-2 lg:grid-cols-4">
           {INTRO_CARDS.map((card) => (
             <div key={card.title} className="rounded-lg border border-[#1E2226] bg-white/[0.02] p-4">
-              <div className="font-display text-[13px] uppercase tracking-[2px] text-[#6E7780]">{card.kicker}</div>
+              <div className="font-display text-[13px] uppercase tracking-[2px] text-[#7A838C]">{card.kicker}</div>
               <div className="mt-1 font-display text-lg font-semibold uppercase text-white">{card.title}</div>
               <p className="mt-1.5 text-[13.5px] leading-snug text-[#B9C0C7]">{card.desc}</p>
             </div>
@@ -118,18 +118,18 @@ export default function ProductosPage({ searchParams }) {
         </div>
 
         <div className="flex items-center gap-3 rounded-[10px] border border-white/10 py-1 pl-5 pr-2.5" style={{ background: "linear-gradient(180deg, #1A1D21 0%, #0C0E10 100%)" }}>
-          <Search size={20} strokeWidth={1.8} color="#6E7780" style={{ flexShrink: 0 }} />
+          <Search size={20} strokeWidth={1.8} color="#7A838C" style={{ flexShrink: 0 }} />
           <input
             type="text"
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             placeholder="Busca aceites, filtros, neumáticos, accesorios…"
-            className="min-w-0 flex-1 bg-transparent py-3.5 font-body text-base text-white outline-none placeholder:text-[#6E7780]"
+            className="min-w-0 flex-1 bg-transparent py-3.5 font-body text-base text-white outline-none placeholder:text-[#7A838C]"
           />
         </div>
 
         {loading && items.length === 0 ? (
-          <div className="py-14 text-center font-display text-sm uppercase tracking-wide text-[#6E7780]">
+          <div className="py-14 text-center font-display text-sm uppercase tracking-wide text-[#7A838C]">
             Consultando stock…
           </div>
         ) : items.length === 0 ? (
@@ -157,7 +157,7 @@ export default function ProductosPage({ searchParams }) {
                   <EstadoBadge estado={prod.estado} />
                 </div>
                 <div className="flex flex-col gap-1.5 px-5 pb-5 pt-4">
-                  <div className="font-display text-[12px] uppercase tracking-[2px] text-[#6E7780]">{prod.cat}</div>
+                  <div className="font-display text-[12px] uppercase tracking-[2px] text-[#7A838C]">{prod.cat}</div>
                   <div className="font-display text-xl font-semibold uppercase leading-tight tracking-wide text-white">{prod.name}</div>
                   {prod.aplicacion && (
                     <div className="font-display text-[11.5px] uppercase tracking-wide text-mCyan/85">
