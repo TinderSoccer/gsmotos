@@ -1112,7 +1112,7 @@ function TallerTab() {
                 {item.type === "photo" ? (
                   <PhotoPicker
                     onFile={(ev) => replacePhoto(item, ev)}
-                    className={`overflow-hidden bg-[#14171A] ${banner ? "aspect-[2/1] sm:aspect-[3/1] lg:aspect-[4/1]" : "aspect-video"}`}
+                    className={`overflow-hidden bg-[#14171A] ${banner ? "aspect-[5/2] sm:aspect-[4/1] lg:aspect-[6/1]" : "aspect-video"}`}
                   >
                     <SmartImage src={item.photo} alt={item.caption || "Foto del taller"} sizes={banner ? "1200px" : "420px"} />
                   </PhotoPicker>
