@@ -261,16 +261,15 @@ function FounderHeroPhoto() {
             <div className="flex items-center sm:h-[200px]">
               <section className="relative h-[110px] w-full overflow-hidden rounded-lg border border-[#E0E0E0] bg-[#050505]">
                 <SmartImage src={shown} alt="" className="brightness-110" sizes="400px" />
-                <div className="pointer-events-none absolute inset-0 bg-white" style={{ clipPath: "polygon(0 0, 34% 0, 47% 100%, 0 100%)" }} />
                 <div
-                  className="pointer-events-none absolute inset-y-0 left-0 w-[64%]"
-                  style={{ background: "linear-gradient(103deg, #ffffff 50%, rgba(255,255,255,0.86) 57%, rgba(255,255,255,0) 72%)" }}
+                  className="pointer-events-none absolute inset-0"
+                  style={{ background: "linear-gradient(90deg, #0B0B0B 0%, rgba(11,11,11,0.88) 32%, rgba(11,11,11,0.35) 62%, rgba(11,11,11,0.1) 100%)" }}
                 />
                 <div className="relative flex h-full flex-col justify-end gap-1 px-3.5 pb-3">
                   <div className="scale-75 origin-left">
                     <ColorBars />
                   </div>
-                  <div className="font-display text-[17px] font-bold italic uppercase leading-none text-[#0B0B0B]">Christopher</div>
+                  <div className="font-display text-[17px] font-bold italic uppercase leading-none text-white">Christopher</div>
                 </div>
               </section>
             </div>
@@ -347,8 +346,8 @@ function CertificadosTab() {
             const shown = custom || cert.defaultPhoto;
             return (
               <div key={cert.slot}>
-                <div className="flex flex-col overflow-hidden rounded-xl border border-[#E0E0E0] bg-white shadow-[0_2px_10px_rgba(11,11,11,0.06)]">
-                  <PhotoPicker onFile={(ev) => handleFile(cert.slot, ev)} className="h-[240px] overflow-hidden border-b border-[#E0E0E0] bg-[#F2F2F2]">
+                <div className="flex flex-col overflow-hidden rounded-xl border border-[#1E2226] bg-[#0F1113]">
+                  <PhotoPicker onFile={(ev) => handleFile(cert.slot, ev)} className="h-[240px] overflow-hidden bg-[#F2F0EC]">
                     {shown ? (
                       <SmartImage src={shown} alt={cert.title} fit="contain" sizes="(max-width: 639px) 90vw, 360px" />
                     ) : (
@@ -356,11 +355,11 @@ function CertificadosTab() {
                     )}
                   </PhotoPicker>
                   <div className="flex flex-col gap-2 px-[22px] pb-[22px] pt-5">
-                    <div className="font-display text-[13px] uppercase tracking-[2px] text-mBlue">
+                    <div className="font-display text-[13px] uppercase tracking-[2px] text-mCyan">
                       {cert.year} · {cert.org}
                     </div>
-                    <div className="font-display text-xl font-semibold uppercase leading-[1.15] tracking-wide text-[#0B0B0B]">{cert.title}</div>
-                    <div className="text-[14.5px] leading-[1.55] text-[#5A5A5A]">{cert.desc}</div>
+                    <div className="font-display text-xl font-semibold uppercase leading-[1.15] tracking-wide text-white">{cert.title}</div>
+                    <div className="text-[14.5px] leading-[1.55] text-[#B9C0C7]">{cert.desc}</div>
                   </div>
                 </div>
                 <PhotoStatus
