@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { checkCredentials, createSessionValue, SESSION_COOKIE, SESSION_MAX_AGE_SECONDS } from "@/lib/adminAuth";
+import { clearFailures, clientIp, isBlocked, recordFailure, WINDOW_MINUTES } from "@/lib/loginLimit";
 
 export async function POST(request) {
   if (!process.env.ADMIN_USER || !process.env.ADMIN_PASSWORD || !process.env.ADMIN_SESSION_SECRET) {
@@ -17,9 +18,20 @@ export async function POST(request) {
     return NextResponse.json({ ok: false, error: "Solicitud inválida." }, { status: 400 });
   }
 
+  const ip = clientIp(request);
+  if (await isBlocked(ip)) {
+    return NextResponse.json(
+      { ok: false, error: `Demasiados intentos. Espera ${WINDOW_MINUTES} minutos y vuelve a intentar.` },
+      { status: 429 }
+    );
+  }
+
   if (!checkCredentials(body?.user, body?.pass)) {
+    await recordFailure(ip);
     return NextResponse.json({ ok: false, error: "Usuario o contraseña incorrectos." }, { status: 401 });
   }
+
+  await clearFailures(ip);
 
   const res = NextResponse.json({ ok: true });
   res.cookies.set(SESSION_COOKIE, createSessionValue(), {
