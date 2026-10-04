@@ -1,8 +1,8 @@
-import Link from "next/link";
-import ColorBars from "@/components/services/ColorBars";
+import { ClipboardCheck, FileText, Wrench } from "lucide-react";
 import SiteFooter from "@/components/SiteFooter";
 import TallerGallery from "@/components/nosotros/TallerGallery";
-import TallerWhatsappButton from "@/components/nosotros/TallerWhatsappButton";
+import TallerTimelapse from "@/components/nosotros/TallerTimelapse";
+import TallerVisita from "@/components/nosotros/TallerVisita";
 import { MobileTopBar } from "@/components/mobile/MobileNav";
 
 export const metadata = {
@@ -11,52 +11,54 @@ export const metadata = {
     "Conoce el taller de GSmotos en Las Condes: herramientas especiales BMW, información técnica y órdenes de trabajo con trazabilidad para tu moto.",
 };
 
-// Página de contenido del taller: fotos y videos administrados desde
-// /administracion (pestaña "Taller"). Es el destino del botón "Nuestro
-// taller" del hero — antes era un anchor (#taller) sin página propia.
+// Cómo se trabaja en el taller: lo mismo que ya dicen la descripción de
+// esta página y los servicios BMW Motorrad, sin agregar nada nuevo.
+const COMO_TRABAJAMOS = [
+  {
+    Icon: Wrench,
+    title: "Herramientas especiales BMW",
+    desc: "Las herramientas especiales requeridas para cada modelo.",
+  },
+  {
+    Icon: FileText,
+    title: "Información técnica",
+    desc: "Pautas originales BMW Motorrad actualizadas para cada trabajo.",
+  },
+  {
+    Icon: ClipboardCheck,
+    title: "Trazabilidad",
+    desc: "Cada intervención queda registrada en el historial de tu moto.",
+  },
+];
+
+// Página del taller: el timelapse real arriba (un día de trabajo), cómo se
+// trabaja, la galería de fotos y videos que Christopher administra desde
+// /administracion (pestaña "Taller") y cómo llegar. Es el destino del
+// botón "Nuestro taller" del hero.
 export default function TallerPage() {
   return (
     <main className="flex min-h-screen flex-col bg-[#0B0B0B]">
       <MobileTopBar />
-      <div className="flex items-center gap-4 px-6 pt-10 sm:px-10">
-        <ColorBars size="lg" />
-        <h1 className="font-display text-[32px] font-bold italic uppercase leading-none text-white">Nuestro taller</h1>
-        <div className="hidden font-display text-base uppercase tracking-wide text-[#7A838C] sm:block">
-          Fotos y videos del día a día en GSmotos
-        </div>
-      </div>
+      <TallerTimelapse />
 
-      <div className="px-6 py-10 sm:px-10">
-        <TallerGallery />
-      </div>
-
-      <section className="flex flex-col items-start gap-6 border-t border-[#1c1d20] bg-[#0c0d0f] px-6 py-11 sm:flex-row sm:items-center sm:justify-between sm:px-10 sm:py-[50px]">
-        <div className="flex max-w-xl flex-col gap-2.5">
-          <div className="font-display text-2xl font-bold italic uppercase leading-[1.05] text-white sm:text-[30px]">
-            ¿Quieres conocer el taller en persona?
+      <section className="grid grid-cols-1 gap-6 px-6 pb-4 pt-8 sm:grid-cols-3 sm:gap-8 sm:px-10 sm:pt-10">
+        {COMO_TRABAJAMOS.map(({ Icon, title, desc }) => (
+          <div key={title} className="flex items-start gap-3.5">
+            <Icon size={22} strokeWidth={1.6} className="mt-0.5 flex-none text-mCyan" />
+            <div>
+              <h2 className="font-display text-lg font-semibold uppercase leading-tight text-white">{title}</h2>
+              <p className="mt-1 text-[14.5px] leading-snug text-[#B9C0C7]">{desc}</p>
+            </div>
           </div>
-          <div className="text-[15.5px] leading-[1.6] text-[#B9C0C7]">
-            Av. Presidente Riesco 6721, Las Condes, Santiago · +56 9 8405 8116 · contacto@gsmotos.cl
-          </div>
-        </div>
-        <div className="flex flex-wrap items-center gap-4">
-          <Link
-            href="/contacto"
-            className="inline-flex items-center gap-4 whitespace-nowrap rounded border border-mBlue bg-mBlue px-7 py-4 font-display text-[17px] font-semibold uppercase tracking-[2.4px] text-white transition-colors hover:border-mCyan hover:bg-mCyan"
-          >
-            <span>Agendar ahora</span>
-            <span className="font-body">→</span>
-          </Link>
-          <TallerWhatsappButton />
-          <Link
-            href="/"
-            className="inline-flex items-center gap-3 whitespace-nowrap rounded border border-mBlue px-6 py-4 font-display text-base font-semibold uppercase tracking-[2.2px] text-white transition-colors hover:bg-mBlue/10"
-          >
-            Volver al inicio
-          </Link>
-        </div>
+        ))}
       </section>
 
+      <section className="px-6 py-10 sm:px-10">
+        <h2 className="mb-5 font-display text-[26px] font-bold italic uppercase leading-none text-white">Fotos y videos</h2>
+        <TallerGallery />
+      </section>
+
+      <TallerVisita />
       <SiteFooter />
     </main>
   );
