@@ -181,12 +181,6 @@ export default function ContactoPage({ searchParams }) {
                   <span>{status === "loading" ? "Agendando…" : "Agendar ahora"}</span>
                   <span className="font-body">→</span>
                 </button>
-                <Link
-                  href="/"
-                  className="font-display text-sm uppercase tracking-wide text-white/70 hover:text-white"
-                >
-                  ← Volver al inicio
-                </Link>
               </div>
               {status === "error" && (
                 <div className="text-sm text-mRed">No pudimos agendar la hora. Revisa los datos e intenta de nuevo.</div>
