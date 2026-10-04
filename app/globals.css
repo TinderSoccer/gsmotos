@@ -55,7 +55,13 @@ body {
   from { opacity: 0; transform: translateY(8px) scale(0.75); }
   to { opacity: 1; transform: none; }
 }
+/* Dos nombres iguales a propósito: SelectorPanel alterna entre ellos para
+   que la animación vuelva a correr en cada cambio de categoría. */
 @keyframes gsmTitle1 {
+  from { opacity: 0; transform: translateX(-14px); }
+  to { opacity: 1; transform: none; }
+}
+@keyframes gsmTitle2 {
   from { opacity: 0; transform: translateX(-14px); }
   to { opacity: 1; transform: none; }
 }
