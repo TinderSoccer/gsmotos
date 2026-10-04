@@ -141,7 +141,7 @@ function slideCards(frame, grid, sign) {
   return { layer, anims };
 }
 
-function ProductCarousel({ query, onQueryChange, products, pageLabel, dir, resultLabel, empty, onPrev, onNext, animClass }) {
+function ProductCarousel({ query, onQueryChange, products, pageLabel, dir, resultLabel, empty, onPrev, onNext, onPopupChange, animClass }) {
   const s = useSettings();
   const [openProduct, setOpenProduct] = useState(null);
   const gridRef = useRef(null);
@@ -178,6 +178,15 @@ function ProductCarousel({ query, onQueryChange, products, pageLabel, dir, resul
   }, [pageLabel, products, dir]);
 
   useEffect(() => () => slide.current?.layer.remove(), []);
+
+  // Con el popup de un producto abierto el carrusel no avanza (lo pausa
+  // HeroExperience), y si estaba a mitad de un cambio de página se termina
+  // al instante: la capa del riel no debe quedar sobre el popup.
+  const popupOpen = Boolean(openProduct);
+  useEffect(() => {
+    if (popupOpen) slide.current?.anims.forEach((a) => a.finish());
+    onPopupChange?.(popupOpen);
+  }, [popupOpen, onPopupChange]);
 
   return (
     <div className="flex flex-col gap-5" style={{ animation: `${animClass} 760ms cubic-bezier(0.33,0.02,0.16,1) both` }}>
@@ -297,6 +306,7 @@ export default function SelectorPanel({
   prodEmpty,
   onPrevProd,
   onNextProd,
+  onProductPopup,
   menuTitles,
   sel,
   onSelect,
@@ -344,6 +354,7 @@ export default function SelectorPanel({
           empty={prodEmpty}
           onPrev={onPrevProd}
           onNext={onNextProd}
+          onPopupChange={onProductPopup}
           animClass={animCards}
         />
       ) : (
