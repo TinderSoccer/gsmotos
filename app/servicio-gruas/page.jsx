@@ -6,14 +6,18 @@ import Link from "next/link";
 import ColorBars from "@/components/services/ColorBars";
 import SiteFooter from "@/components/SiteFooter";
 import { MobileTopBar } from "@/components/mobile/MobileNav";
+import { useState } from "react";
 import { useSettings, whatsappUrl } from "@/lib/settings";
+import { useGruasPhotos } from "@/lib/gruas";
+import SmartImage from "@/components/common/SmartImage";
+import PhotoViewer from "@/components/common/PhotoViewer";
 
 // Página estática de "Servicio de Grúas" — reemplaza al botón "Conocer más"
 // del hero (antes un anchor a #servicios). Contenido de ejemplo: el cliente
 // todavía no entregó las fotos ni el texto definitivo del servicio, así que
 // se dejan placeholders fáciles de reemplazar en cuanto lleguen:
-// - FOTOS: agregar los archivos a public/images/gruas/ y completar el
-//   array PHOTOS de abajo con { src, alt }.
+// - FOTOS: se suben desde /administracion → Grúas (ver lib/gruas.js); al
+//   tocarlas se abren en grande con su texto opcional.
 // - TEXTO/CARACTERÍSTICAS: editar INTRO y FEATURES más abajo.
 const INTRO = {
   kicker: "Servicio GSmotos",
@@ -48,11 +52,7 @@ const FEATURES = [
   },
 ];
 
-// Fotos reales de la grúa — hoy vacío (placeholder), completar con
-// { src: "/images/gruas/foto1.jpg", alt: "..." } cuando lleguen.
-const PHOTOS = [];
-
-function PhotoSlot({ photo }) {
+function PhotoSlot({ photo, onOpen }) {
   if (!photo) {
     return (
       <div className="flex h-[110px] flex-col items-center justify-center gap-1.5 rounded-xl border border-[#1E2226] bg-[repeating-linear-gradient(135deg,#14171A_0_10px,#0F1113_10px_20px)] sm:h-[130px]">
@@ -62,10 +62,19 @@ function PhotoSlot({ photo }) {
     );
   }
   return (
-    <div className="h-[110px] overflow-hidden rounded-xl border border-[#1E2226] bg-[#14171A] sm:h-[130px]">
-      {/* eslint-disable-next-line @next/next/no-img-element */}
-      <img src={photo.src} alt={photo.alt} className="block h-full w-full object-cover" />
-    </div>
+    <button
+      type="button"
+      onClick={onOpen}
+      aria-label={`Ver foto en grande${photo.caption ? `: ${photo.caption}` : ""}`}
+      className="group relative block h-[110px] cursor-zoom-in overflow-hidden rounded-xl border border-[#1E2226] bg-[#14171A] sm:h-[130px]"
+    >
+      <SmartImage
+        src={photo.photo}
+        alt={photo.caption || "Servicio de grúas GSmotos"}
+        className="transition-transform duration-500 group-hover:scale-[1.04]"
+        sizes="(max-width: 639px) 100vw, 400px"
+      />
+    </button>
   );
 }
 
@@ -74,10 +83,15 @@ export default function ServicioGruasPage() {
   // Al menos 3 recuadros de foto siempre visibles (reales si ya hay, si no
   // placeholder) para que la sección no se vea vacía mientras llegan las
   // fotos definitivas.
-  const photoSlots = PHOTOS.length ? PHOTOS : [null, null, null];
+  const photos = useGruasPhotos();
+  const photoSlots = photos.length ? photos : [null, null, null];
+  const [open, setOpen] = useState(null);
 
   return (
     <main className="flex min-h-screen flex-col bg-[#0B0B0B]">
+      {open !== null && photos[open] && (
+        <PhotoViewer photos={photos} index={open} onIndex={setOpen} onClose={() => setOpen(null)} />
+      )}
       <MobileTopBar />
 
       <div className="flex items-center gap-4 px-6 pt-6 sm:px-10">
@@ -98,7 +112,7 @@ export default function ServicioGruasPage() {
 
       <div className="grid grid-cols-1 gap-3 px-6 py-4 sm:grid-cols-3 sm:px-10">
         {photoSlots.map((photo, i) => (
-          <PhotoSlot key={photo?.src ?? i} photo={photo} />
+          <PhotoSlot key={photo?.id ?? i} photo={photo} onOpen={() => setOpen(i)} />
         ))}
       </div>
 

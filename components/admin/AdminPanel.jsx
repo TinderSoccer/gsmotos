@@ -27,6 +27,7 @@ import { setLogo, setLogoOnLight, useLogo, useLogoOnLight } from "@/lib/logo";
 import { formatCLP, resetProductos, useProductos, writeProductos } from "@/lib/catalogo";
 import { PLACEHOLDER_PHOTO } from "@/lib/productosData";
 import { resetTallerItems, useTallerItems, writeTallerItems } from "@/lib/taller";
+import { useGruasPhotos, writeGruasPhotos } from "@/lib/gruas";
 import { menus } from "@/lib/servicesData";
 import { resetServicePhotos, servicePhotoKey, setServicePhoto, useServicePhotos } from "@/lib/servicePhotos";
 import { NEUMATICOS_PHOTO_SLOTS, NEUMATICOS_SERVICIOS, NEUMATICOS_USOS } from "@/lib/neumaticosContent";
@@ -1223,6 +1224,115 @@ function TallerTab() {
   );
 }
 
+// Fotos de la página "Servicio de grúas" (ver lib/gruas.js). Mismo
+// tamaño de recuadro que en la web; cada foto tiene un texto opcional que
+// aparece al abrirla en grande.
+function GruasTab() {
+  const items = useGruasPhotos();
+
+  function save(next, okMsg) {
+    return warnIfFailed(writeGruasPhotos(next), okMsg);
+  }
+
+  function patch(id, changes) {
+    save(items.map((it) => (it.id === id ? { ...it, ...changes } : it)));
+  }
+
+  async function addPhoto(ev) {
+    const url = await readAndUpload(ev, { maxSize: 1600, quality: 0.85 });
+    if (url) save([...items, { id: `grua-${Date.now()}`, photo: url, caption: "" }]);
+  }
+
+  async function replacePhoto(id, ev) {
+    const url = await readAndUpload(ev, { maxSize: 1600, quality: 0.85 });
+    if (url) patch(id, { photo: url });
+  }
+
+  function move(index, dir) {
+    const to = index + dir;
+    if (to < 0 || to >= items.length) return;
+    const next = [...items];
+    [next[index], next[to]] = [next[to], next[index]];
+    save(next);
+  }
+
+  return (
+    <>
+      <div className="flex flex-wrap items-end justify-between gap-8 px-6 pb-5 pt-11 sm:px-10">
+        <div className="flex flex-col gap-2.5">
+          <h1 className="font-display text-[32px] font-bold italic uppercase leading-none text-[#0B0B0B] sm:text-4xl">
+            Fotos de Grúas
+          </h1>
+          <p className="max-w-xl text-[15.5px] leading-[1.6] text-[#5A5A5A]">
+            Las fotos de la página &ldquo;Servicio de grúas&rdquo;. En la web, al tocar una foto se abre en grande;
+            si le escribes un texto, aparece debajo. Mientras no subas ninguna, la página muestra recuadros de
+            &ldquo;Foto próximamente&rdquo;.
+          </p>
+          <SeeOnSite href="/servicio-gruas" />
+        </div>
+        <div className="flex flex-col items-end gap-0.5">
+          <div className="font-display text-[32px] font-bold italic leading-none text-mBlue">{items.length}</div>
+          <div className="font-display text-[13px] uppercase tracking-[2px] text-[#8A8A8A]">Fotos</div>
+        </div>
+      </div>
+
+      <div className="px-6 pb-14 sm:px-10">
+        <SitePanel>
+          <TapHint dark />
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+            {items.map((item, index) => (
+              <div key={item.id} className="flex flex-col overflow-hidden rounded-xl border border-[#1E2226] bg-[#0B0D0F]">
+                <PhotoPicker onFile={(ev) => replacePhoto(item.id, ev)} className="h-[130px] overflow-hidden bg-[#14171A]">
+                  <SmartImage src={item.photo} alt={item.caption || "Foto de grúas"} sizes="400px" />
+                </PhotoPicker>
+                <textarea
+                  rows={2}
+                  value={item.caption || ""}
+                  onChange={(ev) => patch(item.id, { caption: ev.target.value })}
+                  placeholder="Texto al abrir la foto (opcional)"
+                  className="w-full resize-none border-0 border-t border-[#1E2226] bg-transparent px-4 py-3 text-sm text-[#C3C9CE] outline-none placeholder:text-[#5E666D] focus:bg-white/[0.04]"
+                />
+                <div className="flex items-center gap-2 border-t border-[#1E2226] px-3 py-2.5">
+                  <div className="flex items-center gap-1">
+                    {[
+                      { dir: -1, label: "Mover antes", Icon: ChevronLeft, disabled: index === 0 },
+                      { dir: 1, label: "Mover después", Icon: ChevronRight, disabled: index === items.length - 1 },
+                    ].map(({ dir, label, Icon, disabled }) => (
+                      <button
+                        key={dir}
+                        type="button"
+                        onClick={() => move(index, dir)}
+                        disabled={disabled}
+                        aria-label={label}
+                        title={label}
+                        className="flex h-8 w-8 items-center justify-center rounded-md border border-[#2E3A45] text-[#B9C0C7] transition-colors enabled:hover:border-mCyan enabled:hover:text-mCyan disabled:opacity-30"
+                      >
+                        <Icon size={16} />
+                      </button>
+                    ))}
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => confirmar("¿Eliminar esta foto? No se puede deshacer.") && save(items.filter((it) => it.id !== item.id))}
+                    className="ml-auto px-1.5 py-1.5 font-display text-[12px] font-semibold uppercase tracking-wide text-[#8A939B] transition-colors hover:text-mRed"
+                  >
+                    Eliminar
+                  </button>
+                </div>
+              </div>
+            ))}
+            <label className="flex h-[130px] cursor-pointer flex-col items-center justify-center gap-2 rounded-xl border-2 border-dashed border-[#2E3A45] text-[#8FC2E6] transition-colors hover:border-mCyan hover:text-mCyan">
+              <Camera size={28} strokeWidth={1.6} />
+              <span className="font-display text-sm font-semibold uppercase tracking-wide">Agregar foto</span>
+              <input type="file" accept="image/*" className="hidden" onChange={addPhoto} />
+            </label>
+          </div>
+        </SitePanel>
+      </div>
+    </>
+  );
+}
+
 function Field({ label, value, onChange, placeholder, hint, type = "text" }) {
   return (
     <label className="flex flex-col gap-1.5 text-sm text-[#3A3A3A]">
@@ -1431,6 +1541,7 @@ const TABS = {
   neumaticos: NeumaticosTab,
   prods: ProductosTab,
   taller: TallerTab,
+  gruas: GruasTab,
   contacto: ContactoTab,
   general: GeneralTab,
 };
@@ -1514,6 +1625,9 @@ export default function AdminPanel() {
         </Tab>
         <Tab active={tab === "taller"} onClick={() => setTab("taller")}>
           Taller
+        </Tab>
+        <Tab active={tab === "gruas"} onClick={() => setTab("gruas")}>
+          Grúas
         </Tab>
         <Tab active={tab === "contacto"} onClick={() => setTab("contacto")}>
           Contacto
