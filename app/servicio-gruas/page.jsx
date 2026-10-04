@@ -20,7 +20,6 @@ import PhotoViewer from "@/components/common/PhotoViewer";
 //   tocarlas se abren en grande con su texto opcional.
 // - TEXTO/CARACTERÍSTICAS: editar INTRO y FEATURES más abajo.
 const INTRO = {
-  kicker: "Servicio GSmotos",
   title: "Servicio de grúas",
   lead: "Traslado seguro de tu moto cuando no puede rodar por sus propios medios.",
   // Vacío hasta que el cliente entregue la descripción definitiva del
@@ -105,7 +104,6 @@ export default function ServicioGruasPage() {
       </div>
 
       <div className="flex flex-col gap-2 px-6 pt-3 sm:px-10">
-        <div className="font-display text-[12px] uppercase tracking-[2px] text-[#7A838C]">{INTRO.kicker}</div>
         <div className="max-w-2xl font-display text-xl font-bold italic uppercase leading-[1.1] text-white sm:text-[24px]">
           {INTRO.lead}
         </div>

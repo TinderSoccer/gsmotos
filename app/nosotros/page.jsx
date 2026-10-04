@@ -24,10 +24,6 @@ function Section({ card }) {
         <div className="pointer-events-none absolute inset-0" style={{ background: "linear-gradient(180deg, rgba(5,5,5,0.10) 0%, rgba(5,5,5,0.55) 100%)" }} />
       </div>
       <div className="flex flex-col gap-3">
-        <div className="flex items-center gap-3">
-          <ColorBars />
-          <span className="font-display text-sm uppercase tracking-[2.2px] text-[#D6DADE]">{card.kicker}</span>
-        </div>
         <h2 className="font-display text-[30px] font-bold italic uppercase leading-tight text-white">{card.title}</h2>
         <div className="font-display text-lg italic text-mCyan">{card.lead}</div>
         <p className="text-[15px] leading-relaxed text-[#C3C9CE]">{card.long}</p>
@@ -61,8 +57,7 @@ export default function NosotrosPage() {
           className="group flex flex-col gap-3 rounded-xl border border-[#1E2226] bg-white/[0.02] p-8 transition-colors hover:border-mCyan sm:flex-row sm:items-center sm:justify-between"
         >
           <div>
-            <div className="font-display text-sm uppercase tracking-[2.2px] text-[#D6DADE]">{taller.kicker}</div>
-            <div className="mt-1 font-display text-2xl font-bold italic uppercase text-white">{taller.title}</div>
+            <div className="font-display text-2xl font-bold italic uppercase text-white">{taller.title}</div>
             <p className="mt-1.5 max-w-xl text-[14.5px] leading-relaxed text-[#B9C0C7]">{taller.desc}</p>
           </div>
           <div className="flex items-center gap-2.5 font-display text-sm uppercase tracking-wide text-mCyan">
@@ -78,8 +73,7 @@ export default function NosotrosPage() {
           className="group flex flex-col gap-3 rounded-xl border border-[#1E2226] bg-white/[0.02] p-8 transition-colors hover:border-mCyan sm:flex-row sm:items-center sm:justify-between"
         >
           <div>
-            <div className="font-display text-sm uppercase tracking-[2.2px] text-[#D6DADE]">{christopher.kicker}</div>
-            <div className="mt-1 font-display text-2xl font-bold italic uppercase text-white">{christopher.title}</div>
+            <div className="font-display text-2xl font-bold italic uppercase text-white">{christopher.title}</div>
             <p className="mt-1.5 max-w-xl text-[14.5px] leading-relaxed text-[#B9C0C7]">{christopher.desc}</p>
           </div>
           <div className="flex items-center gap-2.5 font-display text-sm uppercase tracking-wide text-mCyan">

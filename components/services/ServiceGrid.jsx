@@ -2,7 +2,6 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import ColorBars from "./ColorBars";
 import ServiceDetailModal from "./ServiceDetailModal";
 import { servicePhotoKey, useServicePhotos } from "@/lib/servicePhotos";
 import SmartImage from "@/components/common/SmartImage";
@@ -28,22 +27,10 @@ export default function ServiceGrid({ cards, animClass }) {
             <>
               <SmartImage src={photo} alt={card.title} className="brightness-125" sizes="(max-width: 639px) 50vw, (max-width: 1023px) 33vw, 420px" />
               <div className="pointer-events-none absolute inset-0" style={{ background: "linear-gradient(180deg, rgba(5,5,5,0.10) 0%, rgba(5,5,5,0.58) 34%, rgba(5,5,5,0.90) 62%, rgba(5,5,5,0.96) 100%)" }} />
-              <div className="relative flex min-h-[168px] flex-col justify-between gap-2 px-3 pb-3.5 pt-3 sm:min-h-[320px] sm:justify-end sm:gap-3 sm:px-6 sm:pb-6 sm:pt-6">
-                <div className="hidden items-center gap-3 sm:flex">
-                  <ColorBars />
-                  <span className="whitespace-nowrap font-display text-sm uppercase tracking-[2.2px] text-[#D6DADE]">{card.kicker}</span>
-                  {card.kicker?.includes("BMW") && (
-                    // eslint-disable-next-line @next/next/no-img-element
-                    <img src="/images/marcas/bmw.svg" alt="BMW" className="h-5 w-5 flex-none" />
-                  )}
-                </div>
-                <span className="flex items-center gap-1.5 font-display text-[10.5px] uppercase tracking-[1.8px] text-[#C3C9CE] sm:hidden">
-                  {card.kicker?.includes("BMW") && (
-                    // eslint-disable-next-line @next/next/no-img-element
-                    <img src="/images/marcas/bmw.svg" alt="BMW" className="h-3.5 w-3.5 flex-none" />
-                  )}
-                  {card.kicker}
-                </span>
+              <div className="relative flex min-h-[168px] flex-col justify-end gap-2 px-3 pb-3.5 pt-3 sm:min-h-[320px] sm:gap-3 sm:px-6 sm:pb-6 sm:pt-6">
+                {/* Sin etiqueta de categoría ("Servicio BMW Motorrad") en cada
+                    tarjeta: la repetía igual en todas y el título de la
+                    sección ya lo dice. */}
                 <div className="font-display text-[17px] font-bold italic uppercase leading-tight text-white sm:text-[29px]">{card.title}</div>
                 <p className="hidden max-w-[330px] text-[14.5px] leading-relaxed text-[#B9C0C7] sm:block">{card.desc}</p>
                 <div className="mt-1 hidden items-center gap-2.5 font-display text-sm uppercase tracking-wide text-mCyan sm:flex">
