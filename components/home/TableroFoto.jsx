@@ -5,7 +5,7 @@
 // tablero BMW, portada del diseño actualizado de Claude Design. Las 5 filas
 // de menú del tablero son zonas clicables superpuestas (mismas posiciones en
 // % que el diseño), con un pequeño feedback sonoro al hacer clic.
-import { useCallback, useEffect, useRef } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import Image from "next/image";
 
 const MENU_LABELS = [
@@ -22,10 +22,21 @@ const MENU_LABELS = [
 // ~30px, chicas para el dedo) y se ve el tablero entero.
 const CROP = { x0: 6, x1: 94, y0: 6, y1: 92 };
 const PHOTO_W = 1148;
+
+// El encendido (ver .tft-boot en globals.css) se ve una sola vez por carga
+// de página: si se vuelve a la home navegando dentro del sitio, el tablero
+// ya aparece encendido. En el servidor siempre parte en `true`, igual que
+// en el primer render del navegador, así que no hay diferencias al
+// hidratar.
+let bootDone = false;
 const PHOTO_H = 928;
 
 export default function TableroFoto({ onSelect, fluid = false, width = 440, crop = false }) {
   const audioRef = useRef(null);
+  const [boot] = useState(() => !bootDone);
+  useEffect(() => {
+    bootDone = true;
+  }, []);
 
   const getAudio = useCallback(() => {
     if (typeof window === "undefined") return null;
@@ -89,7 +100,8 @@ export default function TableroFoto({ onSelect, fluid = false, width = 440, crop
           <span
             className={`flex-1 truncate font-display font-medium uppercase leading-[1.1] tracking-wide text-[#F2F4F6] transition-colors duration-200 group-hover:text-white group-hover:[text-shadow:0_0_10px_rgba(78,154,209,0.95),0_0_22px_rgba(78,154,209,0.55)] ${
               crop ? "text-[15px]" : "text-[13px]"
-            }`}
+            } ${boot ? "tft-boot-row" : ""}`}
+            style={boot ? { animationDelay: `${430 + i * 70}ms` } : undefined}
           >
             {label}
           </span>
@@ -119,7 +131,7 @@ export default function TableroFoto({ onSelect, fluid = false, width = 440, crop
             height={PHOTO_H}
             priority
             sizes="140vw"
-            className="block h-auto w-full"
+            className={`block h-auto w-full ${boot ? "tft-boot" : ""}`}
           />
           {menu}
         </div>
@@ -136,7 +148,7 @@ export default function TableroFoto({ onSelect, fluid = false, width = 440, crop
         height={PHOTO_H}
         priority
         sizes="(max-width: 1023px) 92vw, 440px"
-        className="block h-auto w-full"
+        className={`block h-auto w-full ${boot ? "tft-boot" : ""}`}
         style={{
           WebkitMaskImage:
             "radial-gradient(115% 112% at 50% 46%, #000 60%, rgba(0,0,0,0.9) 76%, rgba(0,0,0,0.35) 90%, rgba(0,0,0,0) 100%)",

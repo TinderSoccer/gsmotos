@@ -105,6 +105,27 @@ body {
   to { opacity: 1; transform: none; }
 }
 
+/* Encendido del tablero del hero (TableroFoto.jsx): la pantalla parte
+   casi apagada, parpadea la luz de fondo como un TFT al girar la llave y
+   después las 5 filas del menú se encienden de arriba hacia abajo. Solo
+   con movimiento permitido: con "reducir movimiento" el tablero aparece
+   encendido de una. */
+@keyframes gsmTftOn {
+  0%, 28% { filter: brightness(0.14); }
+  33% { filter: brightness(0.95); }
+  37% { filter: brightness(0.35); }
+  44% { filter: brightness(1.12); }
+  100% { filter: brightness(1); }
+}
+@keyframes gsmTftRow {
+  from { opacity: 0; transform: translateX(-6px); }
+  to { opacity: 1; transform: none; }
+}
+@media (prefers-reduced-motion: no-preference) {
+  .tft-boot { animation: gsmTftOn 900ms linear both; }
+  .tft-boot-row { animation: gsmTftRow 260ms cubic-bezier(0.22, 0.61, 0.36, 1) both; }
+}
+
 /* "Reducir movimiento" (ajuste del teléfono o computador): las mismas
    animaciones, pero solo con fundido — sin desplazamientos, escalas ni el
    brillo que se repite. Los keyframes definidos acá reemplazan a los de
