@@ -53,10 +53,13 @@ const FEATURES = [
   },
 ];
 
-function PhotoSlot({ photo, onOpen }) {
+// En escritorio la primera foto va grande (a lo ancho de la columna) y el
+// resto de a dos debajo; en el celular todas iguales, una bajo otra.
+function PhotoSlot({ photo, onOpen, first }) {
+  const size = first ? "h-[110px] sm:h-[130px] lg:col-span-2 lg:h-[300px]" : "h-[110px] sm:h-[130px] lg:h-[150px]";
   if (!photo) {
     return (
-      <div className="flex h-[110px] flex-col items-center justify-center gap-1.5 rounded-xl border border-[#1E2226] bg-[repeating-linear-gradient(135deg,#14171A_0_10px,#0F1113_10px_20px)] sm:h-[130px]">
+      <div className={`flex flex-col items-center justify-center gap-1.5 rounded-xl border border-[#1E2226] bg-[repeating-linear-gradient(135deg,#14171A_0_10px,#0F1113_10px_20px)] ${size}`}>
         <ImageOff size={22} strokeWidth={1.4} className="text-[#4A5058]" />
         <span className="font-display text-[10px] uppercase tracking-[2px] text-[#5C636B]">Foto próximamente</span>
       </div>
@@ -67,13 +70,13 @@ function PhotoSlot({ photo, onOpen }) {
       type="button"
       onClick={onOpen}
       aria-label={`Ver foto en grande${photo.caption ? `: ${photo.caption}` : ""}`}
-      className="group relative block h-[110px] cursor-zoom-in overflow-hidden rounded-xl border border-[#1E2226] bg-[#14171A] sm:h-[130px]"
+      className={`group relative block cursor-zoom-in overflow-hidden rounded-xl border border-[#1E2226] bg-[#14171A] ${size}`}
     >
       <SmartImage
         src={photo.photo}
         alt={photo.caption || "Servicio de grúas GSmotos"}
         className="transition-transform duration-500 group-hover:scale-[1.04]"
-        sizes="(max-width: 639px) 100vw, 400px"
+        sizes={first ? "(max-width: 639px) 100vw, (max-width: 1023px) 400px, 640px" : "(max-width: 639px) 100vw, 400px"}
       />
     </button>
   );
@@ -103,29 +106,35 @@ export default function ServicioGruasPage() {
         </div>
       </div>
 
-      <div className="flex flex-col gap-2 px-6 pt-3 sm:px-10">
-        <div className="max-w-2xl font-display text-xl font-bold italic uppercase leading-[1.1] text-white sm:text-[24px]">
-          {INTRO.lead}
+      {/* Celular: texto, fotos y "Qué incluye", uno bajo otro. Escritorio:
+          dos columnas, con el texto y "Qué incluye" a la izquierda y las
+          fotos a la derecha (antes todo quedaba arriba a la izquierda, con
+          las fotos chicas y mucho espacio vacío). */}
+      <div className="grid grid-cols-1 gap-x-10 gap-y-4 px-6 pb-6 pt-3 sm:px-10 lg:grid-cols-2 lg:grid-rows-[auto_1fr] lg:pt-6">
+        <div className="flex flex-col gap-2 lg:col-start-1">
+          <div className="max-w-2xl font-display text-xl font-bold italic uppercase leading-[1.1] text-white sm:text-[24px]">
+            {INTRO.lead}
+          </div>
+          {INTRO.body && <p className="max-w-2xl text-sm leading-[1.5] text-[#B9C0C7]">{INTRO.body}</p>}
         </div>
-        {INTRO.body && <p className="max-w-2xl text-sm leading-[1.5] text-[#B9C0C7]">{INTRO.body}</p>}
-      </div>
 
-      <div className="grid grid-cols-1 gap-3 px-6 py-4 sm:grid-cols-3 sm:px-10">
-        {photoSlots.map((photo, i) => (
-          <PhotoSlot key={photo?.id ?? i} photo={photo} onOpen={() => setOpen(i)} />
-        ))}
-      </div>
-
-      <div className="px-6 pb-4 sm:px-10">
-        <div className="mb-3 font-display text-base font-bold uppercase tracking-wide text-white">Qué incluye</div>
-        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
-          {FEATURES.map(({ Icon, title, desc }) => (
-            <div key={title} className="flex flex-col gap-1.5 rounded-xl border border-[#1E2226] bg-white/[0.02] p-3.5">
-              <Icon size={20} strokeWidth={1.6} className="text-mCyan" />
-              <div className="font-display text-sm font-semibold uppercase leading-tight text-white">{title}</div>
-              <p className="text-[12px] leading-snug text-[#B9C0C7]">{desc}</p>
-            </div>
+        <div className="grid grid-cols-1 gap-3 sm:grid-cols-3 lg:col-start-2 lg:row-span-2 lg:row-start-1 lg:grid-cols-2 lg:content-start">
+          {photoSlots.map((photo, i) => (
+            <PhotoSlot key={photo?.id ?? i} photo={photo} first={i === 0} onOpen={() => setOpen(i)} />
           ))}
+        </div>
+
+        <div className="lg:col-start-1">
+          <div className="mb-3 font-display text-base font-bold uppercase tracking-wide text-white">Qué incluye</div>
+          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+            {FEATURES.map(({ Icon, title, desc }) => (
+              <div key={title} className="flex flex-col gap-1.5 rounded-xl border border-[#1E2226] bg-white/[0.02] p-3.5">
+                <Icon size={20} strokeWidth={1.6} className="text-mCyan" />
+                <div className="font-display text-sm font-semibold uppercase leading-tight text-white">{title}</div>
+                <p className="text-[12px] leading-snug text-[#B9C0C7]">{desc}</p>
+              </div>
+            ))}
+          </div>
         </div>
       </div>
 
