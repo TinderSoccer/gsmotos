@@ -14,7 +14,7 @@
 // Todo se guarda en el servidor (ver lib/contentStore.js): las fotos se
 // suben a Vercel Blob y los datos a Redis, así que lo ven todos los
 // visitantes, no solo el navegador de quien edita.
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import Logo from "@/components/Logo";
 import { useRouter } from "next/navigation";
@@ -917,16 +917,29 @@ const PRODUCTS_PAGE_SIZE = 20;
 // Filtros de la lista de productos, con su conteo: sirven sobre todo para
 // encontrar lo que falta completar (sin foto, sin modelo, sin código…) sin
 // recorrer las 10 páginas del catálogo.
+// `campo`: el dato que falta; con ese filtro activo, el campo se marca en
+// rojo y en el celular las filas se abren solas para completarlo.
 const PRODUCT_FILTERS = [
   { id: "todos", label: "Todos", test: () => true },
-  { id: "usados", label: "Usados", test: (p) => p.estado === "usado" },
-  { id: "nuevos", label: "Nuevos", test: (p) => (p.estado || "nuevo") === "nuevo" },
+  { id: "usados", label: "Usados", one: "usado", many: "usados", test: (p) => p.estado === "usado" },
+  { id: "nuevos", label: "Nuevos", one: "nuevo", many: "nuevos", test: (p) => (p.estado || "nuevo") === "nuevo" },
   { id: "sinfoto", label: "Sin foto", test: (p) => !p.photo || p.photo === PLACEHOLDER_PHOTO, falta: true },
-  { id: "sinmodelo", label: "Sin modelo", test: (p) => !p.aplicacion?.trim(), falta: true },
-  { id: "sincodigo", label: "Sin código", test: (p) => !p.codigo?.trim(), falta: true },
-  { id: "sinprecio", label: "Sin precio", test: (p) => !(p.price > 0), falta: true },
-  { id: "sinstock", label: "Sin stock", test: (p) => !(p.stock > 0), falta: true },
+  { id: "sinmodelo", label: "Sin modelo", test: (p) => !p.aplicacion?.trim(), falta: true, campo: "aplicacion" },
+  { id: "sincodigo", label: "Sin código", test: (p) => !p.codigo?.trim(), falta: true, campo: "codigo" },
+  { id: "sinprecio", label: "Sin precio", test: (p) => !(p.price > 0), falta: true, campo: "price" },
+  { id: "sinstock", label: "Sin stock", test: (p) => !(p.stock > 0), falta: true, campo: "stock" },
 ];
+
+// "71 productos sin foto", "1 producto usado", "184 productos".
+function resultLabel(f, n) {
+  const noun = n === 1 ? "producto" : "productos";
+  if (f.id === "todos") return `${n} ${noun}`;
+  return `${n} ${noun} ${f.one ? (n === 1 ? f.one : f.many) : f.label.toLowerCase()}`;
+}
+
+// Marca en rojo el campo que le falta a un producto cuando se está viendo
+// el filtro de ese dato.
+const MISSING = "ring-2 ring-mRed/70";
 
 function ProductosTab() {
   const products = useProductos();
@@ -937,6 +950,7 @@ function ProductosTab() {
   // En el celular cada producto se muestra cerrado (foto, nombre, precio) y
   // "Editar datos" abre el resto; en computador siempre va todo abierto.
   const [openRow, setOpenRow] = useState(null);
+  const listTopRef = useRef(null);
   const activeFilter = PRODUCT_FILTERS.find((f) => f.id === filter) || PRODUCT_FILTERS[0];
 
   // Guarda el índice real en el array completo junto a cada producto —
@@ -1041,6 +1055,12 @@ function ProductosTab() {
                 onClick={() => {
                   setFilter(f.id);
                   setPage(0);
+                  setOpenRow(null);
+                  // En el celular la lista queda bajo los filtros, casi fuera
+                  // de la pantalla: se baja hasta los resultados.
+                  if (window.innerWidth < 640) {
+                    requestAnimationFrame(() => listTopRef.current?.scrollIntoView({ behavior: "smooth", block: "start" }));
+                  }
                 }}
                 className={`inline-flex flex-none items-center gap-2 rounded-full border px-3.5 py-2 font-display text-[13px] font-semibold uppercase tracking-wide transition-colors ${
                   on ? "border-[#0B0B0B] bg-[#0B0B0B] text-white" : "border-[#D6D6D6] bg-white text-[#3A3A3A] hover:border-[#0B0B0B]"
@@ -1060,7 +1080,29 @@ function ProductosTab() {
         </div>
       </div>
 
-      <div className="flex flex-col gap-3 px-6 pb-5 sm:px-10">
+      <div ref={listTopRef} className="flex scroll-mt-3 items-center justify-between gap-3 px-6 pb-3 sm:px-10">
+        <div className="font-display text-base font-semibold uppercase tracking-wide text-[#0B0B0B]" aria-live="polite">
+          {resultLabel(activeFilter, filtered.length)}
+          {query && <span className="text-[#8A8A8A]"> · con &ldquo;{query}&rdquo;</span>}
+        </div>
+        {(filter !== "todos" || query) && (
+          <button
+            type="button"
+            onClick={() => {
+              setFilter("todos");
+              handleQueryChange("");
+            }}
+            className="whitespace-nowrap font-display text-sm font-semibold uppercase tracking-wide text-mBlue hover:text-mCyan"
+          >
+            Ver todos
+          </button>
+        )}
+      </div>
+
+      {/* El fundido corto al cambiar de filtro o de página deja claro que la
+          lista cambió (sin él, varios filtros empiezan con los mismos
+          productos y parecía que no pasaba nada). */}
+      <div key={`${filter}|${query}|${pageSafe}`} className="flex flex-col gap-3 px-6 pb-5 sm:px-10" style={{ animation: "gsmBack 240ms ease both" }}>
         {pageItems.length === 0 && (
           <div className="rounded-xl border border-dashed border-[#D6D6D6] bg-white px-5 py-10 text-center font-display text-sm uppercase tracking-wide text-[#9A9A9A]">
             {query
@@ -1097,7 +1139,9 @@ function ProductosTab() {
                   type="button"
                   aria-expanded={openRow === i}
                   onClick={() => setOpenRow(openRow === i ? null : i)}
-                  className="flex min-h-9 items-center gap-1 rounded px-1.5 font-display text-[13px] font-semibold uppercase tracking-wide text-mBlue sm:hidden"
+                  className={`min-h-9 items-center gap-1 rounded px-1.5 font-display text-[13px] font-semibold uppercase tracking-wide text-mBlue sm:hidden ${
+                    activeFilter.campo ? "hidden" : "flex"
+                  }`}
                 >
                   {openRow === i ? "Cerrar" : "Editar datos"}
                   <ChevronRight size={15} className={`transition-transform ${openRow === i ? "-rotate-90" : "rotate-90"}`} />
@@ -1107,7 +1151,7 @@ function ProductosTab() {
 
             <div
               className={`col-span-2 grid-cols-2 gap-2 sm:col-span-1 sm:col-start-2 sm:row-start-2 sm:flex sm:flex-wrap sm:gap-2.5 ${
-                openRow === i ? "grid" : "hidden"
+                openRow === i || activeFilter.campo ? "grid" : "hidden"
               }`}
             >
               <input
@@ -1125,7 +1169,7 @@ function ProductosTab() {
                   min="0"
                   value={prod.price ?? 0}
                   onChange={(ev) => patch(i, { price: Number(ev.target.value) || 0 })}
-                  className="min-w-0 flex-1 rounded-md border border-[#E0E0E0] bg-[#FBFBFB] px-3 py-2 font-display text-sm text-[#0B0B0B] outline-none focus:border-mCyan sm:w-[110px] sm:flex-none"
+                  className={`${activeFilter.campo === "price" && !(prod.price > 0) ? MISSING : ""} min-w-0 flex-1 rounded-md border border-[#E0E0E0] bg-[#FBFBFB] px-3 py-2 font-display text-sm text-[#0B0B0B] outline-none focus:border-mCyan sm:w-[110px] sm:flex-none`}
                 />
               </label>
               <label className="flex items-center gap-1.5 text-xs uppercase tracking-wide text-[#8A8A8A]">
@@ -1135,7 +1179,7 @@ function ProductosTab() {
                   min="0"
                   value={prod.stock ?? 0}
                   onChange={(ev) => patch(i, { stock: Number(ev.target.value) || 0 })}
-                  className="min-w-0 flex-1 rounded-md border border-[#E0E0E0] bg-[#FBFBFB] px-3 py-2 font-display text-sm text-[#0B0B0B] outline-none focus:border-mCyan sm:w-[70px] sm:flex-none"
+                  className={`${activeFilter.campo === "stock" && !(prod.stock > 0) ? MISSING : ""} min-w-0 flex-1 rounded-md border border-[#E0E0E0] bg-[#FBFBFB] px-3 py-2 font-display text-sm text-[#0B0B0B] outline-none focus:border-mCyan sm:w-[70px] sm:flex-none`}
                 />
               </label>
               {/* "Sirve para" y el código son lo que distingue piezas con el
@@ -1147,7 +1191,7 @@ function ProductosTab() {
                   value={prod.aplicacion || ""}
                   onChange={(ev) => patch(i, { aplicacion: ev.target.value })}
                   placeholder="Ej. K50/K51"
-                  className="min-w-0 flex-1 rounded-md border border-[#E0E0E0] bg-[#FBFBFB] px-3 py-2 font-display text-sm text-[#0B0B0B] outline-none focus:border-mCyan normal-case sm:w-[150px] sm:flex-none"
+                  className={`${activeFilter.campo === "aplicacion" && !prod.aplicacion?.trim() ? MISSING : ""} min-w-0 flex-1 rounded-md border border-[#E0E0E0] bg-[#FBFBFB] px-3 py-2 font-display text-sm text-[#0B0B0B] outline-none focus:border-mCyan normal-case sm:w-[150px] sm:flex-none`}
                 />
               </label>
               <label className="col-span-2 flex items-center gap-1.5 text-xs uppercase tracking-wide text-[#8A8A8A]">
@@ -1157,7 +1201,7 @@ function ProductosTab() {
                   value={prod.codigo || ""}
                   onChange={(ev) => patch(i, { codigo: ev.target.value })}
                   placeholder="Ej. 46 63 8 556 654"
-                  className="min-w-0 flex-1 rounded-md border border-[#E0E0E0] bg-[#FBFBFB] px-3 py-2 font-display text-sm text-[#0B0B0B] outline-none focus:border-mCyan normal-case tabular-nums sm:w-[170px] sm:flex-none"
+                  className={`${activeFilter.campo === "codigo" && !prod.codigo?.trim() ? MISSING : ""} min-w-0 flex-1 rounded-md border border-[#E0E0E0] bg-[#FBFBFB] px-3 py-2 font-display text-sm text-[#0B0B0B] outline-none focus:border-mCyan normal-case tabular-nums sm:w-[170px] sm:flex-none`}
                 />
               </label>
               <div className="flex overflow-hidden rounded-md border border-[#E0E0E0]" role="group" aria-label="Estado">
