@@ -47,7 +47,7 @@ export default function ChristopherPage() {
           <Link
             href="/"
             aria-label="Volver al inicio"
-            className="inline-flex items-center gap-3.5 rounded border border-white/40 bg-black/40 px-3 py-2 font-display text-[12px] font-semibold uppercase tracking-[2.2px] text-white transition-colors hover:border-mBlue hover:bg-mBlue sm:px-5 sm:py-3 sm:text-sm"
+            className="inline-flex items-center gap-3.5 rounded border border-white/40 bg-black/60 px-3 py-2 font-display text-[12px] font-semibold uppercase tracking-[2.2px] text-white transition-colors hover:border-mBlue hover:bg-mBlue sm:px-5 sm:py-3 sm:text-sm"
           >
             <span className="font-body">←</span>
             <span className="sm:hidden">Inicio</span>
@@ -101,7 +101,7 @@ export default function ChristopherPage() {
         </div>
 
         <div className="flex flex-col gap-3.5 rounded-xl border border-[#E4E4E4] bg-white px-[30px] pb-[30px] pt-7">
-          <div className="font-display text-sm uppercase tracking-[2.4px] text-[#8A8A8A]">Trayectoria</div>
+          <div className="font-display text-sm uppercase tracking-[2.4px] text-[#707070]">Trayectoria</div>
           <div className="flex flex-col">
             {TRAYECTORIA.map((item, i) => (
               <div
@@ -158,7 +158,7 @@ export default function ChristopherPage() {
           <h2 className="font-display text-[28px] font-bold italic uppercase leading-none text-[#0B0B0B] sm:text-[32px]">
             Certificados y formación
           </h2>
-          <div className="font-display text-sm uppercase tracking-[2px] text-[#8A8A8A] sm:text-base">
+          <div className="font-display text-sm uppercase tracking-[2px] text-[#707070] sm:text-base">
             Respaldo verificable
           </div>
         </div>
