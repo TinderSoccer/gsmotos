@@ -34,7 +34,7 @@ export default function ServiceDetailContent({ card, backHref, backLabel }) {
 
       <div className="mx-auto flex max-w-3xl flex-col gap-5 px-6 py-10 sm:px-10">
         {backHref && (
-          <Link href={backHref} className="w-fit font-display text-sm uppercase tracking-wide text-mCyan hover:text-mCyan/80">
+          <Link href={backHref} className="-my-3 inline-flex min-h-11 w-fit items-center font-display text-sm uppercase tracking-wide text-mCyan hover:text-mCyan/80">
             ← {backLabel}
           </Link>
         )}

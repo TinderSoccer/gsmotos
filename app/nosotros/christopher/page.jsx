@@ -47,7 +47,7 @@ export default function ChristopherPage() {
           <Link
             href="/"
             aria-label="Volver al inicio"
-            className="inline-flex items-center gap-3.5 rounded border border-white/40 bg-black/60 px-3 py-2 font-display text-[12px] font-semibold uppercase tracking-[2.2px] text-white transition-colors hover:border-mBlue hover:bg-mBlue sm:px-5 sm:py-3 sm:text-sm"
+            className="inline-flex min-h-11 items-center gap-3.5 rounded border border-white/40 bg-black/60 px-3 py-2 font-display text-[12px] font-semibold uppercase tracking-[2.2px] text-white transition-colors hover:border-mBlue hover:bg-mBlue sm:px-5 sm:py-3 sm:text-sm"
           >
             <span className="font-body">←</span>
             <span className="sm:hidden">Inicio</span>

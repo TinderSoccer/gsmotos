@@ -134,7 +134,7 @@ export default function HeroBanner({ onSelect }) {
             href="/nosotros/christopher#certificados"
             title="Ver certificados"
             aria-label="Ver certificados"
-            className="flex-none transition-transform hover:scale-105"
+            className="flex min-h-11 min-w-11 flex-none items-center justify-center transition-transform hover:scale-105"
           >
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img src="/images/badges/liston-oro.svg" alt="Certificados" className="h-11 w-auto drop-shadow-[0_2px_4px_rgba(0,0,0,0.5)]" />

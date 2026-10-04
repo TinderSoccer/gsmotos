@@ -92,13 +92,13 @@ export default function ContactoPage({ searchParams }) {
                     setForm(EMPTY_FORM);
                     setStatus("idle");
                   }}
-                  className="font-display text-sm uppercase tracking-wide text-mCyan hover:text-mCyan/80"
+                  className="inline-flex min-h-11 items-center font-display text-sm uppercase tracking-wide text-mCyan hover:text-mCyan/80"
                 >
                   Agendar otra hora
                 </button>
                 <Link
                   href="/"
-                  className="font-display text-sm uppercase tracking-wide text-white/70 hover:text-white"
+                  className="inline-flex min-h-11 items-center font-display text-sm uppercase tracking-wide text-white/70 hover:text-white"
                 >
                   ← Volver al inicio
                 </Link>

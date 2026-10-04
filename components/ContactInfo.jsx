@@ -28,14 +28,14 @@ export default function ContactInfo({ dark = false, className = "" }) {
   ];
 
   return (
-    <div className={`flex flex-col gap-4 text-sm ${text} ${className}`}>
+    <div className={`flex flex-col gap-1 text-sm ${text} ${className}`}>
       {items.map(({ label, href, external, Icon, badge }) => (
         <a
           key={label}
           href={href}
           target={external ? "_blank" : undefined}
           rel={external ? "noreferrer" : undefined}
-          className="flex items-center gap-3 hover:text-mCyan"
+          className="flex min-h-11 items-center gap-3 hover:text-mCyan"
         >
           <span
             className={`flex h-[30px] w-[30px] flex-none items-center justify-center rounded-full ${badge ? "" : `border ${border}`}`}
