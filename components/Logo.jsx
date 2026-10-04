@@ -1,7 +1,7 @@
 "use client";
 
 import Image from "next/image";
-import { useLogo } from "@/lib/logo";
+import { useLogo, useLogoOnLight } from "@/lib/logo";
 
 // Dos archivos de logo, con proporciones distintas — cada uno con su propio
 // tamaño intrínseco para que next/image no lo estire:
@@ -14,31 +14,37 @@ import { useLogo } from "@/lib/logo";
 const DARK = { src: "/images/logo-gsmotos.png", width: 300, height: 200 };
 const LIGHT = { src: "/images/logo-gsmotos-claro.png", width: 315, height: 150 };
 
-export default function Logo({ className = "", light = true, priority = false, alt = "GSmotos — gsmotos.cl" }) {
-  // Logo propio subido desde /administracion (lib/logo.js) — un solo
-  // archivo que reemplaza a los dos de abajo en todos lados (fondo claro
-  // u oscuro), por eso ahí se le pide al cliente una imagen con fondo
-  // transparente. Mientras no haya uno, sigue el comportamiento normal.
-  const custom = useLogo();
+// Cada versión puede reemplazarse desde /administracion → General (ver
+// lib/logo.js): la clara por `logo`, la oscura por `logoOnLight`. Las
+// subidas se muestran con <img> (ya vienen comprimidas desde el panel).
+function Variant({ src, custom, alt, className, priority }) {
   if (custom) {
     // eslint-disable-next-line @next/next/no-img-element
     return <img src={custom} alt={alt} className={className} />;
   }
+  return <Image src={src.src} alt={alt} width={src.width} height={src.height} className={className} priority={priority} />;
+}
+
+export default function Logo({ className = "", light = true, priority = false, alt = "GSmotos — gsmotos.cl" }) {
+  const customLight = useLogo();
+  const customDark = useLogoOnLight();
 
   // "mobile": claro bajo el breakpoint `sm`, oscuro desde `sm` — para el
-  // hero de Home y de Christopher, donde el recorte diagonal blanco deja
-  // al logo sobre fondo claro desde tablet/desktop (ahí el oscuro se
-  // distingue bien). Dos <Image> optimizadas por separado, alternadas por
-  // CSS, en vez de un <picture> que forzaría a servir el PNG sin optimizar.
+  // hero de Christopher, donde el recorte diagonal blanco deja al logo
+  // sobre fondo claro desde tablet/desktop. Las dos versiones alternadas
+  // por CSS.
   if (light === "mobile") {
     return (
       <>
-        <Image src={LIGHT.src} alt={alt} width={LIGHT.width} height={LIGHT.height} className={`${className} sm:hidden`} priority={priority} />
-        <Image src={DARK.src} alt={alt} width={DARK.width} height={DARK.height} className={`${className} hidden sm:block`} priority={priority} />
+        <Variant src={LIGHT} custom={customLight} alt={alt} className={`${className} sm:hidden`} priority={priority} />
+        <Variant src={DARK} custom={customDark} alt={alt} className={`${className} hidden sm:block`} priority={priority} />
       </>
     );
   }
 
-  const variant = light ? LIGHT : DARK;
-  return <Image src={variant.src} alt={alt} width={variant.width} height={variant.height} className={className} priority={priority} />;
+  return light ? (
+    <Variant src={LIGHT} custom={customLight} alt={alt} className={className} priority={priority} />
+  ) : (
+    <Variant src={DARK} custom={customDark} alt={alt} className={className} priority={priority} />
+  );
 }

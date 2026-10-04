@@ -23,7 +23,7 @@ import ColorBars from "@/components/services/ColorBars";
 import { CERTIFICADOS } from "@/lib/certificados";
 import { setCertPhoto, useCertPhotos } from "@/lib/useCertPhotos";
 import { setFounderPhoto, useFounderPhoto } from "@/lib/founderPhoto";
-import { setLogo, useLogo } from "@/lib/logo";
+import { setLogo, setLogoOnLight, useLogo, useLogoOnLight } from "@/lib/logo";
 import { formatCLP, resetProductos, useProductos, writeProductos } from "@/lib/catalogo";
 import { PLACEHOLDER_PHOTO } from "@/lib/productosData";
 import { resetTallerItems, useTallerItems, writeTallerItems } from "@/lib/taller";
@@ -1240,60 +1240,76 @@ function Field({ label, value, onChange, placeholder, hint, type = "text" }) {
 }
 
 // El logo se muestra sobre la barra negra de arriba, como en la web.
-// Logo del sitio: tarjeta compacta con el logo sobre fondo oscuro y claro
-// (en la web aparece en los dos: sobre el video/las páginas oscuras y sobre
-// el fondo blanco del hero de Christopher), para ver de un vistazo si un
-// logo nuevo funciona en ambos. Un solo archivo reemplaza a las dos
-// versiones originales (ver lib/logo.js).
-function LogoCard() {
-  const logo = useLogo();
-
+// Logos del sitio: el sitio usa dos archivos distintos (ver lib/logo.js y
+// components/Logo.jsx), uno para fondos oscuros y otro para fondos claros,
+// así que cada uno tiene su propia tarjeta y se cambia por separado.
+function LogoSlot({ title, where, dark, custom, onSet }) {
   async function handleFile(ev) {
     const url = await readAndUpload(ev, { maxSize: 900, format: "png" });
-    if (url) warnIfFailed(setLogo(url));
+    if (url) warnIfFailed(onSet(url));
   }
 
   return (
-    <div className="max-w-3xl rounded-xl border border-[#E0E0E0] bg-white p-5 shadow-[0_2px_10px_rgba(11,11,11,0.05)] sm:p-6">
-      <div className="flex flex-wrap items-center justify-between gap-3">
-        <div className="font-display text-xl font-bold uppercase tracking-wide text-[#0B0B0B]">Logo</div>
-        <PhotoStatus custom={Boolean(logo)} baseLabel="Logo original" />
+    <div className="flex flex-col rounded-xl border border-[#E0E0E0] bg-white p-5 shadow-[0_2px_10px_rgba(11,11,11,0.05)]">
+      <div className="flex flex-wrap items-center justify-between gap-2">
+        <div className="font-display text-lg font-bold uppercase tracking-wide text-[#0B0B0B]">{title}</div>
+        <PhotoStatus custom={Boolean(custom)} baseLabel="Original" />
       </div>
-
-      <div className="mt-4 grid grid-cols-1 gap-3 sm:grid-cols-2">
-        <div className="flex flex-col gap-2">
-          <div className="flex h-[140px] items-center justify-center rounded-lg bg-[#0B0B0B] px-6">
-            <Logo light className="block h-auto max-h-[100px] w-auto max-w-[220px]" />
-          </div>
-          <span className="text-center text-xs text-[#8A8A8A]">Sobre fondo oscuro (inicio y páginas internas)</span>
-        </div>
-        <div className="flex flex-col gap-2">
-          <div className="flex h-[140px] items-center justify-center rounded-lg border border-[#E0E0E0] bg-white px-6">
-            <Logo light={false} className="block h-auto max-h-[100px] w-auto max-w-[220px]" />
-          </div>
-          <span className="text-center text-xs text-[#8A8A8A]">Sobre fondo claro (página de Christopher)</span>
-        </div>
+      <p className="mt-1 text-sm text-[#5A5A5A]">{where}</p>
+      <div
+        className={`mt-4 flex h-[140px] items-center justify-center rounded-lg px-6 ${
+          dark ? "bg-[#0B0B0B]" : "border border-[#E0E0E0] bg-white"
+        }`}
+      >
+        <Logo light={dark} className="block h-auto max-h-[100px] w-auto max-w-[220px]" />
       </div>
-
-      <div className="mt-5 flex flex-wrap items-center gap-2.5">
+      <div className="mt-4 flex flex-wrap items-center gap-2.5">
         <label className="flex cursor-pointer items-center justify-center gap-2.5 whitespace-nowrap rounded bg-mBlue px-5 py-3 font-display text-sm font-semibold uppercase tracking-wide text-white transition-colors hover:bg-mCyan">
-          <span>Cambiar logo</span>
+          <span>Cambiar</span>
           <input type="file" accept="image/png,image/*" className="hidden" onChange={handleFile} />
         </label>
-        {logo && (
+        {custom && (
           <button
             type="button"
-            onClick={() => confirmar("¿Volver al logo original?") && warnIfFailed(setLogo(""))}
+            onClick={() => confirmar("¿Volver al logo original?") && warnIfFailed(onSet(""))}
             className="rounded border border-[#D6D6D6] bg-white px-5 py-3 font-display text-sm font-semibold uppercase tracking-wide text-[#0B0B0B] transition-colors hover:border-mRed hover:text-mRed"
           >
             Volver al original
           </button>
         )}
       </div>
-      <p className="mt-3 text-sm leading-[1.5] text-[#5A5A5A]">
-        Usa un <strong>PNG con fondo transparente</strong>. Si en alguna de las dos vistas aparece un recuadro alrededor
-        del logo, el archivo no es transparente.
+    </div>
+  );
+}
+
+function LogoCard() {
+  const logo = useLogo();
+  const logoOnLight = useLogoOnLight();
+
+  return (
+    <div className="max-w-4xl">
+      <div className="font-display text-xl font-bold uppercase tracking-wide text-[#0B0B0B]">Logos</div>
+      <p className="mb-4 mt-1 max-w-2xl text-sm leading-[1.5] text-[#5A5A5A]">
+        El sitio usa <strong>dos versiones del logo</strong>: una clara para fondos oscuros y una oscura para fondos
+        claros. Se cambian por separado. Usa siempre un <strong>PNG con fondo transparente</strong>: si aparece un
+        recuadro alrededor del logo, el archivo no es transparente.
       </p>
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+        <LogoSlot
+          title="Para fondos oscuros"
+          where="Se usa en el inicio, las páginas internas y este panel."
+          dark
+          custom={logo}
+          onSet={setLogo}
+        />
+        <LogoSlot
+          title="Para fondos claros"
+          where="Se usa en la página de Christopher (en computador)."
+          dark={false}
+          custom={logoOnLight}
+          onSet={setLogoOnLight}
+        />
+      </div>
     </div>
   );
 }
