@@ -109,7 +109,7 @@ function ProductCarousel({ query, onQueryChange, products, pageLabel, dir, resul
         />
         <Link
           href={query.trim() ? `/productos?q=${encodeURIComponent(query.trim())}` : "/productos"}
-          className="inline-flex items-center gap-3.5 whitespace-nowrap rounded-md border border-mBlue bg-mBlue px-6 py-3 font-display text-base font-semibold uppercase tracking-[2.2px] text-white transition-colors hover:border-mCyan hover:bg-mCyan"
+          className="inline-flex items-center gap-3.5 whitespace-nowrap rounded-md border border-mBlue bg-mBlue px-6 py-3 font-display text-base font-semibold uppercase tracking-[2.2px] text-white press hover:border-mCyan hover:bg-mCyan"
         >
           <span>Buscar</span>
           <span className="font-body">→</span>
@@ -159,7 +159,7 @@ function ProductCarousel({ query, onQueryChange, products, pageLabel, dir, resul
           {products.map((prod, i) => (
             <div
               key={i}
-              className="group flex w-[46%] flex-none snap-start flex-col overflow-hidden rounded-xl border border-[#1E2226] bg-[#0B0D0F] text-[#E4E7EA] transition-all sm:w-auto sm:hover:-translate-y-1 sm:hover:border-mCyan"
+              className="group flex w-[46%] flex-none snap-start flex-col overflow-hidden rounded-xl border border-[#1E2226] bg-[#0B0D0F] text-[#E4E7EA] press press-soft sm:w-auto sm:hover:-translate-y-1 sm:hover:border-mCyan"
             >
               <button type="button" onClick={() => setOpenProduct(prod)} className="block w-full text-left">
                 <div className="relative h-[110px] overflow-hidden bg-[#EFEDE9] sm:h-[150px]">

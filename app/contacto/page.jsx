@@ -171,7 +171,7 @@ export default function ContactoPage({ searchParams }) {
                 <button
                   type="submit"
                   disabled={status === "loading"}
-                  className="inline-flex w-fit items-center gap-4 rounded border border-mBlue bg-mBlue px-6 py-[15px] font-display text-[17px] font-semibold uppercase tracking-[2.4px] text-white transition-colors hover:border-mCyan hover:bg-mCyan disabled:opacity-60"
+                  className="inline-flex w-fit items-center gap-4 rounded border border-mBlue bg-mBlue px-6 py-[15px] font-display text-[17px] font-semibold uppercase tracking-[2.4px] text-white press hover:border-mCyan hover:bg-mCyan disabled:opacity-60"
                 >
                   <span>{status === "loading" ? "Agendando…" : "Agendar ahora"}</span>
                   <span className="font-body">→</span>

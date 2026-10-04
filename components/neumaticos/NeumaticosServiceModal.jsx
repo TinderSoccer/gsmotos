@@ -69,7 +69,7 @@ export default function NeumaticosServiceModal({ card, photo, agendarHref, onClo
               href={whatsappUrl(s.phoneDigits, `Hola, quiero consultar por: ${title}`)}
               target="_blank"
               rel="noopener noreferrer"
-              className="inline-flex items-center gap-2.5 rounded border border-mCyan px-[22px] py-[15px] font-display text-base font-semibold uppercase tracking-[2.2px] text-white transition-colors hover:bg-mCyan/[0.16]"
+              className="inline-flex items-center gap-2.5 rounded border border-mCyan px-[22px] py-[15px] font-display text-base font-semibold uppercase tracking-[2.2px] text-white press hover:bg-mCyan/[0.16]"
             >
               <FaWhatsapp size={19} color="#25D366" aria-hidden="true" />
               Escribir por WhatsApp

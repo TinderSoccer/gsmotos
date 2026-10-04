@@ -84,7 +84,7 @@ export default function TableroFoto({ onSelect, fluid = false, width = 440, crop
             beep();
             onSelect(i);
           }}
-          className="group flex flex-1 cursor-pointer items-center border-0 bg-transparent pl-[14.5%] pr-[3.4%] text-left"
+          className="group flex flex-1 cursor-pointer items-center border-0 bg-transparent pl-[14.5%] pr-[3.4%] text-left press press-soft"
         >
           <span
             className={`flex-1 truncate font-display font-medium uppercase leading-[1.1] tracking-wide text-[#F2F4F6] transition-colors duration-200 group-hover:text-white group-hover:[text-shadow:0_0_10px_rgba(78,154,209,0.95),0_0_22px_rgba(78,154,209,0.55)] ${

@@ -66,7 +66,7 @@ export default function ProductModal({ prod, onClose }) {
             href={whatsappUrl(s.phoneDigits, productConsultMessage(prod))}
             target="_blank"
             rel="noreferrer"
-            className="mt-1 inline-flex w-full items-center justify-center gap-3 whitespace-nowrap rounded bg-mBlue px-6 py-4 font-display text-[15px] font-semibold uppercase tracking-[2.2px] text-white transition-colors hover:bg-mCyan"
+            className="mt-1 inline-flex w-full items-center justify-center gap-3 whitespace-nowrap rounded bg-mBlue px-6 py-4 font-display text-[15px] font-semibold uppercase tracking-[2.2px] text-white press hover:bg-mCyan"
           >
             <FaWhatsapp size={18} color="#fff" />
             <span>Escribir por WhatsApp</span>

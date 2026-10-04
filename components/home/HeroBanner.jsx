@@ -156,7 +156,7 @@ export default function HeroBanner({ onSelect }) {
 
         <Link
           href="/contacto"
-          className="flex w-full max-w-[300px] items-center justify-center gap-3 rounded bg-mBlue py-3.5 font-display text-base font-semibold uppercase tracking-[2.2px] text-white"
+          className="flex w-full max-w-[300px] items-center justify-center gap-3 rounded bg-mBlue py-3.5 font-display text-base font-semibold uppercase tracking-[2.2px] text-white press"
         >
           <span>Agendar tu cita</span>
           <span className="font-body">→</span>
@@ -164,14 +164,14 @@ export default function HeroBanner({ onSelect }) {
         <div className="flex w-full max-w-[300px] gap-2.5">
           <Link
             href="/servicio-gruas"
-            className="flex flex-1 items-center justify-center gap-2.5 whitespace-nowrap rounded border border-white/30 px-2 py-3 font-display text-[13.5px] font-semibold uppercase tracking-[1.6px] text-white"
+            className="flex flex-1 items-center justify-center gap-2.5 whitespace-nowrap rounded border border-white/30 px-2 py-3 font-display text-[13.5px] font-semibold uppercase tracking-[1.6px] text-white press"
           >
             <span>Servicio de Grúas</span>
             <span className="font-body">→</span>
           </Link>
           <Link
             href="/nosotros/taller"
-            className="flex flex-1 items-center justify-center gap-2.5 whitespace-nowrap rounded border border-white/30 px-2 py-3 font-display text-[13.5px] font-semibold uppercase tracking-[1.6px] text-white"
+            className="flex flex-1 items-center justify-center gap-2.5 whitespace-nowrap rounded border border-white/30 px-2 py-3 font-display text-[13.5px] font-semibold uppercase tracking-[1.6px] text-white press"
           >
             <span>Nuestro taller</span>
             <span className="font-body">›</span>
@@ -226,7 +226,7 @@ export default function HeroBanner({ onSelect }) {
           <div className="mt-1.5 flex flex-wrap items-center gap-5">
             <Link
               href="/servicio-gruas"
-              className="inline-flex items-center gap-3 bg-mBlue px-5 py-3 font-display text-sm font-semibold uppercase tracking-[2px] text-white transition-colors hover:bg-mCyan"
+              className="inline-flex items-center gap-3 bg-mBlue px-5 py-3 font-display text-sm font-semibold uppercase tracking-[2px] text-white press hover:bg-mCyan"
             >
               <span>Servicio de Grúas</span>
               <span className="font-body">→</span>

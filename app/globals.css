@@ -1,5 +1,19 @@
 @tailwind base;
 @tailwind components;
+
+/* Respuesta al tocar: el botón se hunde apenas mientras se presiona, así en
+   el celular (donde no existe el "hover") se nota que el toque llegó. Usa
+   la curva de las demás animaciones del sitio. `press-soft` es para
+   elementos grandes (tarjetas, filas del tablero), donde 0.97 se nota de
+   más. Con "reducir movimiento" no se encoge: solo se atenúa. */
+@layer components {
+  .press {
+    @apply transition-[color,background-color,border-color,opacity,transform] duration-[160ms] ease-[cubic-bezier(0.22,0.61,0.36,1)] active:scale-[0.97] motion-reduce:active:scale-100 motion-reduce:active:opacity-80;
+  }
+  .press-soft {
+    @apply active:scale-[0.98] motion-reduce:active:scale-100;
+  }
+}
 @tailwind utilities;
 
 /* La mayoría de las páginas son oscuras — esto es solo el respaldo que se

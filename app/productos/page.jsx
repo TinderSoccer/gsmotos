@@ -174,7 +174,7 @@ export default function ProductosPage({ searchParams }) {
                     href={whatsappUrl(s.phoneDigits, productConsultMessage(prod))}
                     target="_blank"
                     rel="noreferrer"
-                    className="mt-2 inline-flex items-center justify-center gap-2 rounded border border-mCyan px-4 py-2.5 font-display text-[13px] font-semibold uppercase tracking-wide text-white transition-colors hover:bg-mCyan/[0.16]"
+                    className="mt-2 inline-flex items-center justify-center gap-2 rounded border border-mCyan px-4 py-2.5 font-display text-[13px] font-semibold uppercase tracking-wide text-white press hover:bg-mCyan/[0.16]"
                   >
                     <FaWhatsapp size={16} color="#25D366" />
                     Consultar por el producto

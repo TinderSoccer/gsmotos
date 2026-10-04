@@ -73,7 +73,7 @@ export default function ServiceDetailModal({ card, onClose }) {
               href={whatsappUrl(s.phoneDigits, `Hola, quiero consultar por: ${card.title}`)}
               target="_blank"
               rel="noreferrer"
-              className="inline-flex items-center gap-2.5 rounded border border-mCyan px-[22px] py-[15px] font-display text-base font-semibold uppercase tracking-[2.2px] text-white transition-colors hover:bg-mCyan/[0.16]"
+              className="inline-flex items-center gap-2.5 rounded border border-mCyan px-[22px] py-[15px] font-display text-base font-semibold uppercase tracking-[2.2px] text-white press hover:bg-mCyan/[0.16]"
             >
               <FaWhatsapp size={19} color="#25D366" />
               Escribir por WhatsApp

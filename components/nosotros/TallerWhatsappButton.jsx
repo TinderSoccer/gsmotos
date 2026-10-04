@@ -15,7 +15,7 @@ export default function TallerWhatsappButton() {
       href={href}
       target="_blank"
       rel="noopener noreferrer"
-      className="inline-flex items-center gap-3 whitespace-nowrap rounded border border-mCyan px-6 py-4 font-display text-base font-semibold uppercase tracking-[2.2px] text-white transition-colors hover:bg-mCyan/[0.16]"
+      className="inline-flex items-center gap-3 whitespace-nowrap rounded border border-mCyan px-6 py-4 font-display text-base font-semibold uppercase tracking-[2.2px] text-white press hover:bg-mCyan/[0.16]"
     >
       <FaWhatsapp size={19} color="#25D366" />
       <span>Escribir por WhatsApp</span>

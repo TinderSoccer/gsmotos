@@ -53,7 +53,7 @@ export default function ServiceGrid({ cards, animClass }) {
               </div>
             </>
           );
-          const className = "group relative min-h-[168px] overflow-hidden rounded-xl border border-[#1E2226] bg-black transition-colors hover:border-[#2E3A45] sm:min-h-[320px]";
+          const className = "group relative min-h-[168px] overflow-hidden rounded-xl border border-[#1E2226] bg-black press press-soft hover:border-[#2E3A45] sm:min-h-[320px]";
 
           return card.href ? (
             <Link key={card.title} href={card.href} className={className}>
