@@ -60,7 +60,9 @@ export default function HeroExperience() {
   const visibleProducts = catalogue.slice(page * PER_PAGE, page * PER_PAGE + PER_PAGE);
 
   // Avance automático del carrusel de productos cada 4.5s, solo mientras esa
-  // categoría está activa.
+  // categoría está activa. Usar las flechas no lo detiene: reinicia la
+  // cuenta (`autoRestart`) para que no avance justo después de un clic.
+  const [autoRestart, setAutoRestart] = useState(0);
   useEffect(() => {
     if (!isProductos) return undefined;
     autoRef.current = setInterval(() => {
@@ -68,7 +70,7 @@ export default function HeroExperience() {
       setProdPage((p) => p + 1);
     }, 4500);
     return () => clearInterval(autoRef.current);
-  }, [isProductos]);
+  }, [isProductos, autoRestart]);
 
   // "Neumáticos & Vulcanización" ya no se muestra inline en la home (esas 4
   // tarjetas genéricas quedaron obsoletas): tiene su propia página a medida
@@ -91,7 +93,7 @@ export default function HeroExperience() {
   }
 
   function step(d) {
-    clearInterval(autoRef.current);
+    setAutoRestart((n) => n + 1);
     setProdDir(d > 0 ? "next" : "prev");
     setProdPage((p) => p + d);
   }
