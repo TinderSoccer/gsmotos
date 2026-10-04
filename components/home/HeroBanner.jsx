@@ -8,13 +8,41 @@ import TableroFoto from "./TableroFoto";
 export default function HeroBanner({ onSelect }) {
   const videoRef = useRef(null);
 
+  // El video no tiene controles, así que nunca debería quedar pausado.
+  // Además del autoplay normal:
+  // - "pause": algunos celulares (sobre todo iPhone) lo pausan al cambiar
+  //   de app/pestaña y no siempre lo reanudan — al volver se le da play.
+  // - visibilitychange: mismo caso, cuando la pestaña vuelve a estar visible.
+  // - primer toque: con el iPhone en "Ahorro de batería" iOS bloquea el
+  //   autoplay; el primer toque en la página lo arranca.
+  // Solo se reanuda si el video está a la vista: fuera de pantalla algunos
+  // navegadores lo pausan a propósito para ahorrar batería (y lo reanudan
+  // solos al volver), y forzarlo ahí haría que se peleen.
   useEffect(() => {
     const v = videoRef.current;
     if (!v) return;
-    const tryPlay = () => v.play().catch(() => {});
+    let inView = true;
+    const tryPlay = () => {
+      if (v.paused && inView && !document.hidden) v.play().catch(() => {});
+    };
+    const onVisible = () => !document.hidden && tryPlay();
+    const io = new IntersectionObserver(([entry]) => {
+      inView = entry.isIntersecting;
+      tryPlay();
+    });
+    io.observe(v);
     tryPlay();
     v.addEventListener("loadeddata", tryPlay);
-    return () => v.removeEventListener("loadeddata", tryPlay);
+    v.addEventListener("pause", tryPlay);
+    document.addEventListener("visibilitychange", onVisible);
+    window.addEventListener("touchstart", tryPlay, { once: true, passive: true });
+    return () => {
+      io.disconnect();
+      v.removeEventListener("loadeddata", tryPlay);
+      v.removeEventListener("pause", tryPlay);
+      document.removeEventListener("visibilitychange", onVisible);
+      window.removeEventListener("touchstart", tryPlay);
+    };
   }, []);
 
   return (
