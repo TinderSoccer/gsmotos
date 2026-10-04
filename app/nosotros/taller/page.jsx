@@ -5,7 +5,11 @@ import TallerGallery from "@/components/nosotros/TallerGallery";
 import TallerWhatsappButton from "@/components/nosotros/TallerWhatsappButton";
 import { MobileTopBar } from "@/components/mobile/MobileNav";
 
-export const metadata = { title: "Nuestro taller — GSmotos" };
+export const metadata = {
+  title: "Nuestro taller — GSmotos",
+  description:
+    "Conoce el taller de GSmotos en Las Condes: herramientas especiales BMW, información técnica y órdenes de trabajo con trazabilidad para tu moto.",
+};
 
 // Página de contenido del taller: fotos y videos administrados desde
 // /administracion (pestaña "Taller"). Es el destino del botón "Nuestro

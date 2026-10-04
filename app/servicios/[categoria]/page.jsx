@@ -19,7 +19,11 @@ export function generateStaticParams() {
 
 export function generateMetadata({ params }) {
   const menu = SERVICE_MENUS.find((m) => m.slug === params.categoria);
-  return { title: menu ? `${menu.title} — GSmotos` : "GSmotos" };
+  if (!menu) return { title: "GSmotos" };
+  return {
+    title: `${menu.title} — GSmotos`,
+    description: `${menu.title} en Santiago: ${menu.cards.map((c) => c.title.toLowerCase()).join(", ")}. ${menu.hint}.`,
+  };
 }
 
 export default function CategoriaServiciosPage({ params }) {

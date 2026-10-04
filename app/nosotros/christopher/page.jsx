@@ -11,7 +11,11 @@ import { TRAYECTORIA } from "@/lib/certificados";
 // ("Christopher Fundador.dc.html"): tema claro, hero con corte diagonal,
 // bio + tarjeta de trayectoria, y grilla de certificados administrable
 // desde /administracion (ver components/nosotros/CertificadosGrid.jsx).
-export const metadata = { title: "Christopher, fundador — GSmotos" };
+export const metadata = {
+  title: "Christopher, fundador — GSmotos",
+  description:
+    "Christopher, fundador de GSmotos: técnico especialista en BMW Motorrad, formado en BMW Chile y docente de mecánica de motocicletas por ocho años.",
+};
 
 const HERO_PHOTO = "/images/foto-taller-c.png";
 

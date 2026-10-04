@@ -5,7 +5,11 @@ import { MobileTopBar } from "@/components/mobile/MobileNav";
 import { getMenuBySlug } from "@/lib/servicesData";
 import SmartImage from "@/components/common/SmartImage";
 
-export const metadata = { title: "Nosotros — GSmotos" };
+export const metadata = {
+  title: "Nosotros — GSmotos",
+  description:
+    "GSmotos es un taller especialista en BMW Motorrad en Las Condes, Santiago, con más de 15 años de experiencia y un equipo que trabaja junto hace más de una década.",
+};
 
 const gsmotos = getMenuBySlug("gsmotos");
 const nosotros = gsmotos.cards.find((c) => c.slug === "nosotros");

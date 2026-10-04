@@ -16,7 +16,8 @@ export function generateStaticParams() {
 export function generateMetadata({ params }) {
   const menu = SERVICE_MENUS.find((m) => m.slug === params.categoria);
   const card = menu?.cards.find((c) => c.slug === params.servicio);
-  return { title: card ? `${card.title} — GSmotos` : "GSmotos" };
+  if (!card) return { title: "GSmotos" };
+  return { title: `${card.title} · ${menu.title} — GSmotos`, description: card.desc };
 }
 
 export default function ServicioDetallePage({ params }) {
