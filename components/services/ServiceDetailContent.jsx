@@ -18,57 +18,64 @@ export default function ServiceDetailContent({ card, backHref, backLabel }) {
   return (
     <article className="bg-[#0B0B0B]">
       <MobileTopBar />
-      <div className="relative h-[280px] overflow-hidden sm:h-[360px]">
-        <SmartImage src={photo} alt="" className="brightness-125" sizes="100vw" priority />
-        <div className="absolute inset-0" style={{ background: "linear-gradient(180deg, rgba(5,5,5,0.25) 0%, rgba(5,5,5,0.75) 70%, #0B0B0B 100%)" }} />
-        <div className="relative mx-auto flex h-full max-w-3xl flex-col justify-end gap-3 px-6 pb-8 sm:px-10">
+      {/* Título a la izquierda y la foto en un recuadro a la derecha (en el
+          celular, la foto arriba). Antes la foto iba de fondo a todo el
+          ancho, estirada sobre su tamaño real (1080px) y se veía blanda. */}
+      <div className="mx-auto grid max-w-6xl grid-cols-1 gap-6 px-6 pt-4 sm:px-10 lg:grid-cols-[1fr_1.15fr] lg:items-end lg:gap-12 lg:pt-8">
+        <div className="relative order-1 aspect-[4/3] overflow-hidden rounded-xl border border-[#1E2226] bg-[#14171A] lg:order-2">
+          <SmartImage src={photo} alt="" className="brightness-110" sizes="(max-width: 1023px) 100vw, 600px" priority />
+        </div>
+        <div className="order-2 flex flex-col gap-3 lg:order-1 lg:pb-2">
           <div className="flex items-center gap-3">
             <ColorBars />
             <span className="font-display text-sm uppercase tracking-[2.2px] text-[#D6DADE]">{card.kicker}</span>
           </div>
-          <h1 className="font-display text-[36px] font-bold italic uppercase leading-[1.02] text-white sm:text-[48px]">
-            {card.title}
-          </h1>
+          <h1 className="font-display text-[36px] font-bold italic uppercase leading-[1.02] text-white sm:text-[48px]">{card.title}</h1>
         </div>
       </div>
 
-      <div className="mx-auto flex max-w-3xl flex-col gap-5 px-6 py-10 sm:px-10">
-        {backHref && (
-          <Link href={backHref} className="-my-3 inline-flex min-h-11 w-fit items-center font-display text-sm uppercase tracking-wide text-mCyan hover:text-mCyan/80">
-            ← {backLabel}
-          </Link>
-        )}
-        <div className="font-display text-[22px] italic leading-snug text-mCyan">{card.lead}</div>
-        <p className="text-[15.5px] leading-[1.75] text-[#C3C9CE]">{card.long}</p>
-        <div className="flex items-center gap-3.5 border-l-[3px] border-mRed bg-white/[0.04] px-4.5 py-4">
-          <span className="font-display text-[15px] uppercase leading-snug tracking-wide text-[#E4E7EA]">{card.note}</span>
-        </div>
-        <div className="flex flex-wrap items-center gap-4 pt-1">
-          <Link
-            href="/contacto"
-            className="inline-flex items-center gap-4 rounded border border-mBlue bg-mBlue px-6 py-[15px] font-display text-[17px] font-semibold uppercase tracking-[2.4px] text-white transition-colors hover:border-mCyan hover:bg-mCyan"
-          >
-            <span>Agendar ahora</span>
-            <span className="font-body">→</span>
-          </Link>
-          <a
-            href={whatsappUrl(s.phoneDigits, `Hola, quiero consultar por: ${card.title}`)}
-            target="_blank"
-            rel="noreferrer"
-            className="inline-flex items-center gap-2.5 rounded border border-mCyan px-[22px] py-[15px] font-display text-base font-semibold uppercase tracking-[2.2px] text-white press hover:bg-mCyan/[0.16]"
-          >
-            <FaWhatsapp size={19} color="#25D366" />
-            Escribir por WhatsApp
-          </a>
-          <a
-            href={instagramUrl(s.instagramUser)}
-            target="_blank"
-            rel="noreferrer"
-            className="inline-flex items-center gap-2.5 rounded border border-white/25 px-[22px] py-[15px] font-display text-base font-semibold uppercase tracking-[2.2px] text-white transition-colors hover:border-white/50"
-          >
-            <FaInstagram size={19} color="#E1306C" />
-            Seguir en Instagram
-          </a>
+      <div className="mx-auto max-w-6xl px-6 py-10 sm:px-10">
+        <div className="flex max-w-3xl flex-col gap-5">
+          {backHref && (
+            <Link
+              href={backHref}
+              className="-my-3 inline-flex min-h-11 w-fit items-center font-display text-sm uppercase tracking-wide text-mCyan hover:text-mCyan/80"
+            >
+              ← {backLabel}
+            </Link>
+          )}
+          <div className="font-display text-[22px] italic leading-snug text-mCyan">{card.lead}</div>
+          <p className="text-[15.5px] leading-[1.75] text-[#C3C9CE]">{card.long}</p>
+          <div className="flex items-center gap-3.5 border-l-[3px] border-mRed bg-white/[0.04] px-4.5 py-4">
+            <span className="font-display text-[15px] uppercase leading-snug tracking-wide text-[#E4E7EA]">{card.note}</span>
+          </div>
+          <div className="flex flex-wrap items-center gap-4 pt-1">
+            <Link
+              href="/contacto"
+              className="inline-flex items-center gap-4 rounded border border-mBlue bg-mBlue px-6 py-[15px] font-display text-[17px] font-semibold uppercase tracking-[2.4px] text-white transition-colors hover:border-mCyan hover:bg-mCyan"
+            >
+              <span>Agendar ahora</span>
+              <span className="font-body">→</span>
+            </Link>
+            <a
+              href={whatsappUrl(s.phoneDigits, `Hola, quiero consultar por: ${card.title}`)}
+              target="_blank"
+              rel="noreferrer"
+              className="inline-flex items-center gap-2.5 rounded border border-mCyan px-[22px] py-[15px] font-display text-base font-semibold uppercase tracking-[2.2px] text-white press hover:bg-mCyan/[0.16]"
+            >
+              <FaWhatsapp size={19} color="#25D366" />
+              Escribir por WhatsApp
+            </a>
+            <a
+              href={instagramUrl(s.instagramUser)}
+              target="_blank"
+              rel="noreferrer"
+              className="inline-flex items-center gap-2.5 rounded border border-white/25 px-[22px] py-[15px] font-display text-base font-semibold uppercase tracking-[2.2px] text-white transition-colors hover:border-white/50"
+            >
+              <FaInstagram size={19} color="#E1306C" />
+              Seguir en Instagram
+            </a>
+          </div>
         </div>
       </div>
     </article>
