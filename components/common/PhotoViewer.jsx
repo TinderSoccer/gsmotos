@@ -17,7 +17,16 @@ export default function PhotoViewer({ photos, index, onIndex, onClose }) {
   // Proporción de la foto actual (ancho / alto); 4:3 hasta que carga.
   const [ratio, setRatio] = useState(4 / 3);
   const [closing, close] = useClosing(onClose);
-  const go = useCallback((d) => onIndex((index + d + photos.length) % photos.length), [index, onIndex, photos.length]);
+  // Dirección del último cambio de foto (1 = siguiente, -1 = anterior, 0 =
+  // recién abierto): la foto nueva entra desde ese lado.
+  const [dir, setDir] = useState(0);
+  const go = useCallback(
+    (d) => {
+      setDir(d);
+      onIndex((index + d + photos.length) % photos.length);
+    },
+    [index, onIndex, photos.length]
+  );
 
   useEffect(() => {
     function onKey(ev) {
@@ -77,7 +86,11 @@ export default function PhotoViewer({ photos, index, onIndex, onClose }) {
         <div
           key={photo.id}
           className="relative max-w-full overflow-hidden rounded-lg"
-          style={{ width: `min(100%, calc((100dvh - 8rem) * ${ratio}))`, aspectRatio: ratio }}
+          style={{
+            width: `min(100%, calc((100dvh - 8rem) * ${ratio}))`,
+            aspectRatio: ratio,
+            animation: dir ? `${dir > 0 ? "gsmFromRight" : "gsmFromLeft"} 220ms cubic-bezier(0.22,0.61,0.36,1) both` : undefined,
+          }}
           onClick={(ev) => ev.stopPropagation()}
         >
           {photo.photo.startsWith("data:") ? (
