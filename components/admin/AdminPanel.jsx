@@ -1136,7 +1136,12 @@ function Field({ label, value, onChange, placeholder, hint, type = "text" }) {
 }
 
 // El logo se muestra sobre la barra negra de arriba, como en la web.
-function LogoUpload() {
+// Logo del sitio: tarjeta compacta con el logo sobre fondo oscuro y claro
+// (en la web aparece en los dos: sobre el video/las páginas oscuras y sobre
+// el fondo blanco del hero de Christopher), para ver de un vistazo si un
+// logo nuevo funciona en ambos. Un solo archivo reemplaza a las dos
+// versiones originales (ver lib/logo.js).
+function LogoCard() {
   const logo = useLogo();
 
   async function handleFile(ev) {
@@ -1145,27 +1150,64 @@ function LogoUpload() {
   }
 
   return (
-    <div className="px-6 pb-8 sm:px-10">
-      <div className="mb-1 font-display text-lg font-semibold uppercase tracking-wide text-[#0B0B0B]">Logo del sitio</div>
-      <p className="mb-3 max-w-2xl text-sm leading-[1.5] text-[#5A5A5A]">
-        Toca la barra para cambiar el logo en todo el sitio. Usa un archivo con <strong>fondo transparente</strong>{" "}
-        (PNG) para que se vea bien tanto en fondos claros como oscuros.
-      </p>
-      <PhotoPicker onFile={handleFile} className="overflow-hidden rounded-xl border border-[#1E2226]">
-        <div className="flex items-center justify-between gap-6 bg-[#0B0B0B] px-6 py-[22px] sm:px-10">
-          <Logo className="block h-auto w-[150px] sm:w-[190px]" />
-          <div className="hidden items-center gap-3.5 pr-12 sm:flex">
-            <ColorBars />
-            <span className="font-display text-sm uppercase tracking-[3px] text-white/70">Así se ve arriba de cada página</span>
+    <div className="max-w-3xl rounded-xl border border-[#E0E0E0] bg-white p-5 shadow-[0_2px_10px_rgba(11,11,11,0.05)] sm:p-6">
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <div className="font-display text-xl font-bold uppercase tracking-wide text-[#0B0B0B]">Logo</div>
+        <PhotoStatus custom={Boolean(logo)} baseLabel="Logo original" />
+      </div>
+
+      <div className="mt-4 grid grid-cols-1 gap-3 sm:grid-cols-2">
+        <div className="flex flex-col gap-2">
+          <div className="flex h-[140px] items-center justify-center rounded-lg bg-[#0B0B0B] px-6">
+            <Logo light className="block h-auto max-h-[100px] w-auto max-w-[220px]" />
           </div>
+          <span className="text-center text-xs text-[#8A8A8A]">Sobre fondo oscuro (inicio y páginas internas)</span>
         </div>
-      </PhotoPicker>
-      <PhotoStatus
-        custom={Boolean(logo)}
-        baseLabel="Logo original"
-        onRemove={() => confirmar("¿Volver al logo original?") && warnIfFailed(setLogo(""))}
-      />
+        <div className="flex flex-col gap-2">
+          <div className="flex h-[140px] items-center justify-center rounded-lg border border-[#E0E0E0] bg-white px-6">
+            <Logo light={false} className="block h-auto max-h-[100px] w-auto max-w-[220px]" />
+          </div>
+          <span className="text-center text-xs text-[#8A8A8A]">Sobre fondo claro (página de Christopher)</span>
+        </div>
+      </div>
+
+      <div className="mt-5 flex flex-wrap items-center gap-2.5">
+        <label className="flex cursor-pointer items-center justify-center gap-2.5 whitespace-nowrap rounded bg-mBlue px-5 py-3 font-display text-sm font-semibold uppercase tracking-wide text-white transition-colors hover:bg-mCyan">
+          <span>Cambiar logo</span>
+          <input type="file" accept="image/png,image/*" className="hidden" onChange={handleFile} />
+        </label>
+        {logo && (
+          <button
+            type="button"
+            onClick={() => confirmar("¿Volver al logo original?") && warnIfFailed(setLogo(""))}
+            className="rounded border border-[#D6D6D6] bg-white px-5 py-3 font-display text-sm font-semibold uppercase tracking-wide text-[#0B0B0B] transition-colors hover:border-mRed hover:text-mRed"
+          >
+            Volver al original
+          </button>
+        )}
+      </div>
+      <p className="mt-3 text-sm leading-[1.5] text-[#5A5A5A]">
+        Usa un <strong>PNG con fondo transparente</strong>. Si en alguna de las dos vistas aparece un recuadro alrededor
+        del logo, el archivo no es transparente.
+      </p>
     </div>
+  );
+}
+
+function GeneralTab() {
+  return (
+    <>
+      <div className="flex flex-wrap items-end justify-between gap-8 px-6 pb-5 pt-11 sm:px-10">
+        <div className="flex flex-col gap-2.5">
+          <h1 className="font-display text-[32px] font-bold italic uppercase leading-none text-[#0B0B0B] sm:text-4xl">General</h1>
+          <p className="max-w-xl text-[15.5px] leading-[1.6] text-[#5A5A5A]">Lo que se usa en todo el sitio.</p>
+          <SeeOnSite href="/" />
+        </div>
+      </div>
+      <div className="px-6 pb-14 sm:px-10">
+        <LogoCard />
+      </div>
+    </>
   );
 }
 
@@ -1198,8 +1240,6 @@ function ContactoTab() {
           <SeeOnSite href="/contacto" />
         </div>
       </div>
-
-      <LogoUpload />
 
       <div className="grid grid-cols-1 gap-6 px-6 pb-8 sm:grid-cols-2 sm:px-10">
         <Field label="Teléfono (como se ve en el sitio)" value={form.phoneDisplay} onChange={(v) => update("phoneDisplay", v)} placeholder="+56 9 8405 8116" />
@@ -1272,6 +1312,7 @@ const TABS = {
   prods: ProductosTab,
   taller: TallerTab,
   contacto: ContactoTab,
+  general: GeneralTab,
 };
 
 function LogoutButton() {
@@ -1356,6 +1397,9 @@ export default function AdminPanel() {
         </Tab>
         <Tab active={tab === "contacto"} onClick={() => setTab("contacto")}>
           Contacto
+        </Tab>
+        <Tab active={tab === "general"} onClick={() => setTab("general")}>
+          General
         </Tab>
       </div>
 
