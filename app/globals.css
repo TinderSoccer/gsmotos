@@ -29,6 +29,10 @@ body {
   body {
     padding-bottom: calc(70px + env(safe-area-inset-bottom));
   }
+  /* En el panel no hay barra (ver MobileChrome). */
+  body:has([data-admin]) {
+    padding-bottom: 0;
+  }
 }
 
 /* Animaciones de entrada usadas al cambiar de categoría en el selector de la home */

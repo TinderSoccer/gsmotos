@@ -1586,7 +1586,7 @@ export default function AdminPanel() {
   }, []);
 
   return (
-    <div className="min-h-screen bg-[#F7F7F7] text-[#0B0B0B]">
+    <div data-admin className="min-h-screen bg-[#F7F7F7] text-[#0B0B0B]">
       <header className="flex items-center justify-between gap-3 bg-[#0B0B0B] px-6 py-[18px] sm:gap-6 sm:px-10 sm:py-[22px]">
         <Link href="/" className="block flex-none leading-none">
           <Logo className="block h-auto w-[100px] sm:w-[190px]" />

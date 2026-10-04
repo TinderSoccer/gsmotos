@@ -37,7 +37,7 @@ export default function AdminLogin() {
   }
 
   return (
-    <div className="flex min-h-screen flex-col items-center justify-center gap-8 bg-[#0B0B0B] px-6">
+    <div data-admin className="flex min-h-screen flex-col items-center justify-center gap-8 bg-[#0B0B0B] px-6">
       <Logo alt="GSmotos" className="block h-auto w-[170px]" />
       <form onSubmit={handleSubmit} className="flex w-full max-w-[360px] flex-col gap-4 rounded-xl border border-[#1E2226] bg-white/[0.02] p-7">
         <div className="font-display text-xl font-bold italic uppercase text-white">Panel de administración</div>

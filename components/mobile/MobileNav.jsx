@@ -14,6 +14,7 @@
 // navegación pública (ver app/administracion/page.jsx).
 import { createContext, useCallback, useContext, useState } from "react";
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { Mail, MapPin, Menu, Phone, X } from "lucide-react";
 import { FaInstagram, FaWhatsapp } from "react-icons/fa6";
 import Logo from "@/components/Logo";
@@ -32,6 +33,9 @@ export function MobileChrome({ children }) {
   const [open, setOpen] = useState(false);
   const close = useCallback(() => setOpen(false), []);
   const toggle = useCallback(() => setOpen((v) => !v), []);
+  // El panel de administración no lleva la barra pública (tapaba el panel
+  // en el celular).
+  const isAdmin = usePathname()?.startsWith("/administracion");
 
   return (
     <MobileMenuContext.Provider value={{ open, toggle, close }}>
@@ -87,7 +91,7 @@ export function MobileChrome({ children }) {
         </div>
       )}
 
-      <MobileTabBar />
+      {!isAdmin && <MobileTabBar />}
     </MobileMenuContext.Provider>
   );
 }
