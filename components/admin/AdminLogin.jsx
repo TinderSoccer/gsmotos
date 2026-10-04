@@ -2,12 +2,14 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { Eye, EyeOff } from "lucide-react";
 import Logo from "@/components/Logo";
 
 export default function AdminLogin() {
   const router = useRouter();
   const [user, setUser] = useState("");
   const [pass, setPass] = useState("");
+  const [showPass, setShowPass] = useState(false);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
 
@@ -43,23 +45,42 @@ export default function AdminLogin() {
         <div className="font-display text-xl font-bold italic uppercase text-white">Panel de administración</div>
         <label className="flex flex-col gap-1.5 text-sm text-white/80">
           Usuario
+          {/* Sin mayúscula ni corrector automáticos (en el celular ponían la
+              primera letra en mayúscula y el ingreso fallaba), letra de 16px
+              para que el iPhone no haga zoom, y `autoComplete` para que el
+              navegador ofrezca guardar la contraseña. */}
           <input
             autoFocus
             required
             value={user}
             onChange={(e) => setUser(e.target.value)}
-            className="rounded border border-white/15 bg-black/40 px-3.5 py-2.5 text-white outline-none focus:border-mCyan"
+            autoComplete="username"
+            autoCapitalize="none"
+            autoCorrect="off"
+            spellCheck={false}
+            className="rounded border border-white/15 bg-black/40 px-3.5 py-2.5 text-base text-white outline-none focus:border-mCyan"
           />
         </label>
         <label className="flex flex-col gap-1.5 text-sm text-white/80">
           Contraseña
-          <input
-            required
-            type="password"
-            value={pass}
-            onChange={(e) => setPass(e.target.value)}
-            className="rounded border border-white/15 bg-black/40 px-3.5 py-2.5 text-white outline-none focus:border-mCyan"
-          />
+          <span className="relative flex">
+            <input
+              required
+              type={showPass ? "text" : "password"}
+              value={pass}
+              onChange={(e) => setPass(e.target.value)}
+              autoComplete="current-password"
+              className="w-full rounded border border-white/15 bg-black/40 py-2.5 pl-3.5 pr-12 text-base text-white outline-none focus:border-mCyan"
+            />
+            <button
+              type="button"
+              onClick={() => setShowPass((v) => !v)}
+              aria-label={showPass ? "Ocultar contraseña" : "Mostrar contraseña"}
+              className="absolute inset-y-0 right-0 flex w-11 items-center justify-center text-white/60 hover:text-white"
+            >
+              {showPass ? <EyeOff size={18} /> : <Eye size={18} />}
+            </button>
+          </span>
         </label>
         <button
           type="submit"
@@ -68,7 +89,11 @@ export default function AdminLogin() {
         >
           {loading ? "Ingresando…" : "Ingresar"}
         </button>
-        {error && <div className="text-sm text-mRed">{error}</div>}
+        {error && (
+          <div role="alert" className="text-sm text-[#FF6B7F]">
+            {error}
+          </div>
+        )}
       </form>
     </div>
   );
