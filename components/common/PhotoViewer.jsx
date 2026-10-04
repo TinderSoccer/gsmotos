@@ -4,16 +4,17 @@
 // (components/nosotros/TallerGallery.jsx) y las fotos de Grúas
 // (app/servicio-gruas). `photos`: [{ id, photo, caption? }] — el texto
 // (caption) es opcional y se muestra debajo de la foto.
-import { useCallback, useEffect, useRef } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { ChevronLeft, ChevronRight, X } from "lucide-react";
-import SmartImage from "./SmartImage";
-import ColorBars from "@/components/services/ColorBars";
+import Image from "next/image";
 
 // Foto en grande a pantalla completa: flechas o deslizar para pasar a la
 // siguiente, Escape / X / tocar afuera para cerrar.
 export default function PhotoViewer({ photos, index, onIndex, onClose }) {
   const touchX = useRef(null);
   const photo = photos[index];
+  // Proporción de la foto actual (ancho / alto); 4:3 hasta que carga.
+  const [ratio, setRatio] = useState(4 / 3);
   const go = useCallback((d) => onIndex((index + d + photos.length) % photos.length), [index, onIndex, photos.length]);
 
   useEffect(() => {
@@ -60,29 +61,58 @@ export default function PhotoViewer({ photos, index, onIndex, onClose }) {
         <X size={20} />
       </button>
 
-      <div className="relative h-full w-full max-w-5xl" onClick={(ev) => ev.stopPropagation()} style={{ animation: "gsmPop 300ms cubic-bezier(0.22,0.61,0.36,1) both" }}>
-        <SmartImage key={photo.id} src={photo.photo} alt={photo.caption || "Foto del taller"} fit="contain" sizes="100vw" priority />
-      </div>
-
-      {(photo.caption || many) && (
-        <div className="mt-4 flex w-full flex-col items-center gap-2.5 text-center" onClick={(ev) => ev.stopPropagation()}>
-          {/* El texto de la foto destacado (pedido del cliente): recuadro con
-              las barras de marca, letra grande y blanca. */}
+      {/* La foto se muestra a su tamaño (sin estirar) y el texto opcional va
+          sobre su parte de abajo, con un degradado oscuro — como un pie de
+          foto. El contenedor se ajusta a la foto para que el texto quede
+          justo sobre ella y no sobre el fondo. */}
+      <div
+        className="flex min-h-0 w-full max-w-5xl flex-1 items-center justify-center"
+        style={{ animation: "gsmPop 300ms cubic-bezier(0.22,0.61,0.36,1) both" }}
+      >
+        {/* Se ajusta a la forma real de la foto (ratio, que se lee al cargar):
+            lo más grande posible sin pasarse del alto disponible. Así el texto
+            queda siempre sobre la foto, sea horizontal o vertical. */}
+        <div
+          key={photo.id}
+          className="relative max-w-full overflow-hidden rounded-lg"
+          style={{ width: `min(100%, calc((100dvh - 8rem) * ${ratio}))`, aspectRatio: ratio }}
+          onClick={(ev) => ev.stopPropagation()}
+        >
+          {photo.photo.startsWith("data:") ? (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img
+              src={photo.photo}
+              alt={photo.caption || "Foto"}
+              onLoad={(ev) => setRatio(ev.currentTarget.naturalWidth / ev.currentTarget.naturalHeight)}
+              className="absolute inset-0 h-full w-full object-cover"
+            />
+          ) : (
+            <Image
+              src={photo.photo}
+              alt={photo.caption || "Foto"}
+              fill
+              sizes="(max-width: 1023px) 100vw, 1024px"
+              priority
+              onLoad={(ev) => setRatio(ev.currentTarget.naturalWidth / ev.currentTarget.naturalHeight)}
+              className="object-cover"
+            />
+          )}
           {photo.caption && (
             <div
-              key={photo.id}
-              className="flex w-full max-w-2xl flex-col items-center gap-2.5 rounded-xl border border-white/[0.14] bg-[#111418]/95 px-5 py-4 shadow-[0_10px_30px_rgba(0,0,0,0.5)] sm:px-7 sm:py-5"
-              style={{ animation: "gsmPop 300ms cubic-bezier(0.22,0.61,0.36,1) both" }}
+              className="absolute inset-x-0 bottom-0 px-4 pb-3.5 pt-12 sm:px-6 sm:pb-5 sm:pt-16"
+              style={{ background: "linear-gradient(180deg, rgba(0,0,0,0) 0%, rgba(0,0,0,0.82) 100%)" }}
             >
-              <ColorBars />
-              <p className="text-base font-medium leading-snug text-white sm:text-lg">{photo.caption}</p>
+              <p className="text-left text-[15px] font-medium leading-snug text-white [text-shadow:0_1px_6px_rgba(0,0,0,0.6)] sm:text-lg">
+                {photo.caption}
+              </p>
             </div>
           )}
-          {many && (
-            <div className="font-display text-xs uppercase tracking-[2px] text-[#8A939B]">
-              {index + 1} / {photos.length}
-            </div>
-          )}
+        </div>
+      </div>
+
+      {many && (
+        <div className="mt-3 font-display text-xs uppercase tracking-[2px] text-[#8A939B]" onClick={(ev) => ev.stopPropagation()}>
+          {index + 1} / {photos.length}
         </div>
       )}
 
