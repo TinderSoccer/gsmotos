@@ -33,7 +33,7 @@ export default function HeroBanner({ onSelect }) {
           playsInline
           preload="auto"
           poster="/images/hero-timelapse-poster.jpg"
-          className="absolute inset-0 block h-full w-full object-cover"
+          className="absolute inset-0 block h-full w-full object-cover sm:brightness-110"
         >
           {/* Timelapse del taller armado con los clips originales del cliente
               (~/Desktop/gsmotos/MP_ROOT): solo los tramos con más gente
@@ -55,7 +55,10 @@ export default function HeroBanner({ onSelect }) {
         />
       </div>
 
-      <div className="pointer-events-none absolute inset-0 hidden bg-black/[0.22] sm:block" />
+      {/* Velo y degradado más suaves que antes (0.22 → 0.06, degradado hasta
+          el 66% en vez del 74%): el cliente encontraba el video muy oscuro
+          en el computador. El degradado solo tiene que cubrir el texto. */}
+      <div className="pointer-events-none absolute inset-0 hidden bg-black/[0.06] sm:block" />
       {/* Antes acá iba una tarjeta blanca sólida (clip-path diagonal) tapando
           ~40% del video para que el texto quedara legible — el cliente pidió
           que se viera más el video. Se reemplaza por un degradado oscuro de
@@ -64,7 +67,7 @@ export default function HeroBanner({ onSelect }) {
           incluso detrás del texto. */}
       <div
         className="pointer-events-none absolute inset-0 hidden sm:block"
-        style={{ background: "linear-gradient(90deg, rgba(5,6,7,0.88) 0%, rgba(5,6,7,0.68) 32%, rgba(5,6,7,0.3) 56%, rgba(5,6,7,0) 74%)" }}
+        style={{ background: "linear-gradient(90deg, rgba(5,6,7,0.8) 0%, rgba(5,6,7,0.58) 30%, rgba(5,6,7,0.16) 52%, rgba(5,6,7,0) 66%)" }}
       />
 
       {/* Sin menú hamburguesa en el inicio (pedido del cliente): acá el menú
