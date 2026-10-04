@@ -23,8 +23,10 @@ const INTRO = {
   kicker: "Servicio GSmotos",
   title: "Servicio de grúas",
   lead: "Traslado seguro de tu moto cuando no puede rodar por sus propios medios.",
-  body:
-    "Contenido de ejemplo — reemplazar con la descripción definitiva del servicio de grúas cuando el cliente la entregue: cobertura, tipos de moto que traslada, tiempos de respuesta, etc.",
+  // Vacío hasta que el cliente entregue la descripción definitiva del
+  // servicio (cobertura, tipos de moto que traslada, tiempos de respuesta…).
+  // Mientras esté vacío no se muestra — antes se veía un texto de ejemplo.
+  body: "",
 };
 
 // Cada item: { Icon, title, desc }. Contenido de ejemplo — reemplazar por
@@ -107,7 +109,7 @@ export default function ServicioGruasPage() {
         <div className="max-w-2xl font-display text-xl font-bold italic uppercase leading-[1.1] text-white sm:text-[24px]">
           {INTRO.lead}
         </div>
-        <p className="max-w-2xl text-sm leading-[1.5] text-[#B9C0C7]">{INTRO.body}</p>
+        {INTRO.body && <p className="max-w-2xl text-sm leading-[1.5] text-[#B9C0C7]">{INTRO.body}</p>}
       </div>
 
       <div className="grid grid-cols-1 gap-3 px-6 py-4 sm:grid-cols-3 sm:px-10">
