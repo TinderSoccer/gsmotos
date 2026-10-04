@@ -1018,14 +1018,29 @@ function TallerTab() {
     warnIfFailed(writeTallerItems(items.filter((it) => it.id !== id)));
   }
 
-  async function handleFile(ev) {
-    const url = await readAndUpload(ev, { maxSize: 1600, quality: 0.85 });
-    if (url) warnIfFailed(writeTallerItems([...items, { id: `photo-${Date.now()}`, type: "photo", photo: url, caption: "" }]));
+  // Los banners ocupan todo el ancho de la galería: se suben más grandes.
+  async function handleFile(ev, size = "normal") {
+    const url = await readAndUpload(ev, { maxSize: size === "banner" ? 2400 : 1600, quality: 0.85 });
+    if (url) {
+      const item = { id: `photo-${Date.now()}`, type: "photo", photo: url, caption: "" };
+      if (size === "banner") item.size = "banner";
+      warnIfFailed(writeTallerItems([...items, item]));
+    }
   }
 
-  async function replacePhoto(id, ev) {
-    const url = await readAndUpload(ev, { maxSize: 1600, quality: 0.85 });
-    if (url) patch(id, { photo: url });
+  async function replacePhoto(item, ev) {
+    const url = await readAndUpload(ev, { maxSize: item.size === "banner" ? 2400 : 1600, quality: 0.85 });
+    if (url) patch(item.id, { photo: url });
+  }
+
+  // Cambia de lugar un elemento (-1 antes, +1 después) — el orden de acá es
+  // el orden de la galería en la web.
+  function move(index, dir) {
+    const to = index + dir;
+    if (to < 0 || to >= items.length) return;
+    const next = [...items];
+    [next[index], next[to]] = [next[to], next[index]];
+    warnIfFailed(writeTallerItems(next));
   }
 
   async function addVideo(ev) {
@@ -1086,11 +1101,19 @@ function TallerTab() {
         <SitePanel>
           <TapHint dark />
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
-            {items.map((item) => (
-              <div key={item.id} className="flex flex-col overflow-hidden rounded-xl border border-[#1E2226] bg-[#0B0D0F]">
+            {items.map((item, index) => {
+              const banner = item.type === "photo" && item.size === "banner";
+              return (
+              <div
+                key={item.id}
+                className={`flex flex-col overflow-hidden rounded-xl border border-[#1E2226] bg-[#0B0D0F] ${banner ? "sm:col-span-2 lg:col-span-3" : ""}`}
+              >
                 {item.type === "photo" ? (
-                  <PhotoPicker onFile={(ev) => replacePhoto(item.id, ev)} className="aspect-video overflow-hidden bg-[#14171A]">
-                    <SmartImage src={item.photo} alt={item.caption || "Foto del taller"} sizes="420px" />
+                  <PhotoPicker
+                    onFile={(ev) => replacePhoto(item, ev)}
+                    className={`overflow-hidden bg-[#14171A] ${banner ? "aspect-[16/9] sm:aspect-[21/9] lg:aspect-[3/1]" : "aspect-video"}`}
+                  >
+                    <SmartImage src={item.photo} alt={item.caption || "Foto del taller"} sizes={banner ? "1200px" : "420px"} />
                   </PhotoPicker>
                 ) : (
                   <div className="relative flex aspect-video flex-col items-center justify-center gap-2 bg-[#14171A]">
@@ -1105,19 +1128,69 @@ function TallerTab() {
                   placeholder="Escribe una descripción (opcional)"
                   className="w-full border-0 border-t border-[#1E2226] bg-transparent px-4 py-3 text-sm text-[#C3C9CE] outline-none placeholder:text-[#5E666D] focus:bg-white/[0.04]"
                 />
-                <button
-                  type="button"
-                  onClick={() => confirmar(`¿Eliminar ${item.type === "photo" ? "esta foto" : "este video"}? No se puede deshacer.`) && removeItem(item.id)}
-                  className="border-t border-[#1E2226] px-4 py-2.5 text-left font-display text-[12px] font-semibold uppercase tracking-wide text-[#8A939B] transition-colors hover:text-mRed"
-                >
-                  Eliminar {item.type === "photo" ? "foto" : "video"}
-                </button>
+                <div className="flex flex-wrap items-center gap-2 border-t border-[#1E2226] px-3 py-2.5">
+                  {item.type === "photo" && (
+                    <div className="flex overflow-hidden rounded-md border border-[#2E3A45]">
+                      {[
+                        { value: "normal", label: "Normal" },
+                        { value: "banner", label: "Banner" },
+                      ].map((opt) => (
+                        <button
+                          key={opt.value}
+                          type="button"
+                          onClick={() => patch(item.id, { size: opt.value === "banner" ? "banner" : undefined })}
+                          className={`px-3 py-1.5 font-display text-[12px] font-semibold uppercase tracking-wide transition-colors ${
+                            (banner ? "banner" : "normal") === opt.value ? "bg-mBlue text-white" : "text-[#8A939B] hover:text-white"
+                          }`}
+                        >
+                          {opt.label}
+                        </button>
+                      ))}
+                    </div>
+                  )}
+                  <div className="flex items-center gap-1">
+                    <button
+                      type="button"
+                      onClick={() => move(index, -1)}
+                      disabled={index === 0}
+                      aria-label="Mover antes"
+                      title="Mover antes"
+                      className="flex h-8 w-8 items-center justify-center rounded-md border border-[#2E3A45] text-[#B9C0C7] transition-colors enabled:hover:border-mCyan enabled:hover:text-mCyan disabled:opacity-30"
+                    >
+                      <ChevronLeft size={16} />
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => move(index, 1)}
+                      disabled={index === items.length - 1}
+                      aria-label="Mover después"
+                      title="Mover después"
+                      className="flex h-8 w-8 items-center justify-center rounded-md border border-[#2E3A45] text-[#B9C0C7] transition-colors enabled:hover:border-mCyan enabled:hover:text-mCyan disabled:opacity-30"
+                    >
+                      <ChevronRight size={16} />
+                    </button>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => confirmar(`¿Eliminar ${item.type === "photo" ? "esta foto" : "este video"}? No se puede deshacer.`) && removeItem(item.id)}
+                    className="ml-auto px-1.5 py-1.5 font-display text-[12px] font-semibold uppercase tracking-wide text-[#8A939B] transition-colors hover:text-mRed"
+                  >
+                    Eliminar
+                  </button>
+                </div>
               </div>
-            ))}
+              );
+            })}
             <label className="flex aspect-video cursor-pointer flex-col items-center justify-center gap-2 rounded-xl border-2 border-dashed border-[#2E3A45] text-[#8FC2E6] transition-colors hover:border-mCyan hover:text-mCyan">
               <Camera size={28} strokeWidth={1.6} />
               <span className="font-display text-sm font-semibold uppercase tracking-wide">Agregar foto</span>
-              <input type="file" accept="image/*" className="hidden" onChange={handleFile} />
+              <input type="file" accept="image/*" className="hidden" onChange={(ev) => handleFile(ev)} />
+            </label>
+            <label className="flex aspect-video cursor-pointer flex-col items-center justify-center gap-2 rounded-xl border-2 border-dashed border-[#2E3A45] text-[#8FC2E6] transition-colors hover:border-mCyan hover:text-mCyan">
+              <Camera size={28} strokeWidth={1.6} />
+              <span className="font-display text-sm font-semibold uppercase tracking-wide">Agregar banner</span>
+              <span className="text-xs text-[#6E7780]">Foto ancha, ocupa toda la fila</span>
+              <input type="file" accept="image/*" className="hidden" onChange={(ev) => handleFile(ev, "banner")} />
             </label>
           </div>
         </SitePanel>
@@ -1128,7 +1201,9 @@ function TallerTab() {
           <div className="flex flex-col gap-1.5">
             <div className="font-display text-lg font-semibold uppercase tracking-wide text-[#0B0B0B]">Consejos</div>
             <div className="text-[14.5px] leading-[1.6] text-[#5A5A5A]">
-              Aparecen en la página del taller en el orden en que los agregas.
+              Aparecen en la página del taller en este mismo orden; usa las flechas para cambiarlo. Un
+              &ldquo;Banner&rdquo; ocupa todo el ancho: usa una foto bien horizontal (por ejemplo, una panorámica
+              del taller).
             </div>
           </div>
           <button
