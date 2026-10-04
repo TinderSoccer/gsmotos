@@ -254,33 +254,46 @@ function ProductCarousel({ query, onQueryChange, products, pageLabel, dir, resul
             className="flex snap-x snap-mandatory gap-3 overflow-x-auto px-6 pb-1 sm:grid sm:grid-cols-2 sm:gap-3.5 sm:overflow-visible sm:px-0 sm:pb-0 lg:grid-cols-4"
           >
             {shown.map((prod, i) => (
-              <div
+              // Tarjeta como etiqueta de repuesto: lo que distingue una pieza
+              // de otra con el mismo nombre (para qué moto es y su código)
+              // va a la vista, y el precio queda abajo, alineado en todas
+              // las tarjetas aunque el nombre ocupe una o dos líneas. Toda la
+              // tarjeta abre el popup.
+              <button
+                type="button"
                 key={i}
-                className="group flex w-[46%] flex-none snap-start flex-col overflow-hidden rounded-xl border border-[#1E2226] bg-[#0B0D0F] text-[#E4E7EA] press press-soft sm:w-auto sm:hover:-translate-y-1 sm:hover:border-mCyan"
+                onClick={() => setOpenProduct(prod)}
+                className="group flex w-[46%] flex-none snap-start flex-col overflow-hidden rounded-xl border border-[#1E2226] bg-[#0B0D0F] text-left press press-soft focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-mCyan sm:w-auto sm:hover:-translate-y-1 sm:hover:border-mCyan"
               >
-                <button type="button" onClick={() => setOpenProduct(prod)} className="block w-full text-left">
-                  <div className="relative h-[110px] overflow-hidden bg-[#EFEDE9] sm:h-[150px]">
-                    <ProductPhoto photo={prod.photo} name={prod.name} />
-                    <EstadoBadge estado={prod.estado} />
-                  </div>
-                  <div className="flex flex-col gap-1.5 px-3.5 pt-3.5 sm:gap-2 sm:px-5 sm:pt-4.5">
-                    <div className="font-display text-[11px] uppercase tracking-[1.6px] text-[#7A838C] sm:text-[13px] sm:tracking-[2px]">{prod.cat}</div>
-                    <div className="font-display text-[15px] font-semibold uppercase leading-tight tracking-wide text-white sm:text-xl">{prod.name}</div>
-                    {prod.price > 0 && (
-                      <div className="font-display text-base font-bold text-white sm:text-lg">{formatCLP(prod.price)}</div>
+                <div className="relative h-[110px] w-full flex-none overflow-hidden bg-[#EFEDE9] sm:h-[150px]">
+                  <ProductPhoto photo={prod.photo} name={prod.name} />
+                  <EstadoBadge estado={prod.estado} />
+                </div>
+                <div className="flex w-full flex-1 flex-col px-3.5 pb-3.5 pt-3 sm:px-4 sm:pb-4 sm:pt-3.5">
+                  <div className="mb-3">
+                    {prod.aplicacion && (
+                      <div className="truncate font-body text-[11.5px] font-medium text-mCyan sm:text-[12.5px]">Para {prod.aplicacion}</div>
+                    )}
+                    <div className="mt-1 line-clamp-2 font-display text-[15px] font-semibold uppercase leading-[1.15] tracking-[0.4px] text-white sm:text-[18px]">
+                      {prod.name}
+                    </div>
+                    {prod.codigo && (
+                      <div className="mt-1 truncate font-body text-[11px] tabular-nums text-[#7A838C] sm:text-xs">{prod.codigo}</div>
                     )}
                   </div>
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setOpenProduct(prod)}
-                  className="flex items-center gap-2 px-3.5 pb-4 pt-1.5 font-display text-[12.5px] uppercase tracking-wide text-mCyan hover:text-mCyan/80 sm:px-5 sm:pb-5 sm:pt-2 sm:text-[13.5px]"
-                >
-                  <FaWhatsapp size={14} color="#25D366" />
-                  Consultar
-                  <span className="font-body">→</span>
-                </button>
-              </div>
+                  <div className="mt-auto flex items-center justify-between gap-2 border-t border-white/[0.07] pt-2.5 sm:pt-3">
+                    <span className="font-display text-[17px] font-bold leading-none text-white sm:text-xl">
+                      {prod.price > 0 ? formatCLP(prod.price) : "Precio a consultar"}
+                    </span>
+                    <span
+                      aria-hidden="true"
+                      className="flex h-8 w-8 flex-none items-center justify-center rounded-full border border-[#25D366]/40 text-[#25D366] transition-colors group-hover:border-[#25D366] group-hover:bg-[#25D366] group-hover:text-[#0B0D0F] sm:h-9 sm:w-9"
+                    >
+                      <FaWhatsapp size={16} />
+                    </span>
+                  </div>
+                </div>
+              </button>
             ))}
           </div>
         </div>
