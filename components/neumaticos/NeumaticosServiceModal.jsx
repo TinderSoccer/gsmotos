@@ -1,11 +1,10 @@
 "use client";
 
-import Link from "next/link";
-import { FaWhatsapp } from "react-icons/fa6";
 import ColorBars from "@/components/services/ColorBars";
 import { useSettings, whatsappUrl } from "@/lib/settings";
 import SmartImage from "@/components/common/SmartImage";
 import { BACKDROP_OUT, CARD_OUT, useClosing } from "@/lib/useClosing";
+import Button from "@/components/common/Button";
 
 // Popup de detalle de servicio — mismo criterio visual y de animación que
 // components/services/ServiceDetailModal.jsx (el que ya usan BMW Motorrad y
@@ -60,22 +59,10 @@ export default function NeumaticosServiceModal({ card, photo, agendarHref, onClo
           <div className="font-display text-xl italic leading-snug text-mCyan">{subtitle}</div>
           <p className="text-[15.5px] leading-[1.75] text-[#C3C9CE]">{text}</p>
           <div className="flex flex-wrap items-center gap-4">
-            <Link
-              href={agendarHref}
-              className="inline-flex items-center gap-4 rounded border border-mBlue bg-mBlue px-6 py-[15px] font-display text-[17px] font-semibold uppercase tracking-[2.4px] text-white transition-colors hover:border-mCyan hover:bg-mCyan"
-            >
-              <span>Agendar ahora</span>
-              <span className="font-body" aria-hidden="true">→</span>
-            </Link>
-            <a
-              href={whatsappUrl(s.phoneDigits, `Hola, quiero consultar por: ${title}`)}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="inline-flex items-center gap-2.5 rounded border border-mCyan px-[22px] py-[15px] font-display text-base font-semibold uppercase tracking-[2.2px] text-white press hover:bg-mCyan/[0.16]"
-            >
-              <FaWhatsapp size={19} color="#25D366" aria-hidden="true" />
+            <Button block="mobile" href={agendarHref}>Agendar ahora</Button>
+            <Button block="mobile" variant="whatsapp" href={whatsappUrl(s.phoneDigits, `Hola, quiero consultar por: ${title}`)}>
               Escribir por WhatsApp
-            </a>
+            </Button>
           </div>
         </div>
       </div>

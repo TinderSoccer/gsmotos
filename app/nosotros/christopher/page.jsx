@@ -4,8 +4,10 @@ import ChristopherHeroBg from "@/components/nosotros/ChristopherHeroBg";
 import ColorBars from "@/components/services/ColorBars";
 import SiteFooter from "@/components/SiteFooter";
 import Logo from "@/components/Logo";
+import { MobileHomeButton } from "@/components/mobile/MobileNav";
 import TrayectoriaFoto from "@/components/nosotros/TrayectoriaFoto";
 import { TRAYECTORIA } from "@/lib/certificados";
+import Button from "@/components/common/Button";
 
 // Página propia de Christopher: hero con su foto, bio + tarjeta de
 // trayectoria, y certificados administrables desde /administracion (ver
@@ -42,15 +44,7 @@ export default function ChristopherPage() {
           <Link href="/" className="flex min-h-11 items-center leading-none">
             <Logo className="block h-auto w-[82px] sm:w-[150px]" />
           </Link>
-          <Link
-            href="/"
-            aria-label="Volver al inicio"
-            className="inline-flex min-h-11 items-center gap-3.5 rounded border border-white/40 bg-black/60 px-3 py-2 font-display text-[12px] font-semibold uppercase tracking-[2.2px] text-white transition-colors hover:border-mBlue hover:bg-mBlue sm:px-5 sm:py-3 sm:text-sm"
-          >
-            <span className="font-body">←</span>
-            <span className="sm:hidden">Inicio</span>
-            <span className="hidden sm:inline">Volver al inicio</span>
-          </Link>
+          <MobileHomeButton />
         </header>
 
         <div className="relative z-20 flex h-full max-w-[560px] flex-col justify-end gap-1.5 px-6 pb-4 sm:px-10 sm:pb-6">
@@ -174,19 +168,10 @@ export default function ChristopherPage() {
           </div>
         </div>
         <div className="flex flex-wrap items-center gap-4">
-          <Link
-            href="/contacto"
-            className="inline-flex items-center gap-4 whitespace-nowrap rounded border border-mBlue bg-mBlue px-7 py-4 font-display text-[17px] font-semibold uppercase tracking-[2.4px] text-white transition-colors hover:border-mCyan hover:bg-mCyan"
-          >
-            <span>Agendar ahora</span>
-            <span className="font-body">→</span>
-          </Link>
-          <Link
-            href="/"
-            className="inline-flex items-center gap-3 whitespace-nowrap rounded border border-mBlue px-6 py-4 font-display text-base font-semibold uppercase tracking-[2.2px] text-white transition-colors hover:bg-mBlue/10"
-          >
+          <Button href="/contacto" block="mobile">Agendar ahora</Button>
+          <Button variant="secondary" href="/" block="mobile">
             Volver al inicio
-          </Link>
+          </Button>
         </div>
       </section>
 

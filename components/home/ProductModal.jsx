@@ -9,6 +9,7 @@ import { PLACEHOLDER_PHOTO } from "@/lib/productosData";
 import { useSettings, whatsappUrl } from "@/lib/settings";
 import SmartImage from "@/components/common/SmartImage";
 import { BACKDROP_OUT, CARD_OUT, useClosing } from "@/lib/useClosing";
+import Button from "@/components/common/Button";
 
 // Popup al hacer clic en una tarjeta de producto del carrusel "Destacados
 // de esta semana" (ver SelectorPanel.jsx) — antes la tarjeta navegaba a
@@ -127,15 +128,15 @@ export default function ProductModal({ prod, onClose }) {
             <div className="font-display text-[30px] font-bold leading-none text-white md:text-[34px]">
               {prod.price > 0 ? formatCLP(prod.price) : "Precio a consultar"}
             </div>
-            <a
+            <Button
               href={whatsappUrl(s.phoneDigits, productConsultMessage(prod))}
-              target="_blank"
-              rel="noreferrer"
-              className="mt-4 inline-flex w-full items-center justify-center gap-3 whitespace-nowrap rounded bg-mBlue px-6 py-4 font-display text-[15px] font-semibold uppercase tracking-[2.2px] text-white press hover:bg-mCyan focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-mCyan"
+              block
+              arrow={false}
+              icon={<FaWhatsapp size={18} color="#fff" aria-hidden="true" />}
+              className="mt-4"
             >
-              <FaWhatsapp size={18} color="#fff" />
-              <span>Consultar por WhatsApp</span>
-            </a>
+              Consultar por WhatsApp
+            </Button>
           </div>
         </div>
       </div>

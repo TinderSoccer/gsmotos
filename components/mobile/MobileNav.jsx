@@ -20,6 +20,7 @@ import { FaInstagram, FaWhatsapp } from "react-icons/fa6";
 import Logo from "@/components/Logo";
 import { menus } from "@/lib/servicesData";
 import { instagramUrl, mapsUrl, useSettings, whatsappUrl } from "@/lib/settings";
+import Button from "@/components/common/Button";
 
 const MobileMenuContext = createContext(null);
 
@@ -79,14 +80,9 @@ export function MobileChrome({ children }) {
               <span className="font-body text-[#7A838C]">›</span>
             </Link>
 
-            <Link
-              href="/contacto"
-              onClick={close}
-              className="mt-4 flex items-center justify-center gap-3 rounded bg-mBlue py-[15px] font-display text-base font-semibold uppercase tracking-[2.2px] text-white"
-            >
-              <span>Agendar ahora</span>
-              <span className="font-body">→</span>
-            </Link>
+            <Button href="/contacto" onClick={close} block className="mt-4">
+              Agendar ahora
+            </Button>
           </div>
         </div>
       )}
@@ -166,15 +162,10 @@ export function MobileMenuButton({ className = "" }) {
 // página se vuelve ahí.
 export function MobileHomeButton({ className = "" }) {
   return (
-    <Link
-      href="/"
-      aria-label="Volver al inicio"
-      className={`inline-flex items-center gap-2 rounded border border-white/40 bg-black/40 px-3.5 py-2.5 font-display text-[13px] font-semibold uppercase tracking-[2px] text-white transition-colors hover:border-mBlue hover:bg-mBlue sm:px-5 sm:py-3 sm:text-sm ${className}`}
-    >
-      <span className="font-body">←</span>
+    <Button variant="back" size="sm" href="/" aria-label="Volver al inicio" className={`sm:min-h-[52px] sm:px-5 sm:text-[14px] ${className}`}>
       <span className="sm:hidden">Inicio</span>
       <span className="hidden sm:inline">Volver al inicio</span>
-    </Link>
+    </Button>
   );
 }
 

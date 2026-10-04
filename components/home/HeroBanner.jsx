@@ -4,6 +4,8 @@ import { useEffect, useRef } from "react";
 import Link from "next/link";
 import Logo from "@/components/Logo";
 import TableroFoto from "./TableroFoto";
+import { ChevronRight } from "lucide-react";
+import Button from "@/components/common/Button";
 
 export default function HeroBanner({ onSelect }) {
   const videoRef = useRef(null);
@@ -154,28 +156,16 @@ export default function HeroBanner({ onSelect }) {
           <TableroFoto onSelect={onSelect} crop />
         </div>
 
-        <Link
-          href="/contacto"
-          className="flex w-full max-w-[300px] items-center justify-center gap-3 rounded bg-mBlue py-3.5 font-display text-base font-semibold uppercase tracking-[2.2px] text-white press"
-        >
-          <span>Agendar tu cita</span>
-          <span className="font-body">→</span>
-        </Link>
+        <Button href="/contacto" block className="max-w-[300px]">
+          Agendar tu cita
+        </Button>
         <div className="flex w-full max-w-[300px] gap-2.5">
-          <Link
-            href="/servicio-gruas"
-            className="flex flex-1 items-center justify-center gap-2.5 whitespace-nowrap rounded border border-white/30 px-2 py-3 font-display text-[13.5px] font-semibold uppercase tracking-[1.6px] text-white press"
-          >
-            <span>Servicio de Grúas</span>
-            <span className="font-body">→</span>
-          </Link>
-          <Link
-            href="/nosotros/taller"
-            className="flex flex-1 items-center justify-center gap-2.5 whitespace-nowrap rounded border border-white/30 px-2 py-3 font-display text-[13.5px] font-semibold uppercase tracking-[1.6px] text-white press"
-          >
-            <span>Nuestro taller</span>
-            <span className="font-body">›</span>
-          </Link>
+          <Button variant="secondary" size="sm" href="/servicio-gruas" className="min-w-0 flex-1 !px-2 !tracking-[1.2px]">
+            Servicio de Grúas
+          </Button>
+          <Button variant="secondary" size="sm" href="/nosotros/taller" className="min-w-0 flex-1 !px-2 !tracking-[1.2px]">
+            Nuestro taller
+          </Button>
         </div>
         <p className="mt-2 max-w-[320px] text-sm leading-[1.55] text-[#C3C9CE]">
           15 años de experiencia entregando servicios de excelencia, con estándar profesional y tecnología de última generación.
@@ -224,19 +214,15 @@ export default function HeroBanner({ onSelect }) {
             &ldquo;Nuestra experiencia es nuestra herramienta más importante&rdquo;
           </div>
           <div className="mt-1.5 flex flex-wrap items-center gap-5">
-            <Link
-              href="/servicio-gruas"
-              className="inline-flex items-center gap-3 bg-mBlue px-5 py-3 font-display text-sm font-semibold uppercase tracking-[2px] text-white press hover:bg-mCyan"
-            >
-              <span>Servicio de Grúas</span>
-              <span className="font-body">→</span>
-            </Link>
+            <Button href="/servicio-gruas" size="sm">
+              Servicio de Grúas
+            </Button>
             <Link
               href="/nosotros/taller"
               className="inline-flex items-center gap-2 border-b-2 border-transparent pb-[2px] font-display text-sm font-semibold uppercase tracking-[2px] text-white transition-colors hover:border-mCyan hover:text-mCyan"
             >
               <span>Nuestro taller</span>
-              <span className="font-body text-mRed">›</span>
+              <ChevronRight size={16} strokeWidth={2.4} className="text-mRed" aria-hidden="true" />
             </Link>
           </div>
         </div>

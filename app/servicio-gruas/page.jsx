@@ -1,8 +1,6 @@
 "use client";
 
-import { Clock, ImageOff, MapPin, ShieldCheck, Truck } from "lucide-react";
-import { FaWhatsapp } from "react-icons/fa6";
-import Link from "next/link";
+import { Clock, ImageOff, MapPin, Phone, ShieldCheck, Truck } from "lucide-react";
 import ColorBars from "@/components/services/ColorBars";
 import SiteFooter from "@/components/SiteFooter";
 import { MobileTopBar } from "@/components/mobile/MobileNav";
@@ -11,6 +9,7 @@ import { useSettings, whatsappUrl } from "@/lib/settings";
 import { useGruasPhotos } from "@/lib/gruas";
 import SmartImage from "@/components/common/SmartImage";
 import PhotoViewer from "@/components/common/PhotoViewer";
+import Button from "@/components/common/Button";
 
 // Página estática de "Servicio de Grúas" — reemplaza al botón "Conocer más"
 // del hero (antes un anchor a #servicios). Contenido de ejemplo: el cliente
@@ -153,28 +152,13 @@ export default function ServicioGruasPage() {
           </div>
         </div>
         <div className="flex flex-wrap items-center gap-3">
-          <a
-            href={whatsappUrl(s.phoneDigits, "Hola, necesito el servicio de grúa para mi moto.")}
-            target="_blank"
-            rel="noreferrer"
-            className="inline-flex items-center gap-2.5 whitespace-nowrap rounded border border-[#25D366] bg-[#25D366]/10 px-5 py-3 font-display text-[13.5px] font-semibold uppercase tracking-[2px] text-white press hover:bg-[#25D366]/20"
-          >
-            <FaWhatsapp size={16} color="#25D366" />
-            <span>WhatsApp</span>
-          </a>
-          <a
-            href={`tel:+${s.phoneDigits}`}
-            className="inline-flex items-center gap-2.5 whitespace-nowrap rounded border border-mBlue px-5 py-3 font-display text-[13.5px] font-semibold uppercase tracking-[2px] text-white press hover:bg-mBlue/10"
-          >
-            <span>Llamar {s.phoneDisplay}</span>
-          </a>
-          <Link
-            href="/contacto?motivo=gruas"
-            className="inline-flex items-center gap-3 whitespace-nowrap rounded border border-mBlue bg-mBlue px-6 py-3 font-display text-[13.5px] font-semibold uppercase tracking-[2.4px] text-white press hover:border-mCyan hover:bg-mCyan"
-          >
-            <span>Agendar / coordinar</span>
-            <span className="font-body">→</span>
-          </Link>
+          <Button block="mobile" variant="whatsapp" href={whatsappUrl(s.phoneDigits, "Hola, necesito el servicio de grúa para mi moto.")}>
+            WhatsApp
+          </Button>
+          <Button block="mobile" variant="secondary" href={`tel:+${s.phoneDigits}`} icon={<Phone size={17} strokeWidth={2} aria-hidden="true" />}>
+            Llamar {s.phoneDisplay}
+          </Button>
+          <Button block="mobile" href="/contacto?motivo=gruas">Agendar / coordinar</Button>
         </div>
       </section>
 

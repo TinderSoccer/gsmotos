@@ -8,6 +8,7 @@ import MapaTaller from "@/components/MapaTaller";
 import SiteFooter from "@/components/SiteFooter";
 import { MobileTopBar } from "@/components/mobile/MobileNav";
 import { getAvailableSlots, createAppointment } from "@/lib/tallergp";
+import Button from "@/components/common/Button";
 
 const EMPTY_FORM = { name: "", phone: "", model: "", note: "", date: "", time: "" };
 
@@ -180,14 +181,9 @@ export default function ContactoPage({ searchParams }) {
                 </label>
               </div>
               <div className="mt-2 flex flex-wrap items-center gap-x-6 gap-y-3">
-                <button
-                  type="submit"
-                  disabled={status === "loading"}
-                  className="inline-flex w-fit items-center gap-4 rounded border border-mBlue bg-mBlue px-6 py-[15px] font-display text-[17px] font-semibold uppercase tracking-[2.4px] text-white press hover:border-mCyan hover:bg-mCyan disabled:opacity-60"
-                >
-                  <span>{status === "loading" ? "Agendando…" : "Agendar ahora"}</span>
-                  <span className="font-body">→</span>
-                </button>
+                <Button type="submit" loading={status === "loading"} loadingLabel="Agendando…">
+                  Agendar ahora
+                </Button>
               </div>
               {status === "error" && (
                 <div className="text-sm text-mRed">No pudimos agendar la hora. Revisa los datos e intenta de nuevo.</div>

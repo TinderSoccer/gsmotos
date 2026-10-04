@@ -1,10 +1,10 @@
-import Link from "next/link";
 import ColorBars from "@/components/services/ColorBars";
 import SiteFooter from "@/components/SiteFooter";
 import { MobileTopBar } from "@/components/mobile/MobileNav";
 import { getMenuBySlug } from "@/lib/servicesData";
 import SmartImage from "@/components/common/SmartImage";
 import NosotrosEnlaces from "@/components/nosotros/NosotrosEnlaces";
+import Button from "@/components/common/Button";
 
 export const metadata = {
   title: "Nosotros — GSmotos",
@@ -60,13 +60,7 @@ export default function NosotrosPage() {
         <p className="max-w-xl text-[14.5px] leading-relaxed text-[#B9C0C7]">
           Servicio de traslado y agendamiento directo en taller. Av. Presidente Riesco 6721, Las Condes, Santiago.
         </p>
-        <Link
-          href="/contacto"
-          className="inline-flex items-center gap-4 rounded border border-mBlue bg-mBlue px-6 py-[15px] font-display text-[17px] font-semibold uppercase tracking-[2.4px] text-white transition-colors hover:border-mCyan hover:bg-mCyan"
-        >
-          <span>Ir a Contacto</span>
-          <span className="font-body">→</span>
-        </Link>
+        <Button href="/contacto">Ir a Contacto</Button>
       </section>
 
       <SiteFooter />

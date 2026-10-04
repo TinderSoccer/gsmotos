@@ -1,7 +1,7 @@
-import Link from "next/link";
 import { Calendar } from "lucide-react";
 import ColorBars from "@/components/services/ColorBars";
 import { NEUMATICOS_HERO } from "@/lib/neumaticosContent";
+import Button from "@/components/common/Button";
 
 // `id` lo usa NeumaticosMobileBar (IntersectionObserver) para saber cuándo
 // el usuario ya pasó el encabezado y mostrar la barra fija de "Agendar".
@@ -29,13 +29,9 @@ export default function NeumaticosHero({ agendarHref }) {
       <p className="max-w-4xl border-l-[3px] border-mBlue pl-4 font-display text-lg italic leading-snug text-white sm:text-xl">
         {NEUMATICOS_HERO.quote}
       </p>
-      <Link
-        href={agendarHref}
-        className="mt-1 inline-flex w-fit items-center gap-3 whitespace-nowrap rounded bg-mBlue px-7 py-4 font-display text-[15px] font-semibold uppercase tracking-[2.2px] text-white transition-colors hover:bg-mCyan"
-      >
-        <Calendar size={17} strokeWidth={2} aria-hidden="true" />
-        <span>Agendar hora</span>
-      </Link>
+      <Button href={agendarHref} arrow={false} icon={<Calendar size={17} strokeWidth={2} aria-hidden="true" />} className="mt-1">
+        Agendar hora
+      </Button>
     </section>
   );
 }

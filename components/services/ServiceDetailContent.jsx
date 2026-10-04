@@ -1,12 +1,13 @@
 "use client";
 
 import Link from "next/link";
-import { FaInstagram, FaWhatsapp } from "react-icons/fa6";
+import { FaInstagram } from "react-icons/fa6";
 import ColorBars from "./ColorBars";
 import { MobileTopBar } from "@/components/mobile/MobileNav";
 import { useServicePhoto } from "@/lib/servicePhotos";
 import { instagramUrl, useSettings, whatsappUrl } from "@/lib/settings";
 import SmartImage from "@/components/common/SmartImage";
+import Button from "@/components/common/Button";
 
 // Contenido de detalle de un servicio (kicker/título/lead/texto largo/nota +
 // CTAs). Antes vivía como overlay en components/home/DetailModal.jsx; ahora
@@ -50,31 +51,13 @@ export default function ServiceDetailContent({ card, backHref, backLabel }) {
             <span className="font-display text-[15px] uppercase leading-snug tracking-wide text-[#E4E7EA]">{card.note}</span>
           </div>
           <div className="flex flex-wrap items-center gap-4 pt-1">
-            <Link
-              href="/contacto"
-              className="inline-flex items-center gap-4 rounded border border-mBlue bg-mBlue px-6 py-[15px] font-display text-[17px] font-semibold uppercase tracking-[2.4px] text-white transition-colors hover:border-mCyan hover:bg-mCyan"
-            >
-              <span>Agendar ahora</span>
-              <span className="font-body">→</span>
-            </Link>
-            <a
-              href={whatsappUrl(s.phoneDigits, `Hola, quiero consultar por: ${card.title}`)}
-              target="_blank"
-              rel="noreferrer"
-              className="inline-flex items-center gap-2.5 rounded border border-mCyan px-[22px] py-[15px] font-display text-base font-semibold uppercase tracking-[2.2px] text-white press hover:bg-mCyan/[0.16]"
-            >
-              <FaWhatsapp size={19} color="#25D366" />
+            <Button block="mobile" href="/contacto">Agendar ahora</Button>
+            <Button block="mobile" variant="whatsapp" href={whatsappUrl(s.phoneDigits, `Hola, quiero consultar por: ${card.title}`)}>
               Escribir por WhatsApp
-            </a>
-            <a
-              href={instagramUrl(s.instagramUser)}
-              target="_blank"
-              rel="noreferrer"
-              className="inline-flex items-center gap-2.5 rounded border border-white/25 px-[22px] py-[15px] font-display text-base font-semibold uppercase tracking-[2.2px] text-white transition-colors hover:border-white/50"
-            >
-              <FaInstagram size={19} color="#E1306C" />
+            </Button>
+            <Button block="mobile" variant="secondary" href={instagramUrl(s.instagramUser)} icon={<FaInstagram size={18} color="#E1306C" aria-hidden="true" />}>
               Seguir en Instagram
-            </a>
+            </Button>
           </div>
         </div>
       </div>

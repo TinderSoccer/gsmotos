@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect, useLayoutEffect, useRef, useState } from "react";
-import Link from "next/link";
 import { Search } from "lucide-react";
 import { FaWhatsapp } from "react-icons/fa6";
 import ColorBars from "../services/ColorBars";
@@ -10,6 +9,7 @@ import BrandRow from "../services/BrandRow";
 import ProductModal from "./ProductModal";
 import ProductCard from "@/components/common/ProductCard";
 import { useSettings, whatsappUrl } from "@/lib/settings";
+import Button from "@/components/common/Button";
 
 // Panel oscuro debajo del hero: muestra la grilla de tarjetas de servicio de
 // la categoría elegida en el tablero, o (si la categoría es "Productos") un
@@ -156,13 +156,9 @@ function ProductCarousel({ query, onQueryChange, products, pageLabel, dir, resul
           placeholder="Busca aceites, filtros, neumáticos, accesorios…"
           className="min-w-0 flex-1 bg-transparent py-3.5 font-body text-base text-white outline-none placeholder:text-[#7A838C]"
         />
-        <Link
-          href={query.trim() ? `/productos?q=${encodeURIComponent(query.trim())}` : "/productos"}
-          className="inline-flex items-center gap-3.5 whitespace-nowrap rounded-md border border-mBlue bg-mBlue px-6 py-3 font-display text-base font-semibold uppercase tracking-[2.2px] text-white press hover:border-mCyan hover:bg-mCyan"
-        >
-          <span>Buscar</span>
-          <span className="font-body">→</span>
-        </Link>
+        <Button href={query.trim() ? `/productos?q=${encodeURIComponent(query.trim())}` : "/productos"} size="sm">
+          Buscar
+        </Button>
       </div>
 
       <div className="flex flex-wrap items-center justify-between gap-5">

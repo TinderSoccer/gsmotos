@@ -1,10 +1,10 @@
 "use client";
 
-import Link from "next/link";
 import { MapPin } from "lucide-react";
 import { mapsUrl, useSettings } from "@/lib/settings";
 import TallerWhatsappButton from "./TallerWhatsappButton";
 import MapaTaller from "@/components/MapaTaller";
+import Button from "@/components/common/Button";
 
 // Cierre de /nosotros/taller: cómo llegar. La dirección sale de los ajustes
 // del panel (antes estaba escrita a mano en la página); el mapa es
@@ -28,13 +28,7 @@ export default function TallerVisita() {
           <span>{s.address}</span>
         </a>
         <div className="flex flex-wrap items-center gap-3">
-          <Link
-            href="/contacto"
-            className="inline-flex items-center gap-4 whitespace-nowrap rounded border border-mBlue bg-mBlue px-7 py-4 font-display text-[17px] font-semibold uppercase tracking-[2.4px] text-white press hover:border-mCyan hover:bg-mCyan"
-          >
-            <span>Agendar ahora</span>
-            <span className="font-body">→</span>
-          </Link>
+          <Button href="/contacto" block="mobile">Agendar ahora</Button>
           <TallerWhatsappButton />
         </div>
       </div>

@@ -3,6 +3,7 @@
 import { MessageCircle } from "lucide-react";
 import { NEUMATICOS_CTA } from "@/lib/neumaticosContent";
 import { useSettings, whatsappUrl } from "@/lib/settings";
+import Button from "@/components/common/Button";
 
 // Ya no es un banner ancho completo aparte: vive dentro de la columna de
 // "Tipos de uso" (ver app/servicios/neumaticos/page.jsx), que queda más
@@ -32,15 +33,14 @@ export default function NeumaticosCta() {
         <p className="text-sm leading-[1.5] text-[#B9C0C7]">{NEUMATICOS_CTA.subtitle}</p>
       </div>
 
-      <a
+      <Button
         href={asesoriaHref}
-        target="_blank"
-        rel="noopener noreferrer"
-        className="inline-flex w-full items-center justify-center gap-3 whitespace-nowrap rounded bg-mBlue px-6 py-4 font-display text-base font-semibold uppercase tracking-[2.2px] text-white transition-colors hover:bg-mCyan sm:w-fit"
+        arrow={false}
+        icon={<MessageCircle size={18} strokeWidth={2} aria-hidden="true" />}
+        className="w-full justify-center sm:w-fit"
       >
-        <MessageCircle size={18} strokeWidth={2} aria-hidden="true" />
-        <span>Asesórate con nosotros</span>
-      </a>
+        Asesórate con nosotros
+      </Button>
     </section>
   );
 }
