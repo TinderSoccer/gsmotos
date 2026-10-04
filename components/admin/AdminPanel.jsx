@@ -227,9 +227,14 @@ function TapHint({ dark = false }) {
 
 const FOUNDER_DEFAULT_PHOTO = "/images/foto-taller-c.png";
 
-// Réplica del hero de /nosotros/christopher (corte diagonal blanco + texto).
+// Foto principal de /nosotros/christopher: tarjeta compacta (como la del
+// logo) con la foto completa, sin recortes, para ver bien qué foto es, y al
+// lado una vista chica de cómo queda en el encabezado de la página (corte
+// diagonal blanco a la izquierda). Antes era una réplica del encabezado a
+// lo ancho que parecía un banner y tapaba casi la mitad de la foto.
 function FounderHeroPhoto() {
   const photo = useFounderPhoto();
+  const shown = photo || FOUNDER_DEFAULT_PHOTO;
 
   async function handleFile(ev) {
     const url = await readAndUpload(ev, { maxSize: 1800, quality: 0.85 });
@@ -238,37 +243,62 @@ function FounderHeroPhoto() {
 
   return (
     <div className="px-6 pb-8 sm:px-10">
-      <div className="mb-2 font-display text-lg font-semibold uppercase tracking-wide text-[#0B0B0B]">
-        Foto principal de la página
-      </div>
-      <PhotoPicker onFile={handleFile} className="overflow-hidden rounded-xl border border-[#E0E0E0]">
-        <section className="relative h-[180px] overflow-hidden bg-[#050505] sm:h-[230px]">
-          <SmartImage src={photo || FOUNDER_DEFAULT_PHOTO} alt="Foto principal de Christopher" className="brightness-110" sizes="(max-width: 1023px) 100vw, 1100px" />
-          <div
-            className="pointer-events-none absolute inset-0 sm:hidden"
-            style={{ background: "linear-gradient(180deg, rgba(5,5,5,0.55) 0%, rgba(5,5,5,0.72) 50%, rgba(5,5,5,0.93) 100%)" }}
-          />
-          <div className="pointer-events-none absolute inset-0 hidden bg-white sm:block" style={{ clipPath: "polygon(0 0, 34% 0, 47% 100%, 0 100%)" }} />
-          <div
-            className="pointer-events-none absolute inset-y-0 left-0 hidden w-[64%] sm:block"
-            style={{ background: "linear-gradient(103deg, #ffffff 50%, rgba(255,255,255,0.86) 57%, rgba(255,255,255,0) 72%)" }}
-          />
-          <div className="relative flex h-full max-w-[560px] flex-col justify-end gap-1.5 px-6 pb-4 sm:px-10 sm:pb-6">
-            <div className="flex items-center gap-2.5">
-              <ColorBars />
-              <span className="font-display text-xs uppercase tracking-[2.2px] text-white sm:text-[#0B0B0B]">Fundador GSmotos</span>
+      <div className="max-w-3xl rounded-xl border border-[#E0E0E0] bg-white p-5 shadow-[0_2px_10px_rgba(11,11,11,0.05)] sm:p-6">
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <div className="font-display text-xl font-bold uppercase tracking-wide text-[#0B0B0B]">Foto principal</div>
+          <PhotoStatus custom={Boolean(photo)} baseLabel="Foto provisoria" />
+        </div>
+
+        <div className="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-2">
+          <div className="flex flex-col gap-2">
+            <div className="relative h-[200px] overflow-hidden rounded-lg bg-[#0B0B0B]">
+              <SmartImage src={shown} alt="Foto principal de Christopher" fit="contain" sizes="400px" />
             </div>
-            <div className="font-display text-[26px] font-bold italic uppercase leading-[0.94] text-white sm:text-[38px] sm:text-[#0B0B0B]">
-              Christopher
-            </div>
+            <span className="text-center text-xs text-[#8A8A8A]">La foto completa</span>
           </div>
-        </section>
-      </PhotoPicker>
-      <PhotoStatus
-        custom={Boolean(photo)}
-        baseLabel="Foto del taller"
-        onRemove={() => confirmar("¿Quitar tu foto? Vuelve a verse la foto del taller.") && warnIfFailed(setFounderPhoto(""))}
-      />
+          <div className="flex flex-col gap-2">
+            <div className="flex items-center sm:h-[200px]">
+              <section className="relative h-[110px] w-full overflow-hidden rounded-lg border border-[#E0E0E0] bg-[#050505]">
+                <SmartImage src={shown} alt="" className="brightness-110" sizes="400px" />
+                <div className="pointer-events-none absolute inset-0 bg-white" style={{ clipPath: "polygon(0 0, 34% 0, 47% 100%, 0 100%)" }} />
+                <div
+                  className="pointer-events-none absolute inset-y-0 left-0 w-[64%]"
+                  style={{ background: "linear-gradient(103deg, #ffffff 50%, rgba(255,255,255,0.86) 57%, rgba(255,255,255,0) 72%)" }}
+                />
+                <div className="relative flex h-full flex-col justify-end gap-1 px-3.5 pb-3">
+                  <div className="scale-75 origin-left">
+                    <ColorBars />
+                  </div>
+                  <div className="font-display text-[17px] font-bold italic uppercase leading-none text-[#0B0B0B]">Christopher</div>
+                </div>
+              </section>
+            </div>
+            <span className="text-center text-xs text-[#8A8A8A]">Así queda arriba en su página</span>
+          </div>
+        </div>
+
+        <div className="mt-5 flex flex-wrap items-center gap-2.5">
+          <label className="flex cursor-pointer items-center justify-center gap-2.5 whitespace-nowrap rounded bg-mBlue px-5 py-3 font-display text-sm font-semibold uppercase tracking-wide text-white transition-colors hover:bg-mCyan">
+            <Camera size={16} />
+            <span>{photo ? "Cambiar foto" : "Subir foto"}</span>
+            <input type="file" accept="image/*" className="hidden" onChange={handleFile} />
+          </label>
+          {photo && (
+            <button
+              type="button"
+              onClick={() => confirmar("¿Quitar tu foto? Vuelve a verse la foto provisoria.") && warnIfFailed(setFounderPhoto(""))}
+              className="rounded border border-[#D6D6D6] bg-white px-5 py-3 font-display text-sm font-semibold uppercase tracking-wide text-[#0B0B0B] transition-colors hover:border-mRed hover:text-mRed"
+            >
+              Volver a la provisoria
+            </button>
+          )}
+        </div>
+        <p className="mt-3 text-sm leading-[1.5] text-[#5A5A5A]">
+          Usa una <strong>foto horizontal</strong> (más ancha que alta), idealmente de Christopher en el taller. Que lo
+          importante quede <strong>a la derecha</strong>: el lado izquierdo lo tapa el texto. Puede ser una foto sacada
+          con el celular.
+        </p>
+      </div>
     </div>
   );
 }
@@ -303,14 +333,13 @@ function CertificadosTab() {
         </div>
       </div>
 
-      <div className="px-6 sm:px-10">
-        <TapHint />
-      </div>
-
       <FounderHeroPhoto />
 
       <div className="px-6 pb-14 sm:px-10">
-        <div className="mb-3 font-display text-lg font-semibold uppercase tracking-wide text-[#0B0B0B]">Certificados</div>
+        <div className="mb-1 font-display text-xl font-bold uppercase tracking-wide text-[#0B0B0B]">Certificados</div>
+        <p className="mb-4 flex items-center gap-2 text-sm text-[#5A5A5A]">
+          <Camera size={15} /> Toca cualquier certificado para cambiar su foto.
+        </p>
         <div className="grid grid-cols-1 gap-3.5 sm:grid-cols-2 lg:grid-cols-3">
           {CERTIFICADOS.map((cert) => {
             const custom = overrides[cert.slot];
