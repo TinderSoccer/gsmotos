@@ -1,14 +1,13 @@
 "use client";
 
-import { Suspense, useCallback, useEffect, useState } from "react";
-import { useSearchParams } from "next/navigation";
+import { useCallback, useEffect, useState } from "react";
 import { ImageOff, Search } from "lucide-react";
 import { FaWhatsapp } from "react-icons/fa6";
 import ColorBars from "@/components/services/ColorBars";
 import SiteFooter from "@/components/SiteFooter";
 import { MobileTopBar } from "@/components/mobile/MobileNav";
 import { menus } from "@/lib/servicesData";
-import { checkStock } from "@/lib/tallergp";
+import { checkStock, stockSnapshot } from "@/lib/tallergp";
 import { formatCLP, productConsultMessage, useProductosChanged } from "@/lib/catalogo";
 import { PLACEHOLDER_PHOTO } from "@/lib/productosData";
 import { useSettings, whatsappUrl } from "@/lib/settings";
@@ -68,12 +67,14 @@ function StockBadge({ stock }) {
   );
 }
 
-function ProductosContent() {
+// `searchParams` llega como prop (y no con useSearchParams), y la lista
+// parte calculada, para que la página se arme completa en el servidor y
+// Google vea los productos.
+export default function ProductosPage({ searchParams }) {
   const s = useSettings();
-  const searchParams = useSearchParams();
-  const [query, setQuery] = useState(searchParams.get("q") || "");
-  const [items, setItems] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const [query, setQuery] = useState(() => (typeof searchParams?.q === "string" ? searchParams.q : ""));
+  const [items, setItems] = useState(() => stockSnapshot(query));
+  const [loading, setLoading] = useState(false);
 
   const reload = useCallback(() => {
     let active = true;
@@ -127,7 +128,7 @@ function ProductosContent() {
           />
         </div>
 
-        {loading ? (
+        {loading && items.length === 0 ? (
           <div className="py-14 text-center font-display text-sm uppercase tracking-wide text-[#6E7780]">
             Consultando stock…
           </div>
@@ -186,13 +187,5 @@ function ProductosContent() {
       </div>
       <SiteFooter />
     </main>
-  );
-}
-
-export default function ProductosPage() {
-  return (
-    <Suspense fallback={null}>
-      <ProductosContent />
-    </Suspense>
   );
 }

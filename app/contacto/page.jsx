@@ -1,8 +1,7 @@
 "use client";
 
-import { Suspense, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import Link from "next/link";
-import { useSearchParams } from "next/navigation";
 import ColorBars from "@/components/services/ColorBars";
 import ContactInfo from "@/components/ContactInfo";
 import SiteFooter from "@/components/SiteFooter";
@@ -22,9 +21,10 @@ const MOTIVO_NOTE = {
 // Formulario de agendamiento — sin carrito ni pago online, solo reserva de
 // hora. Usa lib/tallergp.js (mock); ver ese archivo para dónde conectar la
 // API real de TallerGP cuando existan credenciales.
-function ContactoContent() {
-  const searchParams = useSearchParams();
-  const motivoNote = MOTIVO_NOTE[searchParams.get("motivo")] || "";
+// `searchParams` llega como prop (y no con useSearchParams) para que la
+// página se arme completa en el servidor y Google vea el formulario.
+export default function ContactoPage({ searchParams }) {
+  const motivoNote = MOTIVO_NOTE[searchParams?.motivo] || "";
   const [form, setForm] = useState(() => ({ ...EMPTY_FORM, note: motivoNote }));
   const [slots, setSlots] = useState([]);
   const [status, setStatus] = useState("idle"); // idle | loading | done | error
@@ -193,13 +193,5 @@ function ContactoContent() {
 
       <SiteFooter />
     </main>
-  );
-}
-
-export default function ContactoPage() {
-  return (
-    <Suspense fallback={null}>
-      <ContactoContent />
-    </Suspense>
   );
 }
