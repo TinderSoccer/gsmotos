@@ -4,7 +4,7 @@
 // /administracion (ver lib/taller.js). Un video puede ser un link directo
 // (mp4/webm/ogg, se reproduce con <video>) o un link de YouTube/Vimeo (se
 // incrusta como <iframe>). Una foto con `size: "banner"` ocupa todo el
-// ancho de la galería y es más panorámica (pedido del cliente: fotos
+// ancho de la galería y es una franja panorámica, 4:1 en desktop (pedido del cliente: fotos
 // "tipo banner" entre las tarjetas normales).
 import { isDirectVideoUrl, toEmbedUrl, useTallerItems } from "@/lib/taller";
 import SmartImage from "@/components/common/SmartImage";
@@ -30,7 +30,7 @@ export default function TallerGallery() {
           key={item.id}
           className={`flex flex-col overflow-hidden rounded-xl border border-[#1E2226] bg-[#0B0D0F] ${banner ? "sm:col-span-2 lg:col-span-3" : ""}`}
         >
-          <div className={`relative overflow-hidden bg-[#14171A] ${banner ? "aspect-[16/9] sm:aspect-[21/9] lg:aspect-[3/1]" : "aspect-video"}`}>
+          <div className={`relative overflow-hidden bg-[#14171A] ${banner ? "aspect-[2/1] sm:aspect-[3/1] lg:aspect-[4/1]" : "aspect-video"}`}>
             {item.type === "video" ? (
               isDirectVideoUrl(item.url) ? (
                 // eslint-disable-next-line jsx-a11y/media-has-caption
