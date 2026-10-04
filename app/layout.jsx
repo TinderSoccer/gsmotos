@@ -4,6 +4,7 @@ import { MobileChrome } from "@/components/mobile/MobileNav";
 import { ContentProvider } from "@/lib/contentStore";
 import { getAllContent } from "@/lib/contentServer";
 import { SITE_NAME, SITE_URL } from "@/lib/site";
+import BusinessJsonLd from "@/components/BusinessJsonLd";
 import "./globals.css";
 
 const barlowCondensed = Barlow_Condensed({
@@ -46,6 +47,7 @@ export default async function RootLayout({ children }) {
   return (
     <html lang="es" className={`${barlowCondensed.variable} ${barlow.variable}`}>
       <body className="font-body">
+        <BusinessJsonLd settings={content.settings} />
         <ContentProvider initial={content}>
           <MobileChrome>{children}</MobileChrome>
         </ContentProvider>
