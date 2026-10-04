@@ -76,7 +76,7 @@ export default function ProductCard({ prod, onOpen, sizes, priority = false, cla
             <div className="mt-1 truncate font-body text-[11px] tabular-nums text-[#7A838C] sm:text-xs">{prod.codigo}</div>
           )}
           {prod.stock === 0 && (
-            <div className="mt-1 font-body text-[11px] font-medium text-[#FF5A6E] sm:text-xs">Consultar disponibilidad</div>
+            <div className="mt-1 font-body text-[11px] font-medium text-[#8A939C] sm:text-xs">Consultar disponibilidad</div>
           )}
         </div>
         <div className="mt-auto flex items-center justify-between gap-2 border-t border-white/[0.07] pt-2.5 sm:pt-3">

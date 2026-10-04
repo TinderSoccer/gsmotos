@@ -99,6 +99,19 @@ export default function ProductModal({ prod, onClose }) {
             {prod.name}
           </h2>
 
+          {typeof prod.stock === "number" && (
+            <div className="mt-3 flex items-center gap-2 font-body text-[13px] font-medium">
+              {prod.stock > 0 ? (
+                <>
+                  <span aria-hidden="true" className="h-2 w-2 rounded-full bg-tftGreen" />
+                  <span className="text-tftGreen">Disponible</span>
+                </>
+              ) : (
+                <span className="text-[#8A939C]">Disponibilidad a consultar</span>
+              )}
+            </div>
+          )}
+
           {ficha.length > 0 && (
             <dl className="mt-5 border-t border-white/[0.08]">
               {ficha.map(([label, value]) => (

@@ -138,7 +138,12 @@ export default function ServicioGruasPage() {
         </div>
       </div>
 
-      <section className="flex flex-col items-start gap-4 border-t border-[#1c1d20] bg-[#0c0d0f] px-6 py-5 sm:flex-row sm:items-center sm:justify-between sm:px-10">
+      {/* Franja de urgencia: se enciende hacia la derecha con el rojo de la
+          zona de corte del tablero, el único lugar del sitio que lo usa así. */}
+      <section
+        className="flex flex-col items-start gap-4 border-t border-mRed/40 px-6 py-5 sm:flex-row sm:items-center sm:justify-between sm:px-10"
+        style={{ background: "linear-gradient(90deg, #0c0d0f 0%, #0c0d0f 45%, rgba(231,0,42,0.16) 100%)" }}
+      >
         <div className="flex max-w-xl flex-col gap-1">
           <div className="font-display text-xl font-bold italic uppercase leading-[1.05] text-white sm:text-2xl">
             ¿Necesitas una grúa ahora?
