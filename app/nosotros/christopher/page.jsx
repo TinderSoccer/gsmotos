@@ -41,7 +41,7 @@ export default function ChristopherPage() {
         />
 
         <header className="absolute inset-x-0 top-0 z-30 flex items-center justify-between gap-3 px-6 py-3 sm:px-10 sm:py-4">
-          <Link href="/" className="block leading-none">
+          <Link href="/" className="flex min-h-11 items-center leading-none">
             <Logo light="mobile" className="block h-auto w-[82px] sm:w-[150px]" />
           </Link>
           <Link
