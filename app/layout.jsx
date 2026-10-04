@@ -3,6 +3,7 @@ import { SpeedInsights } from "@vercel/speed-insights/next";
 import { MobileChrome } from "@/components/mobile/MobileNav";
 import { ContentProvider } from "@/lib/contentStore";
 import { getAllContent } from "@/lib/contentServer";
+import { SITE_NAME, SITE_URL } from "@/lib/site";
 import "./globals.css";
 
 const barlowCondensed = Barlow_Condensed({
@@ -19,9 +20,22 @@ const barlow = Barlow({
 });
 
 export const metadata = {
+  metadataBase: new URL(SITE_URL),
   title: "GSmotos — Especialistas en BMW Motorrad",
   description:
     "Mantención, diagnóstico electrónico y preparación de performance para toda la gama BMW en Santiago, Chile.",
+  // "./" = la propia página de cada ruta, con la dirección de lib/site.js.
+  alternates: { canonical: "./" },
+  // Vista previa al compartir el link (WhatsApp, redes). Título y
+  // descripción los toma de cada página.
+  openGraph: {
+    type: "website",
+    siteName: SITE_NAME,
+    locale: "es_CL",
+    url: "./",
+    images: [{ url: "/images/hero-timelapse-poster.jpg", width: 1280, height: 960, alt: "Taller GSmotos" }],
+  },
+  twitter: { card: "summary_large_image" },
 };
 
 // Contenido publicado desde /administracion (productos, contacto, fotos…),
