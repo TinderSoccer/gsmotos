@@ -108,7 +108,14 @@ export default function HeroExperience() {
   // en base al string de `sizes`, no al tamaño real del elemento — con un
   // `sizes` distinto (o un `width`/`height` chico) se precarga una URL
   // distinta a la que la foto real termina pidiendo, y no sirve de nada.
-  const preloadPhotos = visibleProducts.filter((p) => p.photo && p.photo !== PLACEHOLDER_PHOTO);
+  // También las de la página siguiente: el carrusel cambia el contenido
+  // cuando las tarjetas ya se fueron y las nuevas entran con un fundido,
+  // así que sus fotos tienen que estar listas de antes.
+  const nextPage = (page + 1) % pageCount;
+  const nextProducts = nextPage === page ? [] : catalogue.slice(nextPage * PER_PAGE, nextPage * PER_PAGE + PER_PAGE);
+  const preloadPhotos = [...visibleProducts, ...nextProducts].filter(
+    (p, i, all) => p.photo && p.photo !== PLACEHOLDER_PHOTO && all.findIndex((q) => q.slug === p.slug) === i
+  );
 
   return (
     <>

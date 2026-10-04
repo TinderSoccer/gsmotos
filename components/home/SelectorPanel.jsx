@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { ImageOff, Search } from "lucide-react";
 import { FaWhatsapp } from "react-icons/fa6";
@@ -64,37 +64,111 @@ function EstadoBadge({ estado }) {
 // animación de entrada al cambiar de página), para que funcione bien en
 // cualquier ancho de pantalla.
 
+// Animación del cambio de página del carrusel (ver ProductCarousel). Misma
+// curva que el resto del sitio.
+const CAROUSEL_EASE = "cubic-bezier(0.22,0.61,0.36,1)";
+const CAROUSEL_OUT_MS = 150;
+const CAROUSEL_IN_MS = 260;
+const CAROUSEL_STAGGER_MS = 50;
+
+// Solo las animaciones creadas a mano (no las transiciones CSS de hover ni
+// la de "press").
+function ownAnimations(el) {
+  return el
+    .getAnimations()
+    .filter((a) => !(typeof CSSTransition !== "undefined" && a instanceof CSSTransition) && !(typeof CSSAnimation !== "undefined" && a instanceof CSSAnimation));
+}
+
 function ProductCarousel({ query, onQueryChange, products, pageLabel, dir, resultLabel, empty, onPrev, onNext, animClass }) {
   const s = useSettings();
   const [openProduct, setOpenProduct] = useState(null);
   const gridRef = useRef(null);
   const prevLabelRef = useRef(null);
 
-  // Antes esta grilla se desmontaba y volvía a montar entera en cada
-  // cambio de página (key={pageLabel}) para repetir la animación de
-  // entrada — pero eso también destruye y recrea los <img> de las 4
-  // fotos, así estén en caché: el navegador los repinta desde cero, lo
-  // que se veía como un parpadeo ("pestañea") y una demora de carga que
-  // en realidad no era de red. Ahora el contenedor y las tarjetas (ver
-  // `key={i}` más abajo, por posición) se mantienen montados siempre —
-  // solo cambia el contenido (foto/texto) — y la animación de slide se
-  // dispara a mano con la Web Animations API cuando cambia `pageLabel`.
+  // Cambio de página en dos tiempos, tarjeta por tarjeta: las actuales se
+  // van (fundido + leve corrimiento hacia atrás) y recién entonces se
+  // cambia el contenido y entran las nuevas desde el lado hacia donde se
+  // avanzó, una tras otra. Antes el contenido cambiaba de golpe y después
+  // toda la fila se corría 36px, y no se leía como un carrusel.
   //
-  // SOLO transform, sin opacity: con opacity de por medio, la grilla
-  // entera pasaba por invisible un instante en cada cambio de página —
-  // un parpadeo real (se midió: el área caía a negro de fondo por un
-  // frame), más notorio todavía que el problema del remount. Sin fade,
-  // las tarjetas nunca desaparecen — solo se deslizan a su lugar.
+  // Se mantienen dos arreglos anteriores:
+  // - El contenedor y las tarjetas no se desmontan (`key={i}`, por
+  //   posición): recrear los <img> en cada página los hacía parpadear.
+  // - Nunca se cambia el contenido a la vista: el cambio ocurre cuando las
+  //   tarjetas ya están invisibles, y las nuevas entran desde opacity 0.
+  //   (Antes, un fundido de la grilla entera mostraba un cuadro negro.)
+  //   Las fotos de la página siguiente se precargan (HeroExperience.jsx),
+  //   así que llegan listas.
+  //
+  // Web Animations API (sin librería). `shown` es lo que se dibuja; puede
+  // ir atrasado respecto de `products` mientras corre la salida.
+  const [shown, setShown] = useState(products);
+  const latest = useRef({ products, dir });
+  latest.current = { products, dir };
+  const exiting = useRef(false);
+  const enterDir = useRef(null);
+
   useEffect(() => {
-    if (prevLabelRef.current === pageLabel) return;
+    if (prevLabelRef.current === null || prevLabelRef.current === pageLabel) {
+      // Primera vez, o mismos datos con otra identidad (ej. búsqueda que
+      // vuelve a la página 1): sin animación.
+      prevLabelRef.current = pageLabel;
+      if (!exiting.current) setShown(products);
+      return;
+    }
     prevLabelRef.current = pageLabel;
-    const el = gridRef.current;
-    if (!el) return;
-    el.animate(
-      [{ transform: dir === "prev" ? "translateX(-36px)" : "translateX(36px)" }, { transform: "none" }],
-      { duration: 380, easing: "cubic-bezier(0.33,0.02,0.16,1)", fill: "both" }
-    );
-  }, [pageLabel, dir]);
+    if (exiting.current) return; // al terminar la salida se usa lo último
+    const cards = gridRef.current ? [...gridRef.current.children] : [];
+    if (!cards.length) {
+      setShown(products);
+      return;
+    }
+    exiting.current = true;
+    const sign = dir === "prev" ? -1 : 1;
+    const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    const anims = cards.map((card) => {
+      ownAnimations(card).forEach((a) => {
+        // Si todavía estaba entrando, sale desde donde está.
+        a.commitStyles();
+        a.cancel();
+      });
+      return card.animate([{ opacity: 0, transform: reduce ? "none" : `translateX(${-sign * 12}px)` }], {
+        duration: CAROUSEL_OUT_MS,
+        easing: CAROUSEL_EASE,
+        fill: "forwards",
+      });
+    });
+    Promise.all(anims.map((a) => a.finished))
+      .then(() => {
+        exiting.current = false;
+        enterDir.current = latest.current.dir;
+        setShown(latest.current.products);
+      })
+      .catch(() => {
+        exiting.current = false;
+      });
+  }, [pageLabel, products, dir]);
+
+  // Entrada: corre antes de pintar, en el mismo cuadro en que se cancela la
+  // salida, así las tarjetas nuevas nunca se ven quietas antes de animarse.
+  useLayoutEffect(() => {
+    if (enterDir.current === null || !gridRef.current) return;
+    const sign = enterDir.current === "prev" ? -1 : 1;
+    enterDir.current = null;
+    const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    [...gridRef.current.children].forEach((card, i) => {
+      ownAnimations(card).forEach((a) => a.cancel());
+      card.style.opacity = "";
+      card.style.transform = "";
+      card.animate(
+        [
+          { opacity: 0, transform: reduce ? "none" : `translateX(${sign * 16}px)` },
+          { opacity: 1, transform: "none" },
+        ],
+        { duration: CAROUSEL_IN_MS, delay: reduce ? 0 : i * CAROUSEL_STAGGER_MS, easing: CAROUSEL_EASE, fill: "backwards" }
+      );
+    });
+  }, [shown]);
 
   return (
     <div className="flex flex-col gap-5" style={{ animation: `${animClass} 760ms cubic-bezier(0.33,0.02,0.16,1) both` }}>
@@ -156,7 +230,7 @@ function ProductCarousel({ query, onQueryChange, products, pageLabel, dir, resul
           ref={gridRef}
           className="-mx-6 flex snap-x snap-mandatory gap-3 overflow-x-auto px-6 pb-1 sm:mx-0 sm:grid sm:grid-cols-2 sm:gap-3.5 sm:overflow-visible sm:px-0 sm:pb-0 lg:grid-cols-4"
         >
-          {products.map((prod, i) => (
+          {shown.map((prod, i) => (
             <div
               key={i}
               className="group flex w-[46%] flex-none snap-start flex-col overflow-hidden rounded-xl border border-[#1E2226] bg-[#0B0D0F] text-[#E4E7EA] press press-soft sm:w-auto sm:hover:-translate-y-1 sm:hover:border-mCyan"
