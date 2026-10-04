@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import ColorBars from "@/components/services/ColorBars";
 import ContactInfo from "@/components/ContactInfo";
+import MapaTaller from "@/components/MapaTaller";
 import SiteFooter from "@/components/SiteFooter";
 import { MobileTopBar } from "@/components/mobile/MobileNav";
 import { getAvailableSlots, createAppointment } from "@/lib/tallergp";
@@ -70,7 +71,13 @@ export default function ContactoPage({ searchParams }) {
       </div>
 
       <div className="grid grid-cols-1 gap-10 px-6 py-10 sm:px-10 md:grid-cols-[0.8fr_1.2fr]">
-        <ContactInfo dark />
+        {/* En computador, el mapa llena la columna de los datos (antes
+            quedaba medio vacía). En el celular no va: empujaría el
+            formulario hacia abajo. */}
+        <div className="flex flex-col gap-6">
+          <ContactInfo dark />
+          <MapaTaller className="hidden aspect-[4/3] md:block" />
+        </div>
 
         <div className="rounded-xl border border-[#1E2226] bg-white/[0.02] p-6 sm:p-8">
           {status === "done" ? (

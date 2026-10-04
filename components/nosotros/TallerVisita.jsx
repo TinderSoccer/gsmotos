@@ -4,14 +4,13 @@ import Link from "next/link";
 import { MapPin } from "lucide-react";
 import { mapsUrl, useSettings } from "@/lib/settings";
 import TallerWhatsappButton from "./TallerWhatsappButton";
+import MapaTaller from "@/components/MapaTaller";
 
 // Cierre de /nosotros/taller: cómo llegar. La dirección sale de los ajustes
-// del panel (antes estaba escrita a mano en la página), y el mapa es el de
-// Google sin clave, en tonos oscuros para que no sea un rectángulo blanco
-// en una página negra.
+// del panel (antes estaba escrita a mano en la página); el mapa es
+// components/MapaTaller.jsx.
 export default function TallerVisita() {
   const s = useSettings();
-  const embed = `https://www.google.com/maps?q=${encodeURIComponent(s.address)}&hl=es&output=embed`;
 
   return (
     <section className="grid grid-cols-1 gap-8 border-t border-[#1c1d20] bg-[#0c0d0f] px-6 py-11 sm:px-10 sm:py-14 lg:grid-cols-2 lg:items-center lg:gap-12">
@@ -39,16 +38,7 @@ export default function TallerVisita() {
           <TallerWhatsappButton />
         </div>
       </div>
-      <div className="relative aspect-[4/3] overflow-hidden rounded-xl border border-[#1E2226] bg-[#14171A] sm:aspect-[16/9]">
-        <iframe
-          src={embed}
-          title={`Mapa: ${s.address}`}
-          loading="lazy"
-          referrerPolicy="no-referrer-when-downgrade"
-          className="absolute inset-0 h-full w-full border-0"
-          style={{ filter: "invert(0.9) hue-rotate(180deg) saturate(0.6) brightness(0.95)" }}
-        />
-      </div>
+      <MapaTaller className="aspect-[4/3] sm:aspect-[16/9]" />
     </section>
   );
 }
