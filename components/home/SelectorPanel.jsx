@@ -98,7 +98,7 @@ function ProductCarousel({ query, onQueryChange, products, pageLabel, dir, resul
 
   return (
     <div className="flex flex-col gap-5" style={{ animation: `${animClass} 760ms cubic-bezier(0.33,0.02,0.16,1) both` }}>
-      <div className="flex items-center gap-3 rounded-[10px] border border-white/10 py-1 pl-5 pr-2.5" style={{ background: "linear-gradient(180deg, #1A1D21 0%, #0C0E10 100%)" }}>
+      <div className="flex items-center gap-3 rounded-[10px] border border-white/10 py-1 pl-5 pr-2.5 focus-within:border-mCyan" style={{ background: "linear-gradient(180deg, #1A1D21 0%, #0C0E10 100%)" }}>
         <Search size={20} strokeWidth={1.8} color="#7A838C" style={{ flexShrink: 0 }} />
         <input
           type="text"
