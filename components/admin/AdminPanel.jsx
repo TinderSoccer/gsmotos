@@ -915,8 +915,8 @@ function ProductPhotoPreview({ photo, name, estado }) {
     <>
       {!photo || photo === PLACEHOLDER_PHOTO ? (
         <div className="flex h-full flex-col items-center justify-center gap-2 bg-[repeating-linear-gradient(135deg,#EDEBE7_0_10px,#E4E1DB_10px_20px)]">
-          <ImageOff size={24} strokeWidth={1.4} className="text-[#A6A099]" />
-          <span className="font-display text-[10.5px] uppercase tracking-[2px] text-[#8C857C]">Foto próximamente</span>
+          <ImageOff size={24} strokeWidth={1.4} className="text-[#8C857C]" />
+          <span className="font-display text-[10.5px] uppercase tracking-[2px] text-[#5E5850]">Foto próximamente</span>
         </div>
       ) : (
         <SmartImage src={photo} alt={name} fit="contain" className="p-3" sizes="330px" />

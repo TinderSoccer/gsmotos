@@ -23,8 +23,8 @@ function ProductPhoto({ photo, name, sizes, priority }) {
   if (photo === PLACEHOLDER_PHOTO) {
     return (
       <div className="flex h-full flex-col items-center justify-center gap-1.5 bg-[repeating-linear-gradient(135deg,#EDEBE7_0_10px,#E4E1DB_10px_20px)]">
-        <ImageOff size={20} strokeWidth={1.4} className="text-[#A6A099]" />
-        <span className="font-display text-[9px] uppercase tracking-[1.6px] text-[#8C857C] sm:text-[10.5px] sm:tracking-[2px]">Foto próximamente</span>
+        <ImageOff size={20} strokeWidth={1.4} className="text-[#8C857C]" />
+        <span className="font-display text-[10px] uppercase tracking-[1.4px] text-[#5E5850] sm:text-[10.5px] sm:tracking-[2px]">Foto próximamente</span>
       </div>
     );
   }

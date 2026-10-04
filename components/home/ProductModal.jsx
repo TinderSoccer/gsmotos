@@ -80,8 +80,8 @@ export default function ProductModal({ prod, onClose }) {
             <SmartImage src={prod.photo} alt={prod.name} fit="contain" className="p-5 md:p-8" sizes="(max-width: 767px) 100vw, 450px" priority />
           ) : (
             <div className="flex h-full w-full flex-col items-center justify-center gap-2 bg-[repeating-linear-gradient(135deg,#EDEBE7_0_10px,#E4E1DB_10px_20px)]">
-              <ImageOff size={26} strokeWidth={1.4} className="text-[#A6A099]" />
-              <span className="font-display text-[11px] uppercase tracking-[2px] text-[#8C857C]">Foto próximamente</span>
+              <ImageOff size={26} strokeWidth={1.4} className="text-[#8C857C]" />
+              <span className="font-display text-[11px] uppercase tracking-[2px] text-[#5E5850]">Foto próximamente</span>
             </div>
           )}
           <span
