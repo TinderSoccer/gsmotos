@@ -57,7 +57,7 @@ export default function ProductCard({ prod, onOpen, sizes, priority = false, cla
     <button
       type="button"
       onClick={() => onOpen(prod)}
-      className={`group relative flex flex-col overflow-hidden rounded-xl border border-[#1E2226] bg-[#0B0D0F] text-left press press-soft focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-mCyan sm:hover:-translate-y-1 sm:hover:border-[#2E3A45] ${className}`}
+      className={`group relative flex flex-col overflow-hidden rounded-xl border border-[#1E2226] bg-surface-card text-left press press-soft focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-mCyan sm:hover:-translate-y-1 sm:hover:border-[#2E3A45] ${className}`}
     >
       <ColorEdge />
       <div className="relative h-[110px] w-full flex-none overflow-hidden bg-[#EFEDE9] sm:h-[150px]">

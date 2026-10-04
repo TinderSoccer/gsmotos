@@ -98,7 +98,7 @@ export default function ChristopherPage() {
           </p>
         </div>
 
-        <div className="flex flex-col gap-3.5 self-start rounded-xl border border-[#1E2226] bg-[#0F1113] px-[30px] pb-[30px] pt-7">
+        <div className="flex flex-col gap-3.5 self-start rounded-xl border border-[#1E2226] bg-surface-card px-[30px] pb-[30px] pt-7">
           <h2 className="font-display text-xl font-bold italic uppercase leading-none text-white">Trayectoria</h2>
           <div className="flex flex-col">
             {TRAYECTORIA.map((item, i) => (
@@ -167,7 +167,7 @@ export default function ChristopherPage() {
         <CertificadosGrid />
       </section>
 
-      <section className="flex flex-col items-start gap-6 border-t border-[#1c1d20] bg-[#0c0d0f] px-6 py-11 sm:flex-row sm:items-center sm:justify-between sm:px-10 sm:py-[50px]">
+      <section className="flex flex-col items-start gap-6 border-t border-[#1c1d20] bg-surface-raised px-6 py-11 sm:flex-row sm:items-center sm:justify-between sm:px-10 sm:py-[50px]">
         <div className="flex max-w-xl flex-col gap-2.5">
           <div className="font-display text-2xl font-bold italic uppercase leading-[1.05] text-white sm:text-[30px]">
             ¿Quieres agendar tu moto en GSmotos?

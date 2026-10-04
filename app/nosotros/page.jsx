@@ -49,7 +49,7 @@ export default function NosotrosPage() {
       {/* El taller y Christopher: tarjetas con foto que llevan a sus
           páginas (antes de eso, el bloque largo de "Nuestro taller" se
           repetía acá; luego fueron cajas planas solo con texto). */}
-      <section className="border-t border-[#1c1d20] px-6 py-14 sm:px-10">
+      <section className="border-t border-[#1c1d20] bg-surface-raised px-6 py-14 sm:px-10">
         <NosotrosEnlaces taller={taller} christopher={christopher} />
       </section>
 

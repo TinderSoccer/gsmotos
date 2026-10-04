@@ -31,7 +31,7 @@ export default function NeumaticosUsos({ agendarHref }) {
   }
 
   return (
-    <div className="flex flex-col gap-3 rounded-xl border border-[#1E2226] bg-white/[0.02] p-5">
+    <div className="flex flex-col gap-3 rounded-xl border border-[#1E2226] bg-surface-card p-5">
       <div className="flex items-center gap-3.5">
         <ColorBars />
         <h2 className="font-display text-2xl font-bold italic uppercase leading-none tracking-wide text-white">Tipos de uso</h2>

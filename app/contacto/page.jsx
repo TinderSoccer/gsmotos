@@ -79,7 +79,7 @@ export default function ContactoPage({ searchParams }) {
           <MapaTaller className="hidden aspect-[4/3] md:block" />
         </div>
 
-        <div className="rounded-xl border border-[#1E2226] bg-white/[0.02] p-6 sm:p-8">
+        <div className="rounded-xl border border-[#1E2226] bg-surface-card p-6 sm:p-8">
           {status === "done" ? (
             // Momento único para el cliente: entra con un pequeño rebote
             // (misma curva que la franja fija). Ver gsmSuccessIn.

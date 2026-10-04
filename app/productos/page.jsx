@@ -62,7 +62,7 @@ export default function ProductosPage({ searchParams }) {
 
         <div className="grid grid-cols-1 gap-3.5 sm:grid-cols-2 lg:grid-cols-4">
           {INTRO_CARDS.map((card) => (
-            <div key={card.title} className="rounded-lg border border-[#1E2226] bg-white/[0.02] p-4">
+            <div key={card.title} className="rounded-lg border border-[#1E2226] bg-surface-card p-4">
               <div className="font-display text-[13px] uppercase tracking-[2px] text-[#7A838C]">{card.kicker}</div>
               <div className="mt-1 font-display text-lg font-semibold uppercase text-white">{card.title}</div>
               <p className="mt-1.5 text-[13.5px] leading-snug text-[#B9C0C7]">{card.desc}</p>

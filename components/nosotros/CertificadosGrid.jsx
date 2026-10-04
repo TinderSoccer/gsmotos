@@ -54,7 +54,7 @@ export default function CertificadosGrid() {
             key={cert.slot}
             type="button"
             onClick={() => photo && setOpenSlot(cert.slot)}
-            className={`group relative flex w-[80%] flex-none snap-start flex-col overflow-hidden rounded-xl border border-[#1E2226] bg-[#0F1113] text-left transition-all focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-mCyan sm:w-auto sm:hover:-translate-y-1 sm:hover:border-[#2E3A45] ${
+            className={`group relative flex w-[80%] flex-none snap-start flex-col overflow-hidden rounded-xl border border-[#1E2226] bg-surface-card text-left transition-all focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-mCyan sm:w-auto sm:hover:-translate-y-1 sm:hover:border-[#2E3A45] ${
               photo ? "cursor-pointer" : "cursor-default"
             }`}
           >

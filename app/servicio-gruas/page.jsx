@@ -128,7 +128,7 @@ export default function ServicioGruasPage() {
           <div className="mb-3 font-display text-base font-bold uppercase tracking-wide text-white">Qué incluye</div>
           <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
             {FEATURES.map(({ Icon, title, desc }) => (
-              <div key={title} className="flex flex-col gap-1.5 rounded-xl border border-[#1E2226] bg-white/[0.02] p-3.5">
+              <div key={title} className="flex flex-col gap-1.5 rounded-xl border border-[#1E2226] bg-surface-card p-3.5">
                 <Icon size={20} strokeWidth={1.6} className="text-mCyan" />
                 <div className="font-display text-sm font-semibold uppercase leading-tight text-white">{title}</div>
                 <p className="text-[12px] leading-snug text-[#B9C0C7]">{desc}</p>
@@ -142,7 +142,7 @@ export default function ServicioGruasPage() {
           zona de corte del tablero, el único lugar del sitio que lo usa así. */}
       <section
         className="flex flex-col items-start gap-4 border-t border-mRed/40 px-6 py-5 sm:flex-row sm:items-center sm:justify-between sm:px-10"
-        style={{ background: "linear-gradient(90deg, #0c0d0f 0%, #0c0d0f 45%, rgba(231,0,42,0.16) 100%)" }}
+        style={{ background: "linear-gradient(90deg, #101316 0%, #101316 45%, rgba(231,0,42,0.16) 100%)" }}
       >
         <div className="flex max-w-xl flex-col gap-1">
           <div className="font-display text-xl font-bold italic uppercase leading-[1.05] text-white sm:text-2xl">
