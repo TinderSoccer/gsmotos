@@ -2,6 +2,7 @@
 
 import { useRef, useState } from "react";
 import Image from "next/image";
+import { BACKDROP_OUT, CARD_OUT, useClosing } from "@/lib/useClosing";
 
 // Popup para TrayectoriaFoto.jsx — a diferencia de CertificadoModal (ancho
 // fijo pensado para escaneos apaisados), acá el ancho también es fijo
@@ -31,6 +32,7 @@ import Image from "next/image";
 // scroll táctil nativo ya funciona solo, agregar el mismo manejo ahí
 // pelearía con él.
 export default function PrensaModal({ photo, onClose }) {
+  const [closing, close] = useClosing(onClose);
   const [zoomed, setZoomed] = useState(false);
   const [dragging, setDragging] = useState(false);
   const scrollRef = useRef(null);
@@ -88,18 +90,18 @@ export default function PrensaModal({ photo, onClose }) {
   return (
     <div
       className="fixed inset-0 z-[200] flex items-center justify-center p-4 sm:p-10"
-      style={{ background: "rgba(3,4,5,0.78)", backdropFilter: "blur(6px)", animation: "gsmBack 260ms ease both" }}
-      onClick={onClose}
+      style={{ background: "rgba(3,4,5,0.78)", backdropFilter: "blur(6px)", animation: closing ? BACKDROP_OUT : "gsmBack 260ms ease both", pointerEvents: closing ? "none" : undefined }}
+      onClick={close}
     >
       <div
         className="relative flex max-h-[94vh] w-full max-w-[760px] flex-col overflow-hidden bg-white shadow-[0_50px_110px_rgba(0,0,0,0.5)]"
-        style={{ animation: "gsmPop 420ms cubic-bezier(0.22,0.61,0.36,1) both" }}
+        style={{ animation: closing ? CARD_OUT : "gsmPop 420ms cubic-bezier(0.22,0.61,0.36,1) both" }}
         onClick={(e) => e.stopPropagation()}
       >
         <button
           type="button"
           aria-label="Cerrar"
-          onClick={onClose}
+          onClick={close}
           className="absolute right-[14px] top-[14px] z-10 flex h-10 w-10 items-center justify-center rounded-full border border-white/[0.28] bg-black/50 font-body text-xl leading-none text-white transition-colors hover:border-mRed hover:bg-mRed"
         >
           ✕

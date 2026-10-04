@@ -7,6 +7,7 @@ import ColorBars from "./ColorBars";
 import { useServicePhoto } from "@/lib/servicePhotos";
 import { instagramUrl, useSettings, whatsappUrl } from "@/lib/settings";
 import SmartImage from "@/components/common/SmartImage";
+import { BACKDROP_OUT, CARD_OUT, useClosing } from "@/lib/useClosing";
 
 // Popup de detalle de servicio, fiel a la animación del diseño original de
 // Claude Design (gsmBack/gsmPop, ver app/globals.css). Es la interacción
@@ -16,6 +17,7 @@ import SmartImage from "@/components/common/SmartImage";
 // esquinas superiores redondeadas), tal como en "GSmotos Mobile.dc.html";
 // desde `sm` hacia arriba sigue siendo el diálogo centrado original.
 export default function ServiceDetailModal({ card, onClose }) {
+  const [closing, close] = useClosing(onClose);
   const photo = useServicePhoto(card);
   const s = useSettings();
   if (!card) return null;
@@ -23,12 +25,12 @@ export default function ServiceDetailModal({ card, onClose }) {
   return (
     <div
       className="fixed inset-0 z-[200] flex items-end justify-center sm:items-center sm:p-10"
-      style={{ background: "rgba(3,4,5,0.78)", backdropFilter: "blur(6px)", animation: "gsmBack 260ms ease both" }}
-      onClick={onClose}
+      style={{ background: "rgba(3,4,5,0.78)", backdropFilter: "blur(6px)", animation: closing ? BACKDROP_OUT : "gsmBack 260ms ease both", pointerEvents: closing ? "none" : undefined }}
+      onClick={close}
     >
       <div
         className="relative flex max-h-[92vh] w-full flex-col overflow-hidden rounded-t-2xl border-t border-[#262A30] bg-[#0B0D0F] shadow-[0_50px_110px_rgba(0,0,0,0.75)] sm:max-h-[86vh] sm:max-w-[940px] sm:rounded-2xl sm:border"
-        style={{ animation: "gsmPop 420ms cubic-bezier(0.22,0.61,0.36,1) both" }}
+        style={{ animation: closing ? CARD_OUT : "gsmPop 420ms cubic-bezier(0.22,0.61,0.36,1) both" }}
         onClick={(e) => e.stopPropagation()}
       >
         <div className="relative h-[210px] flex-none overflow-hidden">
@@ -44,7 +46,7 @@ export default function ServiceDetailModal({ card, onClose }) {
           <button
             type="button"
             aria-label="Cerrar"
-            onClick={onClose}
+            onClick={close}
             className="absolute right-[18px] top-[18px] flex h-10 w-10 items-center justify-center rounded-full border border-white/[0.28] bg-black/50 font-body text-xl leading-none text-white transition-colors hover:border-mRed hover:bg-mRed"
           >
             ✕

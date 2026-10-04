@@ -1,6 +1,7 @@
 "use client";
 
 import Image from "next/image";
+import { BACKDROP_OUT, CARD_OUT, useClosing } from "@/lib/useClosing";
 
 // Popup al hacer clic en una tarjeta de CertificadosGrid.jsx — misma
 // animación (gsmBack/gsmPop, ver app/globals.css) que el resto de los
@@ -8,24 +9,25 @@ import Image from "next/image";
 // muestra la imagen del certificado en grande más su info, sin botones de
 // agendamiento (no aplica para este contenido).
 export default function CertificadoModal({ cert, photo, onClose }) {
+  const [closing, close] = useClosing(onClose);
   if (!cert) return null;
   const isDataUrl = typeof photo === "string" && photo.startsWith("data:");
 
   return (
     <div
       className="fixed inset-0 z-[200] flex items-end justify-center sm:items-center sm:p-10"
-      style={{ background: "rgba(3,4,5,0.78)", backdropFilter: "blur(6px)", animation: "gsmBack 260ms ease both" }}
-      onClick={onClose}
+      style={{ background: "rgba(3,4,5,0.78)", backdropFilter: "blur(6px)", animation: closing ? BACKDROP_OUT : "gsmBack 260ms ease both", pointerEvents: closing ? "none" : undefined }}
+      onClick={close}
     >
       <div
         className="relative flex max-h-[92vh] w-full flex-col overflow-hidden rounded-t-2xl border-t border-[#E0E0E0] bg-white shadow-[0_50px_110px_rgba(0,0,0,0.5)] sm:max-h-[90vh] sm:max-w-[760px] sm:rounded-2xl sm:border"
-        style={{ animation: "gsmPop 420ms cubic-bezier(0.22,0.61,0.36,1) both" }}
+        style={{ animation: closing ? CARD_OUT : "gsmPop 420ms cubic-bezier(0.22,0.61,0.36,1) both" }}
         onClick={(e) => e.stopPropagation()}
       >
         <button
           type="button"
           aria-label="Cerrar"
-          onClick={onClose}
+          onClick={close}
           className="absolute right-[14px] top-[14px] z-10 flex h-10 w-10 items-center justify-center rounded-full border border-white/[0.28] bg-black/50 font-body text-xl leading-none text-white transition-colors hover:border-mRed hover:bg-mRed"
         >
           ✕
