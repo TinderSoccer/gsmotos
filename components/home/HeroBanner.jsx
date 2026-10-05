@@ -96,25 +96,26 @@ export default function HeroBanner({ onSelect }) {
           el 66% en vez del 74%): el cliente encontraba el video muy oscuro
           en el computador. El degradado solo tiene que cubrir el texto. */}
       <div className="pointer-events-none absolute inset-0 hidden bg-black/[0.06] sm:block" />
-      {/* Antes acá iba una tarjeta blanca sólida (clip-path diagonal) tapando
-          ~40% del video para que el texto quedara legible — el cliente pidió
-          que se viera más el video. Se reemplaza por un degradado oscuro de
-          izquierda a derecha (mismo criterio que ya se usaba en mobile: texto
-          blanco directo sobre el video, sin tarjeta), que dejar ver el video
-          incluso detrás del texto. */}
+      {/* Franja diagonal blanca a la izquierda (computador), con el logo y
+          el texto oscuros encima. Se sacó el 30/09 para que se viera más el
+          video y volvió porque al cliente le gusta. En el celular no va: ahí
+          el video es una franja arriba y el texto va debajo. */}
       <div
-        className="pointer-events-none absolute inset-0 hidden sm:block"
-        style={{ background: "linear-gradient(90deg, rgba(5,6,7,0.8) 0%, rgba(5,6,7,0.58) 30%, rgba(5,6,7,0.16) 52%, rgba(5,6,7,0) 66%)" }}
+        className="pointer-events-none absolute inset-0 hidden bg-white sm:block"
+        style={{ clipPath: "polygon(0 0, 25% 0, 38% 100%, 0 100%)" }}
+      />
+      <div
+        className="pointer-events-none absolute inset-y-0 left-0 hidden w-[56%] sm:block"
+        style={{ background: "linear-gradient(103deg, #ffffff 42%, rgba(255,255,255,0.85) 49%, rgba(255,255,255,0) 64%)" }}
       />
 
       {/* Sin menú hamburguesa en el inicio (pedido del cliente): acá el menú
           es el tablero. Logo centrado en mobile, a la izquierda desde sm. */}
       <header className="absolute inset-x-0 top-0 z-30 flex items-start justify-center px-6 py-5 sm:justify-between sm:px-10 sm:py-6">
         <a href="/" className="block leading-none">
-          {/* Antes era "mobile" (claro en mobile, oscuro desde sm) porque
-              desktop tenía la tarjeta blanca detrás del logo — ahora todo el
-              hero es oscuro (video), así que el logo claro va siempre. */}
-          <Logo light className="block h-auto w-[150px] drop-shadow-[0_2px_8px_rgba(0,0,0,0.9)] sm:w-[210px] sm:drop-shadow-none" priority />
+          {/* Claro en el celular (sobre el video), oscuro desde sm (sobre la
+              franja blanca). */}
+          <Logo light="mobile" className="block h-auto w-[150px] drop-shadow-[0_2px_8px_rgba(0,0,0,0.9)] sm:w-[210px] sm:drop-shadow-none" priority />
         </a>
       </header>
 
@@ -179,17 +180,16 @@ export default function HeroBanner({ onSelect }) {
       {/* Hero desktop/tablet — más chico que el original (580px) pero sin
           pasarse: 450px, con el tablero grande otra vez (340px). pt-[150px]
           deja el bloque de texto siempre debajo del logo (position
-          absolute arriba). Texto blanco directo sobre el video (sin tarjeta
-          blanca) — mismo criterio que mobile, para que se vea más el video. */}
+          absolute arriba). Texto oscuro sobre la franja blanca. */}
       <div className="relative z-20 hidden h-full max-w-[560px] items-start px-6 sm:flex sm:px-0 sm:pl-14">
         <div className="flex flex-col gap-2.5 pt-[150px]">
-          <div className="font-display text-[15px] font-semibold uppercase tracking-[4px] text-white">
+          <div className="font-display text-[15px] font-semibold uppercase tracking-[4px] text-ink">
             Especialistas en
           </div>
           <div className="flex items-center gap-4">
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img src="/images/marcas/bmw.svg" alt="BMW" className="h-16 w-16 flex-none" />
-            <h1 className="font-display text-[46px] font-bold italic uppercase leading-[0.9] tracking-[-0.5px] text-white">
+            <h1 className="font-display text-[46px] font-bold italic uppercase leading-[0.9] tracking-[-0.5px] text-ink">
               BMW<br />Motorrad
             </h1>
             <Link
@@ -207,10 +207,10 @@ export default function HeroBanner({ onSelect }) {
             <span className="h-1.5 w-[38px] bg-mCyan" />
             <span className="h-1.5 w-[38px] bg-mRed" />
           </div>
-          <p className="max-w-[380px] text-sm leading-snug text-[#C3C9CE]">
+          <p className="max-w-[380px] text-sm leading-snug text-[#3A3A3A]">
             15 años de experiencia entregando servicios de excelencia, con estándar profesional y tecnología de última generación.
           </p>
-          <div className="max-w-[380px] border-l-2 border-mBlue pl-2.5 font-display text-sm uppercase leading-tight tracking-wide text-white">
+          <div className="max-w-[380px] border-l-2 border-mBlue pl-2.5 font-display text-sm uppercase leading-tight tracking-wide text-ink">
             &ldquo;Nuestra experiencia es nuestra herramienta más importante&rdquo;
           </div>
           <div className="mt-1.5 flex flex-wrap items-center gap-5">
@@ -219,7 +219,7 @@ export default function HeroBanner({ onSelect }) {
             </Button>
             <Link
               href="/nosotros/taller"
-              className="inline-flex items-center gap-2 border-b-2 border-transparent pb-[2px] font-display text-sm font-semibold uppercase tracking-[2px] text-white transition-colors hover:border-mCyan hover:text-mCyan"
+              className="inline-flex items-center gap-2 border-b-2 border-transparent pb-[2px] font-display text-sm font-semibold uppercase tracking-[2px] text-ink transition-colors hover:border-mBlue hover:text-mBlue"
             >
               <span>Nuestro taller</span>
               <ChevronRight size={16} strokeWidth={2.4} className="text-mRed" aria-hidden="true" />
