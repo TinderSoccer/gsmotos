@@ -9,6 +9,7 @@ import { FaWhatsapp } from "react-icons/fa6";
 // Variantes (el color dice qué hace el botón):
 //   - primary:   la acción principal de la pantalla. Azul de marca.
 //   - secondary: acciones de apoyo (llamar, Instagram, ver más). Borde claro.
+//   - secondaryOnLight: lo mismo, para fondo claro (página de Christopher).
 //   - whatsapp:  solo para escribir por WhatsApp. Verde, con su logo.
 //   - back:      volver ("← Inicio"). Borde claro sobre fondo translúcido,
 //                para que se lea también sobre fotos.
@@ -26,15 +27,16 @@ import { FaWhatsapp } from "react-icons/fa6";
 // la quita e `icon` pone un ícono a la izquierda (el de WhatsApp ya viene).
 
 const BASE =
-  "inline-flex items-center justify-center whitespace-nowrap rounded font-display font-semibold uppercase text-white press " +
+  "inline-flex items-center justify-center whitespace-nowrap rounded font-display font-semibold uppercase press " +
   "focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-mCyan " +
   "disabled:pointer-events-none disabled:opacity-60 aria-disabled:pointer-events-none aria-disabled:opacity-60";
 
 const VARIANTS = {
-  primary: "border border-mBlue bg-mBlue hover:border-mCyan hover:bg-mCyan",
-  secondary: "border border-white/30 bg-transparent hover:border-white/70 hover:bg-white/[0.06]",
-  whatsapp: "border border-[#25D366] bg-[#25D366]/10 hover:bg-[#25D366]/20",
-  back: "border border-white/40 bg-black/50 hover:border-mBlue hover:bg-mBlue",
+  primary: "border border-mBlue bg-mBlue text-white hover:border-mCyan hover:bg-mCyan",
+  secondary: "border border-white/30 bg-transparent text-white hover:border-white/70 hover:bg-white/[0.06]",
+  secondaryOnLight: "border border-mBlue bg-transparent text-[#0B0B0B] hover:bg-mBlue/10",
+  whatsapp: "border border-[#25D366] bg-[#25D366]/10 text-white hover:bg-[#25D366]/20",
+  back: "border border-white/40 bg-black/50 text-white hover:border-mBlue hover:bg-mBlue",
 };
 
 const SIZES = {

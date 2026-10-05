@@ -21,7 +21,7 @@ export default function CertificadoModal({ cert, photo, onClose }) {
       onClick={close}
     >
       <div
-        className="relative flex max-h-[92vh] w-full flex-col overflow-hidden rounded-t-2xl border-t border-[#262A30] bg-[#0B0D0F] shadow-[0_50px_110px_rgba(0,0,0,0.5)] sm:max-h-[90vh] sm:max-w-[760px] sm:rounded-2xl sm:border"
+        className="relative flex max-h-[92vh] w-full flex-col overflow-hidden rounded-t-2xl border-t border-[#E0E0E0] bg-white shadow-[0_50px_110px_rgba(0,0,0,0.5)] sm:max-h-[90vh] sm:max-w-[760px] sm:rounded-2xl sm:border"
         style={{ animation: closing ? CARD_OUT : "gsmPop 420ms cubic-bezier(0.22,0.61,0.36,1) both" }}
         onClick={(e) => e.stopPropagation()}
       >
@@ -34,7 +34,7 @@ export default function CertificadoModal({ cert, photo, onClose }) {
           <X size={20} strokeWidth={2} />
         </button>
 
-        <div className="flex-none overflow-hidden bg-[#F2F0EC]">
+        <div className="flex-none overflow-hidden bg-[#F2F2F2]">
           {photo && isDataUrl ? (
             // Foto subida desde /administracion (data URL): ya está en el
             // documento, next/image no gana nada reprocesándola — mismo
@@ -60,13 +60,13 @@ export default function CertificadoModal({ cert, photo, onClose }) {
         </div>
 
         <div className="flex flex-col gap-1.5 overflow-y-auto px-6 py-6 sm:px-[34px]">
-          <div className="font-display text-[13px] uppercase tracking-[2px] text-mCyan">
+          <div className="font-display text-[13px] uppercase tracking-[2px] text-mBlue">
             {cert.year} · {cert.org}
           </div>
-          <div className="font-display text-2xl font-bold italic uppercase leading-[1.1] text-white sm:text-[28px]">
+          <div className="font-display text-2xl font-bold italic uppercase leading-[1.1] text-[#0B0B0B] sm:text-[28px]">
             {cert.title}
           </div>
-          <p className="mt-1 text-[15px] leading-[1.6] text-[#B9C0C7]">{cert.desc}</p>
+          <p className="mt-1 text-[15px] leading-[1.6] text-[#5A5A5A]">{cert.desc}</p>
         </div>
       </div>
     </div>

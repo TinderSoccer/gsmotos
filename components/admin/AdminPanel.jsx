@@ -366,14 +366,20 @@ function ChristopherHeroPreview({ photo, mobile = false }) {
   return (
     <div className="relative h-full w-full overflow-hidden bg-[#050505] [container-type:inline-size]">
       <SmartImage src={photo} alt="" className="brightness-110" sizes={mobile ? "280px" : "800px"} />
-      <div
-        className="pointer-events-none absolute inset-0"
-        style={{
-          background: mobile
-            ? "linear-gradient(180deg, rgba(5,5,5,0.55) 0%, rgba(5,5,5,0.72) 50%, rgba(5,5,5,0.93) 100%)"
-            : "linear-gradient(90deg, #0B0B0B 0%, rgba(11,11,11,0.88) 32%, rgba(11,11,11,0.35) 62%, rgba(11,11,11,0.1) 100%)",
-        }}
-      />
+      {mobile ? (
+        <div
+          className="pointer-events-none absolute inset-0"
+          style={{ background: "linear-gradient(180deg, rgba(5,5,5,0.55) 0%, rgba(5,5,5,0.72) 50%, rgba(5,5,5,0.93) 100%)" }}
+        />
+      ) : (
+        <>
+          <div className="pointer-events-none absolute inset-0 bg-white" style={{ clipPath: "polygon(0 0, 34% 0, 47% 100%, 0 100%)" }} />
+          <div
+            className="pointer-events-none absolute inset-y-0 left-0 w-[64%]"
+            style={{ background: "linear-gradient(103deg, #ffffff 50%, rgba(255,255,255,0.86) 57%, rgba(255,255,255,0) 72%)" }}
+          />
+        </>
+      )}
       <div
         className={`pointer-events-none absolute inset-y-0 left-0 flex flex-col justify-end ${
           mobile ? "gap-[1.5cqw] px-[6.2cqw] pb-[4.1cqw]" : "max-w-[44cqw] gap-[0.5cqw] px-[3.1cqw] pb-[1.9cqw]"
@@ -386,12 +392,12 @@ function ChristopherHeroPreview({ photo, mobile = false }) {
               <span key={c} className={`${c} ${mobile ? "h-[1.5cqw] w-[5.6cqw]" : "h-[0.47cqw] w-[1.72cqw]"}`} />
             ))}
           </span>
-          <span className={`font-display uppercase tracking-[0.15em] text-white ${mobile ? "text-[3cqw]" : "text-[0.94cqw]"}`}>Fundador GSmotos</span>
+          <span className={`font-display uppercase tracking-[0.15em] ${mobile ? "text-white" : "text-[#0B0B0B]"} ${mobile ? "text-[3cqw]" : "text-[0.94cqw]"}`}>Fundador GSmotos</span>
         </div>
-        <div className={`font-display font-bold italic uppercase leading-[0.94] text-white ${mobile ? "text-[6.7cqw]" : "text-[2.97cqw]"}`}>
+        <div className={`font-display font-bold italic uppercase leading-[0.94] ${mobile ? "text-white" : "text-[#0B0B0B]"} ${mobile ? "text-[6.7cqw]" : "text-[2.97cqw]"}`}>
           Christopher
         </div>
-        <div className={`font-display leading-[1.35] tracking-wide text-white/85 ${mobile ? "text-[3.3cqw]" : "text-[1.25cqw]"}`}>
+        <div className={`font-display leading-[1.35] tracking-wide ${mobile ? "text-white/85" : "text-[#3A3A3A]"} ${mobile ? "text-[3.3cqw]" : "text-[1.25cqw]"}`}>
           Técnico en Mecánica Automotriz · Especialista BMW Motorrad · Docente de Mecánica de Motocicletas
         </div>
       </div>
@@ -493,8 +499,8 @@ function CertificadosTab() {
             const shown = custom || cert.defaultPhoto;
             return (
               <div key={cert.slot}>
-                <div className="flex flex-col overflow-hidden rounded-xl border border-[#1E2226] bg-[#0F1113]">
-                  <PhotoPicker onFile={(ev) => handleFile(cert.slot, ev)} className="h-[240px] overflow-hidden bg-[#F2F0EC]">
+                <div className="flex flex-col overflow-hidden rounded-xl border border-[#E0E0E0] bg-white shadow-[0_2px_10px_rgba(11,11,11,0.06)]">
+                  <PhotoPicker onFile={(ev) => handleFile(cert.slot, ev)} className="h-[240px] overflow-hidden border-b border-[#E0E0E0] bg-[#F2F2F2]">
                     {shown ? (
                       <SmartImage src={shown} alt={cert.title} fit="contain" sizes="(max-width: 639px) 90vw, 360px" />
                     ) : (
@@ -502,11 +508,11 @@ function CertificadosTab() {
                     )}
                   </PhotoPicker>
                   <div className="flex flex-col gap-2 px-[22px] pb-[22px] pt-5">
-                    <div className="font-display text-[13px] uppercase tracking-[2px] text-mCyan">
+                    <div className="font-display text-[13px] uppercase tracking-[2px] text-mBlue">
                       {cert.year} · {cert.org}
                     </div>
-                    <div className="font-display text-xl font-semibold uppercase leading-[1.15] tracking-wide text-white">{cert.title}</div>
-                    <div className="text-[14.5px] leading-[1.55] text-[#B9C0C7]">{cert.desc}</div>
+                    <div className="font-display text-xl font-semibold uppercase leading-[1.15] tracking-wide text-[#0B0B0B]">{cert.title}</div>
+                    <div className="text-[14.5px] leading-[1.55] text-[#5A5A5A]">{cert.desc}</div>
                   </div>
                 </div>
                 <PhotoStatus

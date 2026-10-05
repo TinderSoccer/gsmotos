@@ -95,7 +95,7 @@ export default function PrensaModal({ photo, onClose }) {
       onClick={close}
     >
       <div
-        className="relative flex max-h-[94vh] w-full max-w-[760px] flex-col overflow-hidden rounded-2xl border border-[#262A30] bg-[#0B0D0F] shadow-[0_50px_110px_rgba(0,0,0,0.5)]"
+        className="relative flex max-h-[94vh] w-full max-w-[760px] flex-col overflow-hidden rounded-2xl border border-[#E0E0E0] bg-white shadow-[0_50px_110px_rgba(0,0,0,0.5)]"
         style={{ animation: closing ? CARD_OUT : "gsmPop 420ms cubic-bezier(0.22,0.61,0.36,1) both" }}
         onClick={(e) => e.stopPropagation()}
       >
@@ -150,13 +150,13 @@ export default function PrensaModal({ photo, onClose }) {
         </div>
 
         <div className="flex flex-col gap-2 overflow-y-auto px-6 py-5 sm:px-7">
-          <div className="font-display text-[13px] font-bold uppercase tracking-[2px] text-mCyan">
+          <div className="font-display text-[13px] font-bold uppercase tracking-[2px] text-mBlue">
             {photo.year} · {photo.org}
           </div>
-          <div className="font-display text-xl font-bold italic uppercase leading-[1.1] text-white sm:text-2xl">
+          <div className="font-display text-xl font-bold italic uppercase leading-[1.1] text-[#0B0B0B] sm:text-2xl">
             {photo.title}
           </div>
-          <p className="mt-1 text-[15.5px] leading-[1.65] text-[#B9C0C7]">{photo.desc}</p>
+          <p className="mt-1 text-[15.5px] leading-[1.65] text-[#2A2A2A]">{photo.desc}</p>
         </div>
       </div>
     </div>
