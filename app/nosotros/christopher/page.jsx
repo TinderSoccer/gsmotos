@@ -25,40 +25,34 @@ const HERO_PHOTO = "/images/foto-taller-c.png";
 export default function ChristopherPage() {
   return (
     <main className="flex min-h-screen flex-col bg-white text-[#0B0B0B]">
-      <section className="relative h-[180px] overflow-hidden bg-[#050505] sm:h-[230px]">
+      <section className="relative h-[210px] overflow-hidden bg-[#050505] sm:h-[260px]">
         <ChristopherHeroBg defaultPhoto={HERO_PHOTO} />
-        {/* Celular: viñeta oscura y texto blanco sobre la foto. Desde sm:
-            recorte diagonal blanco y texto oscuro. Mismo criterio en la
-            vista previa del panel. */}
+        {/* Franja diagonal blanca a la izquierda, con el logo y el texto
+            encima (al cliente le gusta). En el celular es más ancha para
+            que quepa el texto. Mismo criterio en la vista previa del
+            panel. */}
+        <div className="pointer-events-none absolute inset-0 bg-white [clip-path:polygon(0_0,60%_0,74%_100%,0_100%)] sm:[clip-path:polygon(0_0,34%_0,47%_100%,0_100%)]" />
         <div
-          className="pointer-events-none absolute inset-0 sm:hidden"
-          style={{ background: "linear-gradient(180deg, rgba(5,5,5,0.55) 0%, rgba(5,5,5,0.72) 50%, rgba(5,5,5,0.93) 100%)" }}
-        />
-        <div
-          className="pointer-events-none absolute inset-0 hidden bg-white sm:block"
-          style={{ clipPath: "polygon(0 0, 34% 0, 47% 100%, 0 100%)" }}
-        />
-        <div
-          className="pointer-events-none absolute inset-y-0 left-0 hidden w-[64%] sm:block"
+          className="pointer-events-none absolute inset-y-0 left-0 w-[92%] sm:w-[64%]"
           style={{ background: "linear-gradient(103deg, #ffffff 50%, rgba(255,255,255,0.86) 57%, rgba(255,255,255,0) 72%)" }}
         />
 
         <header className="absolute inset-x-0 top-0 z-30 flex items-center justify-between gap-3 px-6 py-3 sm:px-10 sm:py-4">
           <Link href="/" className="flex min-h-11 items-center leading-none">
-            <Logo light="mobile" className="block h-auto w-[82px] sm:w-[150px]" />
+            <Logo light={false} className="block h-auto w-[82px] sm:w-[150px]" />
           </Link>
           <MobileHomeButton />
         </header>
 
-        <div className="relative z-20 flex h-full max-w-[560px] flex-col justify-end gap-1.5 px-6 pb-4 sm:px-10 sm:pb-6">
+        <div className="relative z-20 flex h-full max-w-[68%] flex-col sm:max-w-[560px] justify-end gap-1.5 px-6 pb-4 sm:px-10 sm:pb-6">
           <div className="flex items-center gap-2.5">
             <ColorBars />
-            <span className="font-display text-xs uppercase tracking-[2.2px] text-white sm:text-[#0B0B0B]">Fundador GSmotos</span>
+            <span className="font-display text-xs uppercase tracking-[2.2px] text-[#0B0B0B]">Fundador GSmotos</span>
           </div>
-          <h1 className="font-display text-[26px] font-bold italic uppercase leading-[0.94] text-white sm:text-[38px] sm:text-[#0B0B0B]">
+          <h1 className="font-display text-[26px] font-bold italic uppercase leading-[0.94] text-[#0B0B0B] sm:text-[38px]">
             Christopher
           </h1>
-          <div className="max-w-[470px] font-display text-[13px] leading-[1.35] tracking-wide text-white/85 sm:text-base sm:text-[#3A3A3A]">
+          <div className="max-w-[470px] font-display text-[13px] leading-[1.35] tracking-wide text-[#3A3A3A] sm:text-base">
             Técnico en Mecánica Automotriz · Especialista BMW Motorrad · Docente de Mecánica de Motocicletas
           </div>
         </div>

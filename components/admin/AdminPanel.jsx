@@ -360,29 +360,24 @@ const FOUNDER_DEFAULT_PHOTO = "/images/foto-taller-c.png";
 // diagonal blanco a la izquierda). Antes era una réplica del encabezado a
 // lo ancho que parecía un banner y tapaba casi la mitad de la foto.
 // Vista previa de la portada de /nosotros/christopher, a la proporción real
-// (computador 1280×230, celular 390×180) y con el mismo degradado y texto.
+// (computador 1280×260, celular 390×210), con la misma franja diagonal
+// blanca y texto.
 // El texto se escala con el ancho de la vista previa (unidades cqw).
 function ChristopherHeroPreview({ photo, mobile = false }) {
   return (
     <div className="relative h-full w-full overflow-hidden bg-[#050505] [container-type:inline-size]">
       <SmartImage src={photo} alt="" className="brightness-110" sizes={mobile ? "280px" : "800px"} />
-      {mobile ? (
-        <div
-          className="pointer-events-none absolute inset-0"
-          style={{ background: "linear-gradient(180deg, rgba(5,5,5,0.55) 0%, rgba(5,5,5,0.72) 50%, rgba(5,5,5,0.93) 100%)" }}
-        />
-      ) : (
-        <>
-          <div className="pointer-events-none absolute inset-0 bg-white" style={{ clipPath: "polygon(0 0, 34% 0, 47% 100%, 0 100%)" }} />
-          <div
-            className="pointer-events-none absolute inset-y-0 left-0 w-[64%]"
-            style={{ background: "linear-gradient(103deg, #ffffff 50%, rgba(255,255,255,0.86) 57%, rgba(255,255,255,0) 72%)" }}
-          />
-        </>
-      )}
+      <div
+        className="pointer-events-none absolute inset-0 bg-white"
+        style={{ clipPath: mobile ? "polygon(0 0, 60% 0, 74% 100%, 0 100%)" : "polygon(0 0, 34% 0, 47% 100%, 0 100%)" }}
+      />
+      <div
+        className={`pointer-events-none absolute inset-y-0 left-0 ${mobile ? "w-[92%]" : "w-[64%]"}`}
+        style={{ background: "linear-gradient(103deg, #ffffff 50%, rgba(255,255,255,0.86) 57%, rgba(255,255,255,0) 72%)" }}
+      />
       <div
         className={`pointer-events-none absolute inset-y-0 left-0 flex flex-col justify-end ${
-          mobile ? "gap-[1.5cqw] px-[6.2cqw] pb-[4.1cqw]" : "max-w-[44cqw] gap-[0.5cqw] px-[3.1cqw] pb-[1.9cqw]"
+          mobile ? "max-w-[68cqw] gap-[1.5cqw] px-[6.2cqw] pb-[4.1cqw]" : "max-w-[44cqw] gap-[0.5cqw] px-[3.1cqw] pb-[1.9cqw]"
         }`}
       >
         <div className={`flex items-center ${mobile ? "gap-[2.6cqw]" : "gap-[0.8cqw]"}`}>
@@ -392,12 +387,12 @@ function ChristopherHeroPreview({ photo, mobile = false }) {
               <span key={c} className={`${c} ${mobile ? "h-[1.5cqw] w-[5.6cqw]" : "h-[0.47cqw] w-[1.72cqw]"}`} />
             ))}
           </span>
-          <span className={`font-display uppercase tracking-[0.15em] ${mobile ? "text-white" : "text-[#0B0B0B]"} ${mobile ? "text-[3cqw]" : "text-[0.94cqw]"}`}>Fundador GSmotos</span>
+          <span className={`font-display uppercase tracking-[0.15em] text-[#0B0B0B] ${mobile ? "text-[3cqw]" : "text-[0.94cqw]"}`}>Fundador GSmotos</span>
         </div>
-        <div className={`font-display font-bold italic uppercase leading-[0.94] ${mobile ? "text-white" : "text-[#0B0B0B]"} ${mobile ? "text-[6.7cqw]" : "text-[2.97cqw]"}`}>
+        <div className={`font-display font-bold italic uppercase leading-[0.94] text-[#0B0B0B] ${mobile ? "text-[6.7cqw]" : "text-[2.97cqw]"}`}>
           Christopher
         </div>
-        <div className={`font-display leading-[1.35] tracking-wide ${mobile ? "text-white/85" : "text-[#3A3A3A]"} ${mobile ? "text-[3.3cqw]" : "text-[1.25cqw]"}`}>
+        <div className={`font-display leading-[1.35] tracking-wide text-[#3A3A3A] ${mobile ? "text-[3.3cqw]" : "text-[1.25cqw]"}`}>
           Técnico en Mecánica Automotriz · Especialista BMW Motorrad · Docente de Mecánica de Motocicletas
         </div>
       </div>
@@ -428,13 +423,13 @@ function FounderHeroPhoto() {
 
         <div className="mt-4 grid grid-cols-1 gap-5 lg:grid-cols-[1fr_240px] lg:items-end">
           <div className="flex flex-col gap-2">
-            <PhotoPicker onFile={handleFile} className="aspect-[1280/230] overflow-hidden rounded-lg border border-[#1E2226]">
+            <PhotoPicker onFile={handleFile} className="aspect-[1280/260] overflow-hidden rounded-lg border border-[#1E2226]">
               <ChristopherHeroPreview photo={shown} />
             </PhotoPicker>
             <span className="text-xs uppercase tracking-wide text-[#8A8A8A]">En computador</span>
           </div>
           <div className="flex flex-col gap-2">
-            <PhotoPicker onFile={handleFile} className="aspect-[390/180] w-full max-w-[280px] overflow-hidden rounded-lg border border-[#1E2226]">
+            <PhotoPicker onFile={handleFile} className="aspect-[390/210] w-full max-w-[280px] overflow-hidden rounded-lg border border-[#1E2226]">
               <ChristopherHeroPreview photo={shown} mobile />
             </PhotoPicker>
             <span className="text-xs uppercase tracking-wide text-[#8A8A8A]">En el celular</span>
