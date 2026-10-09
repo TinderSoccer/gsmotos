@@ -22,7 +22,7 @@ export function generateMetadata({ params }) {
   if (!menu) return { title: "GSmotos" };
   return {
     title: `${menu.title} — GSmotos`,
-    description: `${menu.title} en Santiago: ${menu.cards.map((c) => c.title.toLowerCase()).join(", ")}. ${menu.hint}.`,
+    description: `${menu.title} en Santiago: ${menu.cards.map((c) => c.title.toLowerCase()).join(", ")}. ${menu.marcas || menu.hint}.`,
   };
 }
 
@@ -39,9 +39,11 @@ export default function CategoriaServiciosPage({ params }) {
           <h1 className="font-display text-[32px] font-bold italic uppercase leading-none text-white">
             {menu.title}
           </h1>
-          <div className="hidden font-display text-base uppercase tracking-wide text-[#7A838C] sm:block">
-            {menu.hint}
-          </div>
+          {menu.hint && (
+            <div className="hidden font-display text-base uppercase tracking-wide text-[#7A838C] sm:block">
+              {menu.hint}
+            </div>
+          )}
         </div>
         {menu.slug === "big-trail" && <BrandRow />}
         <ServiceGrid cards={menu.cards} />
