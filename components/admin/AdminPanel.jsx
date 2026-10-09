@@ -8,6 +8,8 @@
 //   (lib/catalogo.js).
 // - Servicios: foto propia por cada servicio (lib/servicePhotos.js).
 // - Neumáticos: fotos de la página /servicios/neumaticos (lib/neumaticosPhotos.js).
+// - Stock neumáticos: vitrinas On road / Mixtos / Off road de esa página
+//   (lib/neumaticosStock.js).
 // - Taller: fotos y videos de /nosotros/taller (lib/taller.js).
 // - Contacto: teléfono/mail/dirección/Instagram y cifras del sitio
 //   (lib/settings.js).
@@ -28,6 +30,7 @@ import { formatCLP, resetProductos, useProductos, writeProductos } from "@/lib/c
 import { PLACEHOLDER_PHOTO } from "@/lib/productosData";
 import { resetTallerItems, useTallerItems, writeTallerItems } from "@/lib/taller";
 import { useGruasPhotos, writeGruasPhotos } from "@/lib/gruas";
+import { useNeumaticosStock, writeNeumaticosStock } from "@/lib/neumaticosStock";
 import { menus } from "@/lib/servicesData";
 import { resetServicePhotos, servicePhotoKey, setServicePhoto, useServicePhotos } from "@/lib/servicePhotos";
 import { NEUMATICOS_PHOTO_SLOTS, NEUMATICOS_SERVICIOS, NEUMATICOS_USOS } from "@/lib/neumaticosContent";
@@ -1648,6 +1651,153 @@ function GruasTab() {
   );
 }
 
+// Vitrinas de neumáticos en stock de /servicios/neumaticos, una por tipo
+// de uso (ver lib/neumaticosStock.js). Cada neumático: foto, título y
+// precio, con la misma tarjeta que en la web.
+function StockNeumaticosTab() {
+  const stock = useNeumaticosStock();
+  const [slot, setSlot] = useState(NEUMATICOS_USOS[0].slot);
+  const uso = NEUMATICOS_USOS.find((u) => u.slot === slot);
+  const items = stock[slot] || [];
+  const total = NEUMATICOS_USOS.reduce((n, u) => n + (stock[u.slot]?.length || 0), 0);
+
+  function save(next, okMsg) {
+    return warnIfFailed(writeNeumaticosStock(slot, next), okMsg);
+  }
+
+  function patch(id, changes) {
+    save(items.map((it) => (it.id === id ? { ...it, ...changes } : it)));
+  }
+
+  async function addTire(ev) {
+    const url = await readAndUpload(ev, { maxSize: 1200, quality: 0.85 });
+    if (url) save([...items, { id: `neu-${Date.now()}`, photo: url, title: "", price: 0 }]);
+  }
+
+  async function replacePhoto(id, ev) {
+    const url = await readAndUpload(ev, { maxSize: 1200, quality: 0.85 });
+    if (url) patch(id, { photo: url });
+  }
+
+  function move(index, dir) {
+    const to = index + dir;
+    if (to < 0 || to >= items.length) return;
+    const next = [...items];
+    [next[index], next[to]] = [next[to], next[index]];
+    save(next);
+  }
+
+  return (
+    <>
+      <div className="flex flex-wrap items-end justify-between gap-8 px-6 pb-5 pt-11 sm:px-10">
+        <div className="flex flex-col gap-2.5">
+          <h1 className="font-display text-[32px] font-bold italic uppercase leading-none text-[#0B0B0B] sm:text-4xl">
+            Neumáticos en stock
+          </h1>
+          <p className="max-w-xl text-[15.5px] leading-[1.6] text-[#5A5A5A]">
+            Las tres vitrinas de la página de Neumáticos: On road, Mixtos y Off road. Elige una, sube la foto de cada
+            neumático que tengas y escríbele su nombre y precio. Si no le pones precio, en la web dice &ldquo;Precio a
+            consultar&rdquo;.
+          </p>
+          <SeeOnSite href="/servicios/neumaticos#en-stock" />
+        </div>
+        <div className="flex flex-col items-end gap-0.5">
+          <div className="font-display text-[32px] font-bold italic leading-none text-mBlue">{total}</div>
+          <div className="font-display text-[13px] uppercase tracking-[2px] text-[#8A8A8A]">Neumáticos</div>
+        </div>
+      </div>
+
+      <div className="flex flex-wrap gap-2 px-6 pb-5 sm:px-10">
+        {NEUMATICOS_USOS.map(({ slot: s, title, Icon }) => (
+          <button
+            key={s}
+            type="button"
+            onClick={() => setSlot(s)}
+            className={`flex min-h-11 items-center gap-2 rounded-md border px-4 font-display text-sm font-semibold uppercase tracking-[1.5px] transition-colors ${
+              s === slot ? "border-mBlue bg-mBlue text-white" : "border-[#E0E0E0] bg-white text-[#3A3A3A] hover:border-mBlue hover:text-mBlue"
+            }`}
+          >
+            <Icon size={16} strokeWidth={1.8} aria-hidden="true" />
+            {title}
+            <span className={s === slot ? "text-white/70" : "text-[#9A9A9A]"}>({stock[s]?.length || 0})</span>
+          </button>
+        ))}
+      </div>
+
+      <div className="px-6 pb-14 sm:px-10">
+        <SitePanel>
+          <div className="mb-4 flex items-center gap-3.5">
+            <ColorBars />
+            <h2 className="font-display text-2xl font-bold italic uppercase leading-none tracking-wide text-white">{uso.title}</h2>
+          </div>
+          <TapHint dark />
+          <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 sm:gap-4 lg:grid-cols-4 xl:grid-cols-5">
+            {items.map((item, index) => (
+              <div key={item.id} className="flex flex-col overflow-hidden rounded-xl border border-[#1E2226] bg-surface-card">
+                <PhotoPicker onFile={(ev) => replacePhoto(item.id, ev)} className="aspect-square overflow-hidden bg-[#EFEDE9]">
+                  <SmartImage src={item.photo} alt={item.title || "Neumático"} fit="contain" className="p-2.5 sm:p-3" sizes="240px" />
+                </PhotoPicker>
+                <textarea
+                  rows={2}
+                  value={item.title || ""}
+                  onChange={(ev) => patch(item.id, { title: ev.target.value })}
+                  placeholder="Nombre (ej: Michelin Anakee Adventure 150/70 R17)"
+                  aria-label="Nombre del neumático"
+                  className="w-full resize-none border-0 bg-transparent px-3.5 pt-3 font-display text-[15px] font-semibold uppercase leading-[1.15] text-white outline-none placeholder:normal-case placeholder:font-normal placeholder:text-[#5E666D] focus:bg-white/[0.04]"
+                />
+                <label className="mx-3.5 flex items-center gap-1 border-t border-white/[0.07] py-2.5 font-display text-[17px] font-bold text-white">
+                  <span aria-hidden="true">$</span>
+                  <input
+                    type="text"
+                    inputMode="numeric"
+                    value={item.price > 0 ? item.price.toLocaleString("es-CL") : ""}
+                    onChange={(ev) => patch(item.id, { price: Number(ev.target.value.replace(/\D/g, "")) || 0 })}
+                    placeholder="Precio"
+                    aria-label="Precio en pesos"
+                    className="w-full min-w-0 bg-transparent outline-none placeholder:font-normal placeholder:text-[#5E666D] focus:bg-white/[0.04]"
+                  />
+                </label>
+                <div className="mt-auto flex items-center gap-2 border-t border-[#1E2226] px-2.5 py-2">
+                  <div className="flex items-center gap-1">
+                    {[
+                      { dir: -1, label: "Mover antes", Icon: ChevronLeft, disabled: index === 0 },
+                      { dir: 1, label: "Mover después", Icon: ChevronRight, disabled: index === items.length - 1 },
+                    ].map(({ dir, label, Icon, disabled }) => (
+                      <button
+                        key={dir}
+                        type="button"
+                        onClick={() => move(index, dir)}
+                        disabled={disabled}
+                        aria-label={label}
+                        title={label}
+                        className="flex h-8 w-8 items-center justify-center rounded-md border border-[#2E3A45] text-[#B9C0C7] transition-colors enabled:hover:border-mCyan enabled:hover:text-mCyan disabled:opacity-30"
+                      >
+                        <Icon size={16} />
+                      </button>
+                    ))}
+                  </div>
+                  <button
+                    type="button"
+                    onClick={async () => await confirmar("¿Eliminar este neumático de la vitrina? No se puede deshacer.") && save(items.filter((it) => it.id !== item.id))}
+                    className="ml-auto px-1 py-1.5 font-display text-[12px] font-semibold uppercase tracking-wide text-[#8A939B] transition-colors hover:text-mRed"
+                  >
+                    Eliminar
+                  </button>
+                </div>
+              </div>
+            ))}
+            <label className="flex aspect-square cursor-pointer flex-col items-center justify-center gap-2 rounded-xl border-2 border-dashed border-[#2E3A45] px-3 text-center text-[#8FC2E6] transition-colors hover:border-mCyan hover:text-mCyan">
+              <Camera size={28} strokeWidth={1.6} />
+              <span className="font-display text-sm font-semibold uppercase tracking-wide">Agregar neumático</span>
+              <input type="file" accept="image/*" className="hidden" onChange={addTire} />
+            </label>
+          </div>
+        </SitePanel>
+      </div>
+    </>
+  );
+}
+
 function Field({ label, value, onChange, placeholder, hint, type = "text" }) {
   return (
     <label className="flex flex-col gap-1.5 text-sm text-[#3A3A3A]">
@@ -1854,6 +2004,7 @@ const TABS = {
   certs: CertificadosTab,
   servicios: ServiciosTab,
   neumaticos: NeumaticosTab,
+  stock: StockNeumaticosTab,
   prods: ProductosTab,
   taller: TallerTab,
   gruas: GruasTab,
@@ -1937,6 +2088,9 @@ export default function AdminPanel() {
           </Tab>
           <Tab active={tab === "neumaticos"} onClick={() => setTab("neumaticos")}>
             Neumáticos
+          </Tab>
+          <Tab active={tab === "stock"} onClick={() => setTab("stock")}>
+            Stock neumáticos
           </Tab>
           <Tab active={tab === "prods"} onClick={() => setTab("prods")}>
             Productos

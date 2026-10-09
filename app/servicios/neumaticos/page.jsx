@@ -4,6 +4,7 @@ import NeumaticosHero from "@/components/neumaticos/NeumaticosHero";
 import NeumaticosServicios from "@/components/neumaticos/NeumaticosServicios";
 import NeumaticosUsos from "@/components/neumaticos/NeumaticosUsos";
 import NeumaticosCta from "@/components/neumaticos/NeumaticosCta";
+import NeumaticosVitrina from "@/components/neumaticos/NeumaticosVitrina";
 
 // Página propia de "Neumáticos & Vulcanización" — reemplaza, para esta
 // categoría, a la plantilla genérica de app/servicios/[categoria]/page.jsx
@@ -47,10 +48,14 @@ export default function NeumaticosPage() {
       <section className="grid grid-cols-1 items-start gap-8 px-6 pb-10 pt-6 sm:px-10 sm:pt-8 lg:grid-cols-[0.85fr_1.15fr] lg:gap-8 lg:pb-14 lg:pt-10">
         <NeumaticosServicios agendarHref={AGENDAR_HREF} />
         <div className="flex flex-col gap-8">
-          <NeumaticosUsos agendarHref={AGENDAR_HREF} />
+          <NeumaticosUsos />
           <NeumaticosCta />
         </div>
       </section>
+
+      {/* Vitrinas de neumáticos en stock (On road / Mixtos / Off road), a lo
+          ancho: las tarjetas de "Tipos de uso" bajan hasta acá. */}
+      <NeumaticosVitrina />
 
       <SiteFooter />
     </main>

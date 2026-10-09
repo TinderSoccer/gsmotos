@@ -3,23 +3,18 @@
 import { useRef, useState } from "react";
 import ColorBars, { ColorEdge } from "@/components/services/ColorBars";
 import SlotImage from "./SlotImage";
-import NeumaticosServiceModal from "./NeumaticosServiceModal";
+import { VITRINA_EVENT } from "./NeumaticosVitrina";
 import { NEUMATICOS_USOS, NEUMATICOS_USOS_TITLE } from "@/lib/neumaticosContent";
 import { useNeumaticosPhotos } from "@/lib/neumaticosPhotos";
 
-// Imagen + título; al tocar una se abre el mismo popup que los servicios
-// (ver NeumaticosServiceModal.jsx) — el cliente todavía no entregó el
-// detalle real de cada tipo de uso (texto provisorio por ahora, ver
-// lib/neumaticosContent.js), pero la interacción de "tocar para ver más"
-// ya queda lista para cuando llegue. Fila de 3 en tablet/desktop,
-// carrusel con scroll-snap en mobile (tarjetas al 62% para que se vea que
-// sigue otra, con puntos que marcan cuál se ve). Rectángulo vertical (3:4) pensado
-// para fotos de neumáticos de pie, a diferencia de las tarjetas cuadradas
-// de "Servicios".
-export default function NeumaticosUsos({ agendarHref }) {
+// Imagen + título; al tocar una se abre su vitrina de neumáticos en stock
+// (NeumaticosVitrina.jsx, más abajo en la página). Fila de 3 en
+// tablet/desktop, carrusel con scroll-snap en mobile (tarjetas al 62% para
+// que se vea que sigue otra, con puntos que marcan cuál se ve). Rectángulo
+// vertical (3:4) pensado para fotos de neumáticos de pie, a diferencia de
+// las tarjetas cuadradas de "Servicios".
+export default function NeumaticosUsos() {
   const photos = useNeumaticosPhotos();
-  const [openSlot, setOpenSlot] = useState(null);
-  const openCard = NEUMATICOS_USOS.find((c) => c.slot === openSlot) || null;
   const rowRef = useRef(null);
   const [current, setCurrent] = useState(0);
 
@@ -47,7 +42,8 @@ export default function NeumaticosUsos({ agendarHref }) {
           <button
             key={slot}
             type="button"
-            onClick={() => setOpenSlot(slot)}
+            onClick={() => window.dispatchEvent(new CustomEvent(VITRINA_EVENT, { detail: slot }))}
+            aria-label={`Ver neumáticos ${title.toLowerCase()} en stock`}
             className="group relative aspect-[3/4] w-[62%] flex-none snap-start overflow-hidden rounded-lg border border-[#1E2226] text-left transition-all focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-mCyan sm:w-auto sm:hover:-translate-y-1 sm:hover:border-[#2E3A45]"
           >
             <ColorEdge />
@@ -75,13 +71,6 @@ export default function NeumaticosUsos({ agendarHref }) {
           <span key={c.slot} className={`h-1.5 rounded-full transition-all ${i === current ? "w-5 bg-mCyan" : "w-1.5 bg-white/25"}`} />
         ))}
       </div>
-
-      <NeumaticosServiceModal
-        card={openCard}
-        photo={openCard ? photos[openCard.slot] || openCard.defaultPhoto : null}
-        agendarHref={agendarHref}
-        onClose={() => setOpenSlot(null)}
-      />
     </div>
   );
 }
