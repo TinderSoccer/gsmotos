@@ -17,7 +17,7 @@ import Button from "@/components/common/Button";
 export const metadata = {
   title: "Christopher, fundador — GSmotos",
   description:
-    "Christopher, fundador de GSmotos: técnico especialista en BMW Motorrad, formado en BMW Chile y docente de mecánica de motocicletas por ocho años.",
+    "Christopher Ahumada, fundador de GSmotos: técnico especialista en BMW Motorrad, formado en BMW Chile y docente de mecánica de motocicletas por ocho años.",
 };
 
 const HERO_PHOTO = "/images/foto-taller-c.png";
@@ -50,10 +50,10 @@ export default function ChristopherPage() {
             <span className="font-display text-xs uppercase tracking-[2.2px] text-[#0B0B0B]">Fundador GSmotos</span>
           </div>
           <h1 className="font-display text-[26px] font-bold italic uppercase leading-[0.94] text-[#0B0B0B] sm:text-[38px]">
-            Christopher
+            Christopher Ahumada
           </h1>
           <div className="max-w-[470px] font-display text-[13px] leading-[1.35] tracking-wide text-[#3A3A3A] sm:text-base">
-            Técnico en Mecánica Automotriz · Especialista BMW Motorrad · Docente de Mecánica de Motocicletas
+            Técnico en Mecánica Automotriz · Especialista BMW Motorrad · Ex Docente de Mecánica de Motocicletas
           </div>
         </div>
       </section>

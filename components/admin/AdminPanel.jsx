@@ -393,10 +393,10 @@ function ChristopherHeroPreview({ photo, mobile = false }) {
           <span className={`font-display uppercase tracking-[0.15em] text-[#0B0B0B] ${mobile ? "text-[3cqw]" : "text-[0.94cqw]"}`}>Fundador GSmotos</span>
         </div>
         <div className={`font-display font-bold italic uppercase leading-[0.94] text-[#0B0B0B] ${mobile ? "text-[6.7cqw]" : "text-[2.97cqw]"}`}>
-          Christopher
+          Christopher Ahumada
         </div>
         <div className={`font-display leading-[1.35] tracking-wide text-[#3A3A3A] ${mobile ? "text-[3.3cqw]" : "text-[1.25cqw]"}`}>
-          Técnico en Mecánica Automotriz · Especialista BMW Motorrad · Docente de Mecánica de Motocicletas
+          Técnico en Mecánica Automotriz · Especialista BMW Motorrad · Ex Docente de Mecánica de Motocicletas
         </div>
       </div>
     </div>
