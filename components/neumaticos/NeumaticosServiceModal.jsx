@@ -1,5 +1,6 @@
 "use client";
 
+import { createPortal } from "react-dom";
 import ColorBars from "@/components/services/ColorBars";
 import { useSettings, whatsappUrl } from "@/lib/settings";
 import SmartImage from "@/components/common/SmartImage";
@@ -12,13 +13,18 @@ import Button from "@/components/common/Button";
 // (lib/neumaticosContent.js + lib/neumaticosPhotos.js en vez de
 // lib/servicesData.js + lib/servicePhotos.js). Se abre al tocar una tarjeta
 // en NeumaticosServicios.jsx.
+//
+// Va en <body> (portal): en el inicio, la sección de Neumáticos entra con
+// una animación con `transform`, y dentro de eso `fixed` queda encerrado en
+// la sección en vez de cubrir la pantalla — el popup aparecía arriba de la
+// sección y no donde uno estaba mirando. Mismo arreglo que ProductModal.
 export default function NeumaticosServiceModal({ card, photo, agendarHref, onClose }) {
   const [closing, close] = useClosing(onClose);
   const s = useSettings();
   if (!card) return null;
   const { Icon, title, subtitle, text } = card;
 
-  return (
+  return createPortal(
     <div
       className="fixed inset-0 z-[200] flex items-end justify-center sm:items-center sm:p-10"
       style={{ background: "rgba(3,4,5,0.78)", backdropFilter: "blur(6px)", animation: closing ? BACKDROP_OUT : "gsmBack 260ms ease both", pointerEvents: closing ? "none" : undefined }}
@@ -66,6 +72,7 @@ export default function NeumaticosServiceModal({ card, photo, agendarHref, onClo
           </div>
         </div>
       </div>
-    </div>
+    </div>,
+    document.body
   );
 }
