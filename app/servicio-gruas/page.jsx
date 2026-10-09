@@ -11,7 +11,7 @@ import SmartImage from "@/components/common/SmartImage";
 import PhotoViewer from "@/components/common/PhotoViewer";
 import Button from "@/components/common/Button";
 
-// Página estática de "Servicio de Grúas" — reemplaza al botón "Conocer más"
+// Página estática de "Servicio de Grúa" — reemplaza al botón "Conocer más"
 // del hero (antes un anchor a #servicios). Contenido de ejemplo: el cliente
 // todavía no entregó las fotos ni el texto definitivo del servicio, así que
 // se dejan placeholders fáciles de reemplazar en cuanto lleguen:
@@ -19,7 +19,7 @@ import Button from "@/components/common/Button";
 //   tocarlas se abren en grande con su texto opcional.
 // - TEXTO/CARACTERÍSTICAS: editar INTRO y FEATURES más abajo.
 const INTRO = {
-  title: "Servicio de grúas",
+  title: "Servicio de grúa",
   lead: "Traslado seguro de tu moto cuando no puede rodar por sus propios medios.",
   // Vacío hasta que el cliente entregue la descripción definitiva del
   // servicio (cobertura, tipos de moto que traslada, tiempos de respuesta…).
@@ -73,7 +73,7 @@ function PhotoSlot({ photo, onOpen, first }) {
     >
       <SmartImage
         src={photo.photo}
-        alt={photo.caption || "Servicio de grúas GSmotos"}
+        alt={photo.caption || "Servicio de grúa GSmotos"}
         className="transition-transform duration-500 group-hover:scale-[1.04]"
         sizes={first ? "(max-width: 639px) 100vw, (max-width: 1023px) 400px, 640px" : "(max-width: 639px) 100vw, 400px"}
       />
@@ -99,7 +99,7 @@ export default function ServicioGruasPage() {
 
       <div className="flex items-center gap-4 px-6 pt-6 sm:px-10">
         <ColorBars size="lg" />
-        <h1 className="font-display text-[26px] font-bold italic uppercase leading-none text-white sm:text-[30px]">Servicio de grúas</h1>
+        <h1 className="font-display text-[26px] font-bold italic uppercase leading-none text-white sm:text-[30px]">Servicio de grúa</h1>
         <div className="hidden font-display text-base uppercase tracking-wide text-[#7A838C] sm:block">
           Traslado seguro para tu moto
         </div>

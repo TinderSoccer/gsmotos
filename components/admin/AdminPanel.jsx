@@ -1538,7 +1538,7 @@ function TallerTab() {
   );
 }
 
-// Fotos de la página "Servicio de grúas" (ver lib/gruas.js). Mismo
+// Fotos de la página "Servicio de grúa" (ver lib/gruas.js). Mismo
 // tamaño de recuadro que en la web; cada foto tiene un texto opcional que
 // aparece al abrirla en grande.
 function GruasTab() {
@@ -1578,7 +1578,7 @@ function GruasTab() {
             Fotos de Grúas
           </h1>
           <p className="max-w-xl text-[15.5px] leading-[1.6] text-[#5A5A5A]">
-            Las fotos de la página &ldquo;Servicio de grúas&rdquo;. En la web, al tocar una foto se abre en grande;
+            Las fotos de la página &ldquo;Servicio de grúa&rdquo;. En la web, al tocar una foto se abre en grande;
             si le escribes un texto, aparece debajo. Mientras no subas ninguna, la página muestra recuadros de
             &ldquo;Foto próximamente&rdquo;.
           </p>

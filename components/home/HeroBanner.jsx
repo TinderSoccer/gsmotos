@@ -165,7 +165,7 @@ export default function HeroBanner({ onSelect }) {
         </Button>
         <div className="flex w-full max-w-[300px] gap-2.5">
           <Button variant="secondary" size="sm" href="/servicio-gruas" className="min-w-0 flex-1 !px-2 !tracking-[1.2px]">
-            Servicio de Grúas
+            Servicio de Grúa
           </Button>
           <Button variant="secondary" size="sm" href="/nosotros/taller" className="min-w-0 flex-1 !px-2 !tracking-[1.2px]">
             Nuestro taller
@@ -220,7 +220,7 @@ export default function HeroBanner({ onSelect }) {
           </div>
           <div className="mt-1.5 flex flex-wrap items-center gap-5">
             <Button href="/servicio-gruas" size="sm">
-              Servicio de Grúas
+              Servicio de Grúa
             </Button>
             <Link
               href="/nosotros/taller"
