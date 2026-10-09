@@ -5,7 +5,7 @@ import { ImageOff } from "lucide-react";
 import ColorBars from "@/components/services/ColorBars";
 import SmartImage from "@/components/common/SmartImage";
 import Button from "@/components/common/Button";
-import { NEUMATICOS_USOS, NEUMATICOS_CTA } from "@/lib/neumaticosContent";
+import { NEUMATICOS_USOS } from "@/lib/neumaticosContent";
 import { useNeumaticosStock } from "@/lib/neumaticosStock";
 import { useSettings, whatsappUrl } from "@/lib/settings";
 import { formatCLP } from "@/lib/catalogo";
@@ -44,7 +44,8 @@ function TireCard({ item }) {
   );
 }
 
-export default function NeumaticosVitrina() {
+// `embedded`: dentro del panel de la home, que ya tiene sus márgenes.
+export default function NeumaticosVitrina({ embedded = false }) {
   const stock = useNeumaticosStock();
   const s = useSettings();
   const [active, setActive] = useState(NEUMATICOS_USOS[0].slot);
@@ -63,7 +64,7 @@ export default function NeumaticosVitrina() {
   const items = stock[uso.slot] || [];
 
   return (
-    <section ref={sectionRef} id={VITRINA_ID} className="scroll-mt-4 px-6 pb-10 sm:px-10 lg:pb-14">
+    <section ref={sectionRef} id={VITRINA_ID} className={`scroll-mt-4 ${embedded ? "" : "px-6 pb-10 sm:px-10 lg:pb-14"}`}>
       <div className="flex flex-col gap-5 rounded-xl border border-[#1E2226] bg-surface-raised p-5 sm:p-6">
         <div className="flex flex-wrap items-center justify-between gap-4">
           <div className="flex items-center gap-3.5">
@@ -101,15 +102,26 @@ export default function NeumaticosVitrina() {
             ))}
           </div>
         ) : (
-          <div role="tabpanel" className="flex flex-col items-start gap-4 rounded-lg border border-dashed border-[#2E3A45] px-5 py-6 sm:flex-row sm:items-center sm:justify-between">
-            <p className="text-[14.5px] leading-snug text-[#B9C0C7]">
-              Por ahora no hay neumáticos {uso.title.toLowerCase()} publicados. Escríbenos y te contamos qué tenemos para tu moto.
-            </p>
-            <Button block="mobile" variant="whatsapp" size="sm" href={whatsappUrl(s.phoneDigits, NEUMATICOS_CTA.asesoriaMessage)}>
-              Consultar por WhatsApp
-            </Button>
-          </div>
+          <p role="tabpanel" className="text-[14.5px] leading-snug text-[#B9C0C7]">
+            Por ahora no hay neumáticos {uso.title.toLowerCase()} publicados.
+          </p>
         )}
+
+        {/* En todas las vitrinas, con o sin neumáticos (pedido del cliente). */}
+        <div className="flex flex-col items-start gap-4 rounded-lg border border-dashed border-[#2E3A45] px-5 py-5 sm:flex-row sm:items-center sm:justify-between">
+          <div className="flex flex-col gap-1">
+            <div className="font-display text-lg font-bold italic uppercase leading-tight text-white">¿No encontraste tu neumático?</div>
+            <p className="text-[14.5px] leading-snug text-[#B9C0C7]">Consúltanos y nosotros lo buscamos.</p>
+          </div>
+          <Button
+            block="mobile"
+            variant="whatsapp"
+            size="sm"
+            href={whatsappUrl(s.phoneDigits, `Hola GSmotos, busco un neumático ${uso.title.toLowerCase()} para mi moto.`)}
+          >
+            Consultar por WhatsApp
+          </Button>
+        </div>
       </div>
     </section>
   );
