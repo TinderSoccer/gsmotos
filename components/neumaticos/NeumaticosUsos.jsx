@@ -36,7 +36,7 @@ export default function NeumaticosUsos({ agendarHref }) {
         <ColorBars />
         <h2 className="font-display text-2xl font-bold italic uppercase leading-none tracking-wide text-white">Tipos de uso</h2>
       </div>
-      <p className="max-w-sm text-[14px] leading-snug text-[#B9C0C7]">{NEUMATICOS_USOS_TITLE}</p>
+      <p className="text-[14px] leading-snug text-[#B9C0C7]">{NEUMATICOS_USOS_TITLE}</p>
 
       <div
         ref={rowRef}
