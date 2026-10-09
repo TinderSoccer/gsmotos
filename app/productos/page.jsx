@@ -55,9 +55,6 @@ export default function ProductosPage({ searchParams }) {
         <div className="flex flex-wrap items-center gap-4">
           <ColorBars size="lg" />
           <h1 className="font-display text-[32px] font-bold italic uppercase leading-none text-white">Productos</h1>
-          <div className="hidden font-display text-base uppercase tracking-wide text-[#7A838C] sm:block">
-            Búsqueda guiada, no vitrina
-          </div>
         </div>
 
         <div className="grid grid-cols-1 gap-3.5 sm:grid-cols-2 lg:grid-cols-4">

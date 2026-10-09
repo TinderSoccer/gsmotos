@@ -278,7 +278,7 @@ export default function SelectorPanel({
       <div key={menuTitle} className="flex items-center gap-4" style={{ animation: `${animTitle} 640ms cubic-bezier(0.33,0.02,0.16,1) both` }}>
         <ColorBars size="lg" />
         <div className="font-display text-[32px] font-bold italic uppercase leading-none text-white">{menuTitle}</div>
-        <div className="hidden font-display text-base uppercase tracking-wide text-[#7A838C] sm:block">{menuHint}</div>
+        {menuHint && <div className="hidden font-display text-base uppercase tracking-wide text-[#7A838C] sm:block">{menuHint}</div>}
       </div>
 
       {isProductos ? (
