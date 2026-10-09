@@ -27,29 +27,12 @@ const INTRO = {
   body: "",
 };
 
-// Cada item: { Icon, title, desc }. Contenido de ejemplo — reemplazar por
-// los tipos de servicio reales que entregue el cliente.
+// Cada item: { Icon, title }. Solo títulos, sin bajada (pedido del cliente).
 const FEATURES = [
-  {
-    Icon: Truck,
-    title: "Traslado por avería",
-    desc: "Retiro de tu moto donde haya quedado detenida y traslado al taller para su reparación.",
-  },
-  {
-    Icon: MapPin,
-    title: "Cobertura en ruta",
-    desc: "Servicio dentro y fuera de la ciudad — indícanos tu ubicación al coordinar.",
-  },
-  {
-    Icon: Clock,
-    title: "Respuesta rápida",
-    desc: "Coordinación por WhatsApp o llamada, con horario de atención a confirmar.",
-  },
-  {
-    Icon: ShieldCheck,
-    title: "Manejo cuidadoso",
-    desc: "Equipo y sujeción adecuada para motos, sin daños en el traslado.",
-  },
+  { Icon: Truck, title: "Traslado hacia GS Motos o el destino que tú quieras" },
+  { Icon: MapPin, title: "Cobertura dentro y fuera de la Región Metropolitana (RM)" },
+  { Icon: Clock, title: "Respuesta rápida" },
+  { Icon: ShieldCheck, title: "Servicio grúa propia de taller" },
 ];
 
 // En escritorio la primera foto va grande (a lo ancho de la columna) y el
@@ -126,11 +109,10 @@ export default function ServicioGruasPage() {
         <div className="lg:col-start-1">
           <div className="mb-3 font-display text-base font-bold uppercase tracking-wide text-white">Qué incluye</div>
           <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-            {FEATURES.map(({ Icon, title, desc }) => (
-              <div key={title} className="flex flex-col gap-1.5 rounded-xl border border-[#1E2226] bg-surface-card p-3.5">
-                <Icon size={20} strokeWidth={1.6} className="text-mCyan" />
-                <div className="font-display text-sm font-semibold uppercase leading-tight text-white">{title}</div>
-                <p className="text-[12px] leading-snug text-[#B9C0C7]">{desc}</p>
+            {FEATURES.map(({ Icon, title }) => (
+              <div key={title} className="flex items-center gap-3 rounded-xl border border-[#1E2226] bg-surface-card p-3.5">
+                <Icon size={22} strokeWidth={1.6} className="flex-none text-mCyan" />
+                <div className="font-display text-[15px] font-semibold uppercase leading-tight text-white">{title}</div>
               </div>
             ))}
           </div>
