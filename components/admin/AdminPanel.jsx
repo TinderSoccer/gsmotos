@@ -1538,8 +1538,8 @@ function TallerTab() {
   );
 }
 
-// Fotos de la página "Servicio de grúa" (ver lib/gruas.js). Mismo
-// tamaño de recuadro que en la web; cada foto tiene un texto opcional que
+// Fotos del carrusel de la página "Servicio de grúa" (ver lib/gruas.js).
+// Misma proporción que en la web (4:3); cada foto tiene un texto opcional que
 // aparece al abrirla en grande.
 function GruasTab() {
   const items = useGruasPhotos();
@@ -1578,9 +1578,9 @@ function GruasTab() {
             Fotos de Grúas
           </h1>
           <p className="max-w-xl text-[15.5px] leading-[1.6] text-[#5A5A5A]">
-            Las fotos de la página &ldquo;Servicio de grúa&rdquo;. En la web, al tocar una foto se abre en grande;
-            si le escribes un texto, aparece debajo. Mientras no subas ninguna, la página muestra recuadros de
-            &ldquo;Foto próximamente&rdquo;.
+            Las fotos de la página &ldquo;Servicio de grúa&rdquo;. En la web pasan solas, una tras otra, en el
+            orden de aquí abajo. Al tocar una foto se abre en grande; si le escribes un texto, aparece sobre la
+            foto. Mientras no subas ninguna, la página muestra un recuadro de &ldquo;Foto próximamente&rdquo;.
           </p>
           <SeeOnSite href="/servicio-gruas" />
         </div>
@@ -1596,14 +1596,14 @@ function GruasTab() {
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
             {items.map((item, index) => (
               <div key={item.id} className="flex flex-col overflow-hidden rounded-xl border border-[#1E2226] bg-[#0B0D0F]">
-                <PhotoPicker onFile={(ev) => replacePhoto(item.id, ev)} className="h-[130px] overflow-hidden bg-[#14171A]">
-                  <SmartImage src={item.photo} alt={item.caption || "Foto de grúas"} sizes="400px" />
+                <PhotoPicker onFile={(ev) => replacePhoto(item.id, ev)} className="aspect-[4/3] overflow-hidden bg-[#14171A]">
+                  <SmartImage src={item.photo} alt={item.caption || "Foto de grúa"} sizes="400px" />
                 </PhotoPicker>
                 <textarea
                   rows={2}
                   value={item.caption || ""}
                   onChange={(ev) => patch(item.id, { caption: ev.target.value })}
-                  placeholder="Texto al abrir la foto (opcional)"
+                  placeholder="Texto sobre la foto (opcional)"
                   aria-label="Texto de la foto"
                   className="w-full resize-none border-0 border-t border-[#1E2226] bg-transparent px-4 py-3 text-sm text-[#C3C9CE] outline-none placeholder:text-[#5E666D] focus:bg-white/[0.04]"
                 />
@@ -1636,7 +1636,7 @@ function GruasTab() {
                 </div>
               </div>
             ))}
-            <label className="flex h-[130px] cursor-pointer flex-col items-center justify-center gap-2 rounded-xl border-2 border-dashed border-[#2E3A45] text-[#8FC2E6] transition-colors hover:border-mCyan hover:text-mCyan">
+            <label className="flex aspect-[4/3] cursor-pointer flex-col items-center justify-center gap-2 rounded-xl border-2 border-dashed border-[#2E3A45] text-[#8FC2E6] transition-colors hover:border-mCyan hover:text-mCyan">
               <Camera size={28} strokeWidth={1.6} />
               <span className="font-display text-sm font-semibold uppercase tracking-wide">Agregar foto</span>
               <input type="file" accept="image/*" className="hidden" onChange={addPhoto} />

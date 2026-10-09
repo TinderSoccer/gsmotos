@@ -1,22 +1,23 @@
 "use client";
 
-import { Clock, ImageOff, MapPin, Phone, ShieldCheck, Truck } from "lucide-react";
+import { Clock, MapPin, Phone, ShieldCheck, Truck } from "lucide-react";
 import ColorBars from "@/components/services/ColorBars";
 import SiteFooter from "@/components/SiteFooter";
 import { MobileTopBar } from "@/components/mobile/MobileNav";
 import { useState } from "react";
 import { useSettings, whatsappUrl } from "@/lib/settings";
 import { useGruasPhotos } from "@/lib/gruas";
-import SmartImage from "@/components/common/SmartImage";
 import PhotoViewer from "@/components/common/PhotoViewer";
+import GruasCarousel from "@/components/gruas/GruasCarousel";
 import Button from "@/components/common/Button";
 
 // Página estática de "Servicio de Grúa" — reemplaza al botón "Conocer más"
 // del hero (antes un anchor a #servicios). Contenido de ejemplo: el cliente
 // todavía no entregó las fotos ni el texto definitivo del servicio, así que
 // se dejan placeholders fáciles de reemplazar en cuanto lleguen:
-// - FOTOS: se suben desde /administracion → Grúas (ver lib/gruas.js); al
-//   tocarlas se abren en grande con su texto opcional.
+// - FOTOS: carrusel (components/gruas/GruasCarousel.jsx); se suben y
+//   ordenan desde /administracion → Grúas (ver lib/gruas.js). Al tocarlas
+//   se abren en grande con su texto opcional.
 // - TEXTO/CARACTERÍSTICAS: editar INTRO y FEATURES más abajo.
 const INTRO = {
   title: "Servicio de grúa",
@@ -35,42 +36,9 @@ const FEATURES = [
   { Icon: ShieldCheck, title: "Servicio grúa propia de taller" },
 ];
 
-// En escritorio la primera foto va grande (a lo ancho de la columna) y el
-// resto de a dos debajo; en el celular todas iguales, una bajo otra.
-function PhotoSlot({ photo, onOpen, first }) {
-  const size = first ? "h-[110px] sm:h-[130px] lg:col-span-2 lg:h-[300px]" : "h-[110px] sm:h-[130px] lg:h-[150px]";
-  if (!photo) {
-    return (
-      <div className={`flex flex-col items-center justify-center gap-1.5 rounded-xl border border-[#1E2226] bg-[repeating-linear-gradient(135deg,#14171A_0_10px,#0F1113_10px_20px)] ${size}`}>
-        <ImageOff size={22} strokeWidth={1.4} className="text-[#4A5058]" />
-        <span className="font-display text-[10px] uppercase tracking-[2px] text-[#5C636B]">Foto próximamente</span>
-      </div>
-    );
-  }
-  return (
-    <button
-      type="button"
-      onClick={onOpen}
-      aria-label={`Ver foto en grande${photo.caption ? `: ${photo.caption}` : ""}`}
-      className={`group relative block cursor-zoom-in overflow-hidden rounded-xl border border-[#1E2226] bg-[#14171A] ${size}`}
-    >
-      <SmartImage
-        src={photo.photo}
-        alt={photo.caption || "Servicio de grúa GSmotos"}
-        className="transition-transform duration-500 group-hover:scale-[1.04]"
-        sizes={first ? "(max-width: 639px) 100vw, (max-width: 1023px) 400px, 640px" : "(max-width: 639px) 100vw, 400px"}
-      />
-    </button>
-  );
-}
-
 export default function ServicioGruasPage() {
   const s = useSettings();
-  // Al menos 3 recuadros de foto siempre visibles (reales si ya hay, si no
-  // placeholder) para que la sección no se vea vacía mientras llegan las
-  // fotos definitivas.
   const photos = useGruasPhotos();
-  const photoSlots = photos.length ? photos : [null, null, null];
   const [open, setOpen] = useState(null);
 
   return (
@@ -100,10 +68,8 @@ export default function ServicioGruasPage() {
           {INTRO.body && <p className="max-w-2xl text-sm leading-[1.5] text-[#B9C0C7]">{INTRO.body}</p>}
         </div>
 
-        <div className="grid grid-cols-1 gap-3 sm:grid-cols-3 lg:col-start-2 lg:row-span-2 lg:row-start-1 lg:grid-cols-2 lg:content-start">
-          {photoSlots.map((photo, i) => (
-            <PhotoSlot key={photo?.id ?? i} photo={photo} first={i === 0} onOpen={() => setOpen(i)} />
-          ))}
+        <div className="lg:col-start-2 lg:row-span-2 lg:row-start-1">
+          <GruasCarousel photos={photos} onOpen={setOpen} />
         </div>
 
         <div className="lg:col-start-1">
