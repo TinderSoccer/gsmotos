@@ -7,7 +7,8 @@ import ContactInfo from "@/components/ContactInfo";
 import MapaTaller from "@/components/MapaTaller";
 import SiteFooter from "@/components/SiteFooter";
 import { MobileTopBar } from "@/components/mobile/MobileNav";
-import { getAvailableSlots, createAppointment } from "@/lib/tallergp";
+import { getAvailableSlots } from "@/lib/tallergp";
+import { useSettings, whatsappUrl } from "@/lib/settings";
 import Button from "@/components/common/Button";
 
 const EMPTY_FORM = { name: "", phone: "", model: "", note: "", date: "", time: "" };
@@ -21,16 +22,20 @@ const MOTIVO_NOTE = {
 };
 
 // Formulario de agendamiento — sin carrito ni pago online, solo reserva de
-// hora. Usa lib/tallergp.js (mock); ver ese archivo para dónde conectar la
-// API real de TallerGP cuando existan credenciales.
+// hora. Mientras no esté la API de TallerGP (lib/tallergp.js es un mock),
+// la solicitud se manda por WhatsApp al taller con todos los datos
+// escritos: antes el formulario mostraba un "código de reserva" de mentira
+// y la reserva no le llegaba a nadie. Cuando exista la API, `handleSubmit`
+// vuelve a usar createAppointment de lib/tallergp.js.
 // `searchParams` llega como prop (y no con useSearchParams) para que la
 // página se arme completa en el servidor y Google vea el formulario.
 export default function ContactoPage({ searchParams }) {
   const motivoNote = MOTIVO_NOTE[searchParams?.motivo] || "";
   const [form, setForm] = useState(() => ({ ...EMPTY_FORM, note: motivoNote }));
   const [slots, setSlots] = useState([]);
-  const [status, setStatus] = useState("idle"); // idle | loading | done | error
-  const [confirmation, setConfirmation] = useState(null);
+  const [status, setStatus] = useState("idle"); // idle | done
+  const [waLink, setWaLink] = useState("");
+  const s = useSettings();
 
   useEffect(() => {
     let active = true;
@@ -46,16 +51,24 @@ export default function ContactoPage({ searchParams }) {
     setForm((f) => ({ ...f, [field]: value }));
   }
 
-  async function handleSubmit(e) {
+  function handleSubmit(e) {
     e.preventDefault();
-    setStatus("loading");
-    const res = await createAppointment(form);
-    if (res.ok) {
-      setConfirmation(res.confirmationId);
-      setStatus("done");
-    } else {
-      setStatus("error");
-    }
+    const fecha = new Date(`${form.date}T12:00:00`).toLocaleDateString("es-CL", { weekday: "long", day: "numeric", month: "long" });
+    const message = [
+      "Hola GSmotos, quiero agendar una hora:",
+      `• Nombre: ${form.name}`,
+      `• Teléfono: ${form.phone}`,
+      form.model && `• Moto: ${form.model}`,
+      form.note && `• Necesito: ${form.note}`,
+      `• Día y hora: ${fecha}, ${form.time}`,
+    ]
+      .filter(Boolean)
+      .join("\n");
+    const url = whatsappUrl(s.phoneDigits, message);
+    setWaLink(url);
+    setStatus("done");
+    // Se abre en el mismo toque del botón (si no, el navegador lo bloquea).
+    window.open(url, "_blank", "noopener");
   }
 
   const today = new Date().toISOString().slice(0, 10);
@@ -88,11 +101,13 @@ export default function ContactoPage({ searchParams }) {
               className="flex flex-col items-center gap-3 py-10 text-center"
               style={{ animation: "gsmSuccessIn 400ms cubic-bezier(0.34,1.56,0.64,1) both" }}
             >
-              <div className="font-display text-2xl font-bold italic uppercase text-white">¡Hora agendada!</div>
-              <p className="text-[14.5px] text-[#B9C0C7]">
-                Te contactaremos para confirmar. Código de reserva:{" "}
-                <span className="font-display text-mCyan">{confirmation}</span>
+              <div className="font-display text-2xl font-bold italic uppercase text-white">¡Ya casi!</div>
+              <p className="max-w-sm text-[14.5px] leading-relaxed text-[#B9C0C7]">
+                Te abrimos WhatsApp con tu solicitud escrita. Envía el mensaje y te confirmamos la hora por ahí.
               </p>
+              <Button variant="whatsapp" href={waLink}>
+                Abrir WhatsApp de nuevo
+              </Button>
               <div className="mt-2 flex flex-wrap items-center justify-center gap-x-6 gap-y-2">
                 <button
                   type="button"
@@ -155,7 +170,7 @@ export default function ContactoPage({ searchParams }) {
               </label>
               <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                 <label className="flex flex-col gap-1.5 text-sm text-white/80">
-                  Fecha
+                  Fecha preferida
                   <input
                     required
                     type="date"
@@ -166,7 +181,7 @@ export default function ContactoPage({ searchParams }) {
                   />
                 </label>
                 <label className="flex flex-col gap-1.5 text-sm text-white/80">
-                  Hora
+                  Hora preferida
                   <select
                     required
                     value={form.time}
@@ -181,13 +196,11 @@ export default function ContactoPage({ searchParams }) {
                 </label>
               </div>
               <div className="mt-2 flex flex-wrap items-center gap-x-6 gap-y-3">
-                <Button type="submit" loading={status === "loading"} loadingLabel="Agendando…">
-                  Agendar ahora
+                <Button type="submit" variant="whatsapp">
+                  Enviar por WhatsApp
                 </Button>
+                <span className="text-[13px] text-[#8A939C]">Te confirmamos la hora por WhatsApp.</span>
               </div>
-              {status === "error" && (
-                <div className="text-sm text-mRed">No pudimos agendar la hora. Revisa los datos e intenta de nuevo.</div>
-              )}
             </form>
           )}
         </div>
