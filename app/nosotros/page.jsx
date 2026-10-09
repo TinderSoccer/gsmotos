@@ -3,7 +3,6 @@ import SiteFooter from "@/components/SiteFooter";
 import { MobileTopBar } from "@/components/mobile/MobileNav";
 import { getMenuBySlug } from "@/lib/servicesData";
 import SmartImage from "@/components/common/SmartImage";
-import NosotrosEnlaces from "@/components/nosotros/NosotrosEnlaces";
 import Button from "@/components/common/Button";
 
 export const metadata = {
@@ -14,8 +13,6 @@ export const metadata = {
 
 const gsmotos = getMenuBySlug("gsmotos");
 const nosotros = gsmotos.cards.find((c) => c.slug === "nosotros");
-const taller = gsmotos.cards.find((c) => c.slug === "nuestro-taller");
-const christopher = gsmotos.cards.find((c) => c.slug === "christopher-fundador");
 
 function Section({ card }) {
   return (
@@ -43,13 +40,6 @@ export default function NosotrosPage() {
       </div>
 
       <Section card={nosotros} />
-
-      {/* El taller y Christopher: tarjetas con foto que llevan a sus
-          páginas (antes de eso, el bloque largo de "Nuestro taller" se
-          repetía acá; luego fueron cajas planas solo con texto). */}
-      <section className="border-t border-[#1c1d20] bg-surface-raised px-6 py-14 sm:px-10">
-        <NosotrosEnlaces taller={taller} christopher={christopher} />
-      </section>
 
       <section className="flex flex-col items-center gap-4 border-t border-[#1c1d20] px-6 py-14 text-center sm:px-10">
         <h2 className="font-display text-2xl font-bold italic uppercase text-white">
