@@ -2,30 +2,35 @@
 
 import { useEffect, useState } from "react";
 
-// Logos de "Otras marcas Big Trail" — logos reales (ver
-// public/images/marcas/, mismo criterio de sourcing que el logo de BMW:
-// Wikimedia Commons, versión oficial; Voge no está en Commons y se
-// vectorizó desde el logo que mandó el cliente). El cliente confirmó
-// autorización para usar estos logos igual que el de BMW.
+// Logos de "Otras marcas Big Trail", con las versiones de la hoja que
+// mandó el cliente (public/images/marcas/). Fuentes: Wikimedia Commons
+// (Ducati, KTM, Yamaha, Harley-Davidson, Suzuki, Aprilia), sitio oficial
+// (Husqvarna) y, para los que no estaban en esa versión en ninguna de las
+// dos (Honda con el ala, Triumph con el triángulo, Royal Enfield con el
+// escudo, Kawasaki con la K, CFMOTO y Voge), vectorizados con potrace
+// desde la misma hoja del cliente. El cliente confirmó autorización para
+// usar estos logos igual que el de BMW.
 //
 // `forceWhite`: logos de un solo color oscuro pensados para fondo claro;
 // directo sobre el fondo oscuro del sitio casi no se ven, y
 // brightness(0) invert(1) los vuelve blancos sólidos conservando la
-// silueta exacta.
+// silueta exacta. (Triumph y CFMOTO ya vienen en blanco.)
+// `scale`: empareja el tamaño a la vista (unos logos traen más aire o son
+// más compactos que otros).
 const BRANDS = [
   { name: "Ducati", img: "/images/marcas/ducati.svg" },
-  { name: "Honda", img: "/images/marcas/honda.svg", forceWhite: true },
+  { name: "Honda", img: "/images/marcas/honda.svg", scale: 1.2 },
   { name: "KTM", img: "/images/marcas/ktm.svg" },
-  { name: "Triumph", img: "/images/marcas/triumph.svg", forceWhite: true },
+  { name: "Triumph", img: "/images/marcas/triumph.svg" },
   { name: "Yamaha", img: "/images/marcas/yamaha.svg" },
   { name: "Harley-Davidson", img: "/images/marcas/harley-davidson.svg" },
   { name: "Suzuki", img: "/images/marcas/suzuki.svg" },
   { name: "Aprilia", img: "/images/marcas/aprilia.svg" },
-  { name: "Husqvarna", img: "/images/marcas/husqvarna.svg", forceWhite: true },
+  { name: "Husqvarna", img: "/images/marcas/husqvarna.png", scale: 1.3 },
   { name: "Voge", img: "/images/marcas/voge.svg" },
-  { name: "Royal Enfield", img: "/images/marcas/royal-enfield.svg" },
-  { name: "Kawasaki", img: "/images/marcas/kawasaki.svg" },
-  { name: "CFMOTO", img: "/images/marcas/cfmoto.svg", forceWhite: true },
+  { name: "Royal Enfield", img: "/images/marcas/royal-enfield.svg", scale: 1.3 },
+  { name: "Kawasaki", img: "/images/marcas/kawasaki.svg", scale: 0.85 },
+  { name: "CFMOTO", img: "/images/marcas/cfmoto.svg" },
 ];
 
 // "Tipo vagón" (pedido del cliente): se ven 5 logos (4 en tablet, 3 en el
@@ -53,14 +58,14 @@ function usePerView() {
   return perView;
 }
 
-function BrandLogo({ name, img, forceWhite }) {
+function BrandLogo({ name, img, forceWhite, scale = 1 }) {
   return (
     // eslint-disable-next-line @next/next/no-img-element
     <img
       src={img}
       alt={name}
       className="h-11 w-auto max-w-[78%] object-contain sm:h-14 sm:max-w-[150px]"
-      style={forceWhite ? { filter: "brightness(0) invert(1)" } : undefined}
+      style={{ filter: forceWhite ? "brightness(0) invert(1)" : undefined, scale: scale === 1 ? undefined : String(scale) }}
     />
   );
 }
