@@ -529,7 +529,15 @@ function CertificadosTab() {
   );
 }
 
-const SERVICE_CATEGORIES = menus.filter((m) => m.kind === "service");
+// Más la foto de "Nosotros" (categoría GSmotos): se ve en su tarjeta del
+// inicio y en /nosotros. Las otras dos tarjetas de GSmotos (taller y
+// Christopher) quedan con su foto fija.
+const SERVICE_CATEGORIES = [
+  ...menus.filter((m) => m.kind === "service"),
+  ...menus
+    .filter((m) => m.slug === "gsmotos")
+    .map((m) => ({ ...m, cards: m.cards.filter((c) => c.slug === "nosotros") })),
+];
 
 function ServiciosTab() {
   const overrides = useServicePhotos();

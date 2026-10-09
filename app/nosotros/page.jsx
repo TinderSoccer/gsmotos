@@ -2,7 +2,7 @@ import ColorBars from "@/components/services/ColorBars";
 import SiteFooter from "@/components/SiteFooter";
 import { MobileTopBar } from "@/components/mobile/MobileNav";
 import { getMenuBySlug } from "@/lib/servicesData";
-import SmartImage from "@/components/common/SmartImage";
+import NosotrosFoto from "@/components/nosotros/NosotrosFoto";
 import Button from "@/components/common/Button";
 
 export const metadata = {
@@ -18,7 +18,7 @@ function Section({ card }) {
   return (
     <section className="grid grid-cols-1 items-center gap-10 border-t border-[#1c1d20] px-6 py-14 sm:px-10 md:grid-cols-2">
       <div className="relative aspect-[4/3] overflow-hidden rounded-xl border border-[#1E2226]">
-        <SmartImage src={card.photo} alt="" className="brightness-110" sizes="(max-width: 767px) 100vw, 50vw" priority />
+        <NosotrosFoto card={card} />
       </div>
       <div className="flex flex-col gap-3">
         <h2 className="font-display text-[30px] font-bold italic uppercase leading-tight text-white">{card.title}</h2>
