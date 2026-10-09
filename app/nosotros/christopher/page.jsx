@@ -158,8 +158,15 @@ export default function ChristopherPage() {
       <section className="flex flex-col items-start gap-6 bg-[#EDEDED] px-6 py-11 sm:flex-row sm:items-center sm:justify-between sm:px-10 sm:py-[50px]">
         <div className="flex max-w-xl flex-col gap-2.5">
           <div className="font-display text-2xl font-bold italic uppercase leading-[1.05] text-[#0B0B0B] sm:text-[30px]">
-            ¿Quieres agendar tu moto en GSmotos?
+            ¿Necesitas conversar con Christopher?
           </div>
+          <div className="font-display text-sm font-semibold uppercase tracking-[1.5px] text-mBlue">
+            (Válido solo para asesorías y pruebas de ruta)
+          </div>
+          <p className="text-[15px] leading-[1.6] text-[#3A3A3A]">
+            Porque sabemos que tu tiempo es importante, te pedimos ser respetuosos con la hora agendada para no
+            entorpecer la rutina del taller.
+          </p>
         </div>
         <div className="flex flex-wrap items-center gap-4">
           <Button href="/contacto" block="mobile">Agendar ahora</Button>
