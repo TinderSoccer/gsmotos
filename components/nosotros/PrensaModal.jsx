@@ -1,6 +1,6 @@
 "use client";
 
-import { X } from "lucide-react";
+import { ExternalLink, X } from "lucide-react";
 import { useRef, useState } from "react";
 import Image from "next/image";
 import { BACKDROP_OUT, CARD_OUT, useClosing } from "@/lib/useClosing";
@@ -157,6 +157,17 @@ export default function PrensaModal({ photo, onClose }) {
             {photo.title}
           </div>
           <p className="mt-1 text-[15.5px] leading-[1.65] text-[#2A2A2A]">{photo.desc}</p>
+          {photo.href && (
+            <a
+              href={photo.href}
+              target="_blank"
+              rel="noreferrer"
+              className="mt-1 inline-flex items-center gap-1.5 self-start font-display text-sm font-semibold uppercase tracking-[1.5px] text-mBlue underline-offset-4 hover:underline"
+            >
+              Leer el artículo original
+              <ExternalLink size={15} strokeWidth={2} aria-hidden="true" />
+            </a>
+          )}
         </div>
       </div>
     </div>

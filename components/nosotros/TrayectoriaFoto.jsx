@@ -12,7 +12,7 @@ import SmartImage from "@/components/common/SmartImage";
 // superpuesta deja claro que es clickeable.
 // `thumb`: recorte chico y reconocible para el ícono. `full`: página
 // completa de la revista, la que se ve al abrir el popup.
-export default function TrayectoriaFoto({ thumb, full, alt, year, org, title, desc }) {
+export default function TrayectoriaFoto({ thumb, full, alt, year, org, title, desc, href }) {
   const [open, setOpen] = useState(false);
   return (
     <>
@@ -32,7 +32,7 @@ export default function TrayectoriaFoto({ thumb, full, alt, year, org, title, de
       </button>
       {open && (
         <PrensaModal
-          photo={{ full, alt, year, org, title, desc }}
+          photo={{ full, alt, year, org, title, desc, href }}
           onClose={() => setOpen(false)}
         />
       )}

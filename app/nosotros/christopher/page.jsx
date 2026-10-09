@@ -130,6 +130,7 @@ export default function ChristopherPage() {
                           org={item.photo.org}
                           title={item.photo.title}
                           desc={item.photo.desc}
+                          href={item.photo.href}
                         />
                       )}
                     </div>
