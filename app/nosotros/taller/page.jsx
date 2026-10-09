@@ -31,7 +31,7 @@ const COMO_TRABAJAMOS = [
   },
 ];
 
-// Página del taller: una foto real del taller arriba, cómo se trabaja, la
+// Página del taller: una foto real del taller arriba con cómo se trabaja encima, la
 // galería de fotos y videos que Christopher administra desde
 // /administracion (pestaña "Taller") y cómo llegar. Es el destino del
 // botón "Nuestro taller" del hero.
@@ -39,19 +39,19 @@ export default function TallerPage() {
   return (
     <main className="flex min-h-screen flex-col bg-[#0B0B0B]">
       <MobileTopBar />
-      <TallerPortada />
-
-      <section className="grid grid-cols-1 gap-6 px-6 pb-4 pt-8 sm:grid-cols-3 sm:gap-8 sm:px-10 sm:pt-10">
-        {COMO_TRABAJAMOS.map(({ Icon, title, desc }) => (
-          <div key={title} className="flex items-start gap-3.5">
-            <Icon size={22} strokeWidth={1.6} className="mt-0.5 flex-none text-mCyan" />
-            <div>
-              <h2 className="font-display text-lg font-semibold uppercase leading-tight text-white">{title}</h2>
-              <p className="mt-1 text-[14.5px] leading-snug text-[#B9C0C7]">{desc}</p>
+      <TallerPortada>
+        <section className="grid grid-cols-1 gap-5 sm:grid-cols-3 sm:gap-8">
+          {COMO_TRABAJAMOS.map(({ Icon, title, desc }) => (
+            <div key={title} className="flex items-start gap-3.5">
+              <Icon size={22} strokeWidth={1.6} className="mt-0.5 flex-none text-mCyan" />
+              <div>
+                <h2 className="font-display text-lg font-semibold uppercase leading-tight text-white [text-shadow:0_1px_8px_rgba(0,0,0,0.7)]">{title}</h2>
+                <p className="mt-1 text-[14.5px] leading-snug text-[#D3D8DD] [text-shadow:0_1px_6px_rgba(0,0,0,0.8)]">{desc}</p>
+              </div>
             </div>
-          </div>
-        ))}
-      </section>
+          ))}
+        </section>
+      </TallerPortada>
 
       <section className="px-6 py-10 sm:px-10">
         <h2 className="mb-5 font-display text-[26px] font-bold italic uppercase leading-none text-white">Fotos y videos</h2>
