@@ -5,6 +5,9 @@ import { Search } from "lucide-react";
 import { FaWhatsapp } from "react-icons/fa6";
 import ColorBars from "../services/ColorBars";
 import ServiceGrid from "../services/ServiceGrid";
+import NeumaticosServicios from "../neumaticos/NeumaticosServicios";
+import NeumaticosUsos from "../neumaticos/NeumaticosUsos";
+import NeumaticosVitrina from "../neumaticos/NeumaticosVitrina";
 import BrandRow from "../services/BrandRow";
 import ProductModal from "./ProductModal";
 import ProductCard from "@/components/common/ProductCard";
@@ -230,6 +233,7 @@ export default function SelectorPanel({
   tick,
   isProductos,
   isBigTrail,
+  isNeumaticos,
   serviceCards,
   query,
   onQueryChange,
@@ -291,6 +295,17 @@ export default function SelectorPanel({
           onPopupChange={onProductPopup}
           animClass={animCards}
         />
+      ) : isNeumaticos ? (
+        // Neumáticos se abre acá, con la misma transición que las demás
+        // pestañas (pedido del cliente: antes saltaba a su propia página,
+        // /servicios/neumaticos, que sigue existiendo para Google y enlaces).
+        <div key={animCards} className="flex flex-col gap-8" style={{ animation: `${animCards} 760ms cubic-bezier(0.33,0.02,0.16,1) both` }}>
+          <div className="grid grid-cols-1 items-start gap-8 lg:grid-cols-[0.85fr_1.15fr]">
+            <NeumaticosServicios agendarHref="/contacto?motivo=neumaticos" />
+            <NeumaticosUsos />
+          </div>
+          <NeumaticosVitrina embedded />
+        </div>
       ) : (
         <>
           {isBigTrail && <BrandRow />}

@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState } from "react";
-import { useRouter } from "next/navigation";
 import Image from "next/image";
 import HeroBanner from "./HeroBanner";
 import SelectorPanel from "./SelectorPanel";
@@ -12,7 +11,6 @@ import { PLACEHOLDER_PHOTO } from "@/lib/productosData";
 const PER_PAGE = 4;
 
 export default function HeroExperience() {
-  const router = useRouter();
   const [sel, setSel] = useState(0);
   const [tick, setTick] = useState(0);
   const [query, setQuery] = useState("");
@@ -23,15 +21,6 @@ export default function HeroExperience() {
   const menu = menus[sel];
   const isProductos = menu.kind === "catalog";
   const productos = useProductos();
-
-  // "Neumáticos & Vulcanización" navega con router.push a mano (ver
-  // handleSelect) en vez de un <Link> — un <Link> precarga la página solo
-  // con que quede a la vista, pero router.push() programático no, así que
-  // sin este prefetch explícito el clic disparaba la descarga de esa
-  // página recién en ese momento, sintiéndose con retardo.
-  useEffect(() => {
-    router.prefetch("/servicios/neumaticos");
-  }, [router]);
 
   // "Destacados de esta semana" (sin búsqueda activa) muestra solo productos
   // usados, en orden aleatorio — a diferencia de una búsqueda puntual, que
@@ -75,15 +64,7 @@ export default function HeroExperience() {
     return () => clearInterval(autoRef.current);
   }, [isProductos, autoRestart, productPopup]);
 
-  // "Neumáticos & Vulcanización" ya no se muestra inline en la home (esas 4
-  // tarjetas genéricas quedaron obsoletas): tiene su propia página a medida
-  // en /servicios/neumaticos (ver app/servicios/neumaticos/page.jsx), así
-  // que el tablero del hero navega directo ahí en vez de cambiar de panel.
   function handleSelect(i) {
-    if (menus[i]?.slug === "neumaticos") {
-      router.push("/servicios/neumaticos");
-      return;
-    }
     // El cambio de panel se salta si ya estaba esa opción seleccionada
     // (evita un re-render/animación de más), pero el scroll NO — si no,
     // tocar de nuevo la opción ya activa (típico si el usuario volvió a
@@ -143,6 +124,7 @@ export default function HeroExperience() {
         tick={tick}
         isProductos={isProductos}
         isBigTrail={menu.slug === "big-trail"}
+        isNeumaticos={menu.slug === "neumaticos"}
         serviceCards={menu.cards}
         query={query}
         onQueryChange={(v) => {
