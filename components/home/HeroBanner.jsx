@@ -100,12 +100,15 @@ export default function HeroBanner({ onSelect }) {
           el texto oscuros encima. Se sacó el 30/09 para que se viera más el
           video y volvió porque al cliente le gusta. En el celular no va: ahí
           el video es una franja arriba y el texto va debajo. */}
+      {/* Con un mínimo en px: el texto tiene ancho fijo y, solo en %, al
+          achicar la ventana la franja se angostaba y el video se comía el
+          texto. */}
       <div
         className="pointer-events-none absolute inset-0 hidden bg-white sm:block"
-        style={{ clipPath: "polygon(0 0, 25% 0, 38% 100%, 0 100%)" }}
+        style={{ clipPath: "polygon(0 0, max(25%, 400px) 0, max(38%, 560px) 100%, 0 100%)" }}
       />
       <div
-        className="pointer-events-none absolute inset-y-0 left-0 hidden w-[56%] sm:block"
+        className="pointer-events-none absolute inset-y-0 left-0 hidden w-[max(56%,820px)] sm:block"
         style={{ background: "linear-gradient(103deg, #ffffff 42%, rgba(255,255,255,0.85) 49%, rgba(255,255,255,0) 64%)" }}
       />
 
@@ -181,7 +184,9 @@ export default function HeroBanner({ onSelect }) {
           pasarse: 450px, con el tablero grande otra vez (340px). pt-[150px]
           deja el bloque de texto siempre debajo del logo (position
           absolute arriba). Texto oscuro sobre la franja blanca. */}
-      <div className="relative z-20 hidden h-full max-w-[560px] items-start px-6 sm:flex sm:px-0 sm:pl-14">
+      {/* pl-10: alineado con el logo y más lejos del corte al video (pedido
+          del cliente). */}
+      <div className="relative z-20 hidden h-full max-w-[560px] items-start px-6 sm:flex sm:px-0 sm:pl-10">
         <div className="flex flex-col gap-2.5 pt-[150px]">
           <div className="font-display text-[15px] font-semibold uppercase tracking-[4px] text-ink">
             Especialistas en
