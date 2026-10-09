@@ -57,7 +57,7 @@ export default function ServiceDetailModal({ card, onClose }) {
           <div className="font-display text-[22px] italic leading-snug text-mCyan">{card.lead}</div>
           <p className="text-[15.5px] leading-[1.75] text-[#C3C9CE]">{card.long}</p>
           <div
-            className="flex items-center gap-4 rounded-lg border-l-4 bg-mBlue/[0.18] px-5 py-4.5"
+            className="flex items-center gap-4 rounded-lg border-l-4 bg-mBlue/[0.18] px-5 py-[18px]"
             style={{ animation: "gsmNoteIn 460ms cubic-bezier(0.22,0.61,0.36,1) 180ms both, gsmNoteGlow 2200ms ease-in-out 900ms infinite" }}
           >
             <MessageCircle size={23} strokeWidth={1.9} className="flex-none text-mCyan" />

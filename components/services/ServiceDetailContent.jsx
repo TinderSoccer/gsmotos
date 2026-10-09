@@ -47,7 +47,7 @@ export default function ServiceDetailContent({ card, backHref, backLabel }) {
           )}
           <div className="font-display text-[22px] italic leading-snug text-mCyan">{card.lead}</div>
           <p className="text-[15.5px] leading-[1.75] text-[#C3C9CE]">{card.long}</p>
-          <div className="flex items-center gap-3.5 border-l-[3px] border-mRed bg-white/[0.04] px-4.5 py-4">
+          <div className="flex items-center gap-3.5 border-l-[3px] border-mRed bg-white/[0.04] px-[18px] py-4">
             <span className="font-display text-[15px] uppercase leading-snug tracking-wide text-[#E4E7EA]">{card.note}</span>
           </div>
           <div className="flex flex-wrap items-center gap-4 pt-1">
