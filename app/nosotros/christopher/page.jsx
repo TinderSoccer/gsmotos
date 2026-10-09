@@ -61,7 +61,7 @@ export default function ChristopherPage() {
       <section className="grid grid-cols-1 gap-10 bg-[#F7F7F7] px-6 py-14 sm:px-10 md:grid-cols-[1.15fr_1fr] md:gap-12 md:py-[60px]">
         <div className="flex flex-col gap-[22px]">
           <h2 className="font-display text-3xl font-bold italic uppercase leading-[1.02] text-[#0B0B0B] sm:text-4xl">
-            Cómo partió todo
+            Como partió todo
           </h2>
           <div className="border-l-[3px] border-mBlue pl-4 font-display text-xl uppercase leading-[1.3] tracking-wide text-[#0B0B0B] sm:text-[22px]">
             &ldquo;La mecánica comenzó mucho antes de convertirse en una profesión&rdquo;
