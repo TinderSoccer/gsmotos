@@ -6,9 +6,8 @@ import ColorBars from "@/components/services/ColorBars";
 // `children` (cómo trabajamos) encima. Se probó con el video, pero repetía
 // el hero de la home y pesaba 8MB; la foto fija pesa ~110KB y deja que la
 // página respire.
-// La foto va más transparente sobre el negro (opacity) para que el texto
-// se lea encima (pedido del cliente); el alto lo da el contenido, con un
-// mínimo para que la foto se alcance a ver arriba del título.
+// El alto lo da el contenido, con un mínimo para que la foto se alcance a
+// ver arriba del título.
 export default function TallerPortada({ children }) {
   return (
     <section className="relative w-full overflow-hidden bg-[#050505]">
@@ -18,8 +17,11 @@ export default function TallerPortada({ children }) {
         fill
         priority
         sizes="100vw"
-        className="object-cover opacity-[0.3]"
+        className="object-cover sm:brightness-110"
       />
+      {/* Misma transparencia que la portada del inicio (HeroBanner): brillo
+          +10% desde sm y un velo negro de 6% (pedido del cliente). */}
+      <div className="pointer-events-none absolute inset-0 bg-black/[0.06]" />
       <div
         className="pointer-events-none absolute inset-0"
         style={{ background: "linear-gradient(180deg, rgba(5,5,5,0) 0%, rgba(5,5,5,0.15) 45%, rgba(5,5,5,0.75) 85%, #0B0B0B 100%)" }}
