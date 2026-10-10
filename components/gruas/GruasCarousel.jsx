@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { ChevronLeft, ChevronRight, ImageOff } from "lucide-react";
 import SmartImage from "@/components/common/SmartImage";
+import { isDirectVideoUrl, toEmbedUrl } from "@/lib/taller";
 
 // Carrusel de fotos de la página de grúa (pedido del cliente: antes era una
 // foto grande y el resto chicas debajo). Las fotos y su orden se manejan
@@ -13,6 +14,8 @@ import SmartImage from "@/components/common/SmartImage";
 // - Tocar una foto la abre en grande (`onOpen(i)`, PhotoViewer).
 // - Un video ({ type: "video", url, poster }) se reproduce ahí mismo; mientras
 //   suena el carrusel no pasa solo, y se pausa al cambiar de diapositiva.
+//   Un link de YouTube/Vimeo se incrusta; como no se puede saber si lo están
+//   viendo, el carrusel no pasa solo mientras esa diapositiva está a la vista.
 const AUTO_MS = 5000;
 
 export default function GruasCarousel({ photos, onOpen }) {
@@ -39,13 +42,14 @@ export default function GruasCarousel({ photos, onOpen }) {
   }
 
   useEffect(() => {
-    if (count < 2 || paused || playing) return;
+    const onEmbed = photos[current]?.type === "video" && !isDirectVideoUrl(photos[current]?.url);
+    if (count < 2 || paused || playing || onEmbed) return;
     if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
     const id = setInterval(() => {
       if (!document.hidden) goTo((current + 1) % count);
     }, AUTO_MS);
     return () => clearInterval(id);
-  }, [count, current, paused, playing, goTo]);
+  }, [count, current, paused, playing, goTo, photos]);
 
   if (!count) {
     return (
@@ -75,20 +79,32 @@ export default function GruasCarousel({ photos, onOpen }) {
           {photos.map((photo, i) =>
             photo.type === "video" ? (
               <div key={photo.id ?? i} className="relative h-full w-full flex-none snap-center bg-black">
-                {/* eslint-disable-next-line jsx-a11y/media-has-caption */}
-                <video
-                  src={photo.url}
-                  poster={photo.poster}
-                  controls
-                  playsInline
-                  preload="metadata"
-                  onPlay={() => setPlaying(true)}
-                  onPause={() => setPlaying(false)}
-                  onEnded={() => setPlaying(false)}
-                  aria-label={photo.caption || `Video ${i + 1} de ${count}`}
-                  className="h-full w-full object-cover"
-                />
-                {photo.caption && !playing && (
+                {isDirectVideoUrl(photo.url) ? (
+                  // eslint-disable-next-line jsx-a11y/media-has-caption
+                  <video
+                    src={photo.url}
+                    poster={photo.poster}
+                    controls
+                    playsInline
+                    preload="metadata"
+                    onPlay={() => setPlaying(true)}
+                    onPause={() => setPlaying(false)}
+                    onEnded={() => setPlaying(false)}
+                    aria-label={photo.caption || `Video ${i + 1} de ${count}`}
+                    className="h-full w-full object-cover"
+                  />
+                ) : (
+                  <iframe
+                    src={toEmbedUrl(photo.url)}
+                    title={photo.caption || `Video ${i + 1} de ${count}`}
+                    loading="lazy"
+                    className="h-full w-full"
+                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                    allowFullScreen
+                  />
+                )}
+                {/* En YouTube/Vimeo no: su reproductor ya muestra el título arriba. */}
+                {photo.caption && !playing && isDirectVideoUrl(photo.url) && (
                   <span
                     className="pointer-events-none absolute inset-x-0 top-0 px-4 pb-10 pt-3 text-left text-sm leading-snug text-white"
                     style={{ background: "linear-gradient(0deg, rgba(11,11,11,0) 0%, rgba(11,11,11,0.8) 100%)" }}

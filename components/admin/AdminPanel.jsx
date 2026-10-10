@@ -218,6 +218,48 @@ function AddMediaTile({ aspect, job, onPhoto, onVideo }) {
   );
 }
 
+// Formulario "pegar link de YouTube o Vimeo" (Taller y Grúas). `onAdd(url,
+// caption)` devuelve una promesa con true/false; si guardó, se limpia.
+function VideoLinkForm({ onAdd }) {
+  const [url, setUrl] = useState("");
+  const [caption, setCaption] = useState("");
+  async function submit(ev) {
+    ev.preventDefault();
+    const clean = url.trim();
+    if (!clean) return;
+    if (!(await onAdd(clean, caption.trim()))) return;
+    setUrl("");
+    setCaption("");
+  }
+  return (
+    <form onSubmit={submit} className="flex flex-col gap-2 sm:flex-row">
+      <input
+        type="url"
+        required
+        value={url}
+        onChange={(ev) => setUrl(ev.target.value)}
+        placeholder="Link del video (YouTube o Vimeo)"
+        aria-label="Link del video"
+        className="min-w-0 flex-1 rounded-md border border-[#E0E0E0] bg-[#FBFBFB] px-3.5 py-2.5 text-sm text-[#0B0B0B] outline-none focus:border-mCyan"
+      />
+      <input
+        type="text"
+        value={caption}
+        onChange={(ev) => setCaption(ev.target.value)}
+        placeholder="Descripción (opcional)"
+        aria-label="Descripción del video"
+        className="min-w-0 flex-1 rounded-md border border-[#E0E0E0] bg-[#FBFBFB] px-3.5 py-2.5 text-sm text-[#0B0B0B] outline-none focus:border-mCyan sm:max-w-[220px]"
+      />
+      <button
+        type="submit"
+        className="whitespace-nowrap rounded bg-[#0B0B0B] px-4 py-2.5 font-display text-sm font-semibold uppercase tracking-wide text-white transition-colors hover:bg-mBlue"
+      >
+        Agregar video
+      </button>
+    </form>
+  );
+}
+
 // Pregunta antes de borrar o restaurar algo — un clic accidental en
 // "Eliminar" o "Quitar" antes no tenía vuelta atrás. Es un cuadro propio
 // del panel (ConfirmDialog, más abajo) y no el del navegador, que decía
@@ -1461,8 +1503,6 @@ function ProductosTab() {
 
 function TallerTab() {
   const items = useTallerItems();
-  const [videoUrl, setVideoUrl] = useState("");
-  const [videoCaption, setVideoCaption] = useState("");
   // Subida de un video desde el equipo: { phase: "optimizando" | "subiendo", pct }.
   const [videoJob, setVideoJob] = useState(null);
   // Cuál foto o video se está cambiando por un video (para mostrar el avance ahí).
@@ -1528,13 +1568,8 @@ function TallerTab() {
     await warnIfFailed(writeTallerItems([...readTallerItems(), item]), "Video agregado ✓");
   }
 
-  async function addVideo(ev) {
-    ev.preventDefault();
-    const url = videoUrl.trim();
-    if (!url) return;
-    if (!(await warnIfFailed(writeTallerItems([...items, { id: `video-${Date.now()}`, type: "video", url, caption: videoCaption.trim() }])))) return;
-    setVideoUrl("");
-    setVideoCaption("");
+  function addVideoLink(url, caption) {
+    return warnIfFailed(writeTallerItems([...readTallerItems(), { id: `video-${Date.now()}`, type: "video", url, caption }]));
   }
 
   return (
@@ -1559,31 +1594,7 @@ function TallerTab() {
 
       <div className="flex flex-col gap-3 px-6 pb-6 sm:px-10">
         <VideoUploadButton job={videoJob} onFile={addVideoFile} hint="o pega un link de YouTube o Vimeo:" />
-        <form onSubmit={addVideo} className="flex flex-col gap-2 sm:flex-row">
-          <input
-            type="url"
-            required
-            value={videoUrl}
-            onChange={(ev) => setVideoUrl(ev.target.value)}
-            placeholder="Link del video (YouTube o Vimeo)"
-            aria-label="Link del video"
-            className="min-w-0 flex-1 rounded-md border border-[#E0E0E0] bg-[#FBFBFB] px-3.5 py-2.5 text-sm text-[#0B0B0B] outline-none focus:border-mCyan"
-          />
-          <input
-            type="text"
-            value={videoCaption}
-            onChange={(ev) => setVideoCaption(ev.target.value)}
-            placeholder="Descripción (opcional)"
-            aria-label="Descripción del video"
-            className="min-w-0 flex-1 rounded-md border border-[#E0E0E0] bg-[#FBFBFB] px-3.5 py-2.5 text-sm text-[#0B0B0B] outline-none focus:border-mCyan sm:max-w-[220px]"
-          />
-          <button
-            type="submit"
-            className="whitespace-nowrap rounded bg-[#0B0B0B] px-4 py-2.5 font-display text-sm font-semibold uppercase tracking-wide text-white transition-colors hover:bg-mBlue"
-          >
-            Agregar video
-          </button>
-        </form>
+        <VideoLinkForm onAdd={addVideoLink} />
       </div>
 
       <div className="px-6 pb-10 sm:px-10">
@@ -1796,8 +1807,9 @@ function GruasTab() {
         </div>
       </div>
 
-      <div className="px-6 pb-5 sm:px-10">
-        <VideoUploadButton job={videoJob} onFile={addVideoFile} />
+      <div className="flex flex-col gap-3 px-6 pb-5 sm:px-10">
+        <VideoUploadButton job={videoJob} onFile={addVideoFile} hint="o pega un link de YouTube o Vimeo:" />
+        <VideoLinkForm onAdd={(url, caption) => save([...readGruasPhotos(), { id: `grua-video-${Date.now()}`, type: "video", url, caption }])} />
       </div>
 
       <div className="px-6 pb-14 sm:px-10">
@@ -1808,8 +1820,15 @@ function GruasTab() {
               <div key={item.id} className="flex flex-col overflow-hidden rounded-xl border border-[#1E2226] bg-[#0B0D0F]">
                 {item.type === "video" ? (
                   <div className="relative">
-                    {/* eslint-disable-next-line jsx-a11y/media-has-caption */}
-                    <video src={item.url} poster={item.poster} controls preload="metadata" playsInline className="aspect-[4/3] w-full bg-[#14171A] object-cover" />
+                    {isDirectVideoUrl(item.url) ? (
+                      // eslint-disable-next-line jsx-a11y/media-has-caption
+                      <video src={item.url} poster={item.poster} controls preload="metadata" playsInline className="aspect-[4/3] w-full bg-[#14171A] object-cover" />
+                    ) : (
+                      <div className="flex aspect-[4/3] flex-col items-center justify-center gap-2 bg-[#14171A]">
+                        <PlayCircle size={40} strokeWidth={1.4} color="#4E9AD1" />
+                        <div className="max-w-[90%] truncate font-display text-[11.5px] uppercase tracking-wide text-[#8FC2E6]">{item.url}</div>
+                      </div>
+                    )}
                     <ChangeMediaButton job={videoTarget === item.id ? videoJob : null} busy={Boolean(videoJob)} onFile={(ev) => replaceMedia(item, ev)} />
                   </div>
                 ) : (
