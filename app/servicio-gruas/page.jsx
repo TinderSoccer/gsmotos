@@ -39,8 +39,8 @@ const FEATURES = [
 export default function ServicioGruasPage() {
   const s = useSettings();
   const photos = useGruasPhotos();
-  // El visor en grande es solo para fotos; los videos se ven en el carrusel.
-  const viewerPhotos = photos.filter((p) => p.type !== "video");
+  // El visor en grande recorre fotos y videos, igual que el carrusel.
+  const viewerPhotos = photos;
   const [open, setOpen] = useState(null);
 
   return (

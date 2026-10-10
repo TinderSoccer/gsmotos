@@ -20,7 +20,9 @@ import { ColorEdge } from "@/components/services/ColorBars";
 
 export default function TallerGallery() {
   const items = useTallerItems();
-  const photos = items.filter((it) => it.type === "photo");
+  // El visor en grande recorre fotos y videos (antes solo fotos, y el video
+  // no aparecía al pasar con las flechas).
+  const viewerItems = items;
   const [open, setOpen] = useState(null);
 
   if (!items.length) {
@@ -56,9 +58,17 @@ export default function TallerGallery() {
                     allowFullScreen
                   />
                 )}
+                <button
+                  type="button"
+                  aria-label={`Ver video en grande${item.caption ? `: ${item.caption}` : ""}`}
+                  onClick={() => setOpen(viewerItems.findIndex((p) => p.id === item.id))}
+                  className="absolute right-2.5 top-2.5 z-10 flex h-8 w-8 items-center justify-center rounded-full bg-black/55 text-white transition-colors hover:bg-black/80 focus-visible:outline focus-visible:outline-2 focus-visible:outline-mCyan"
+                >
+                  <Maximize2 size={15} aria-hidden="true" />
+                </button>
                 {item.caption && (
                   <span
-                    className="pointer-events-none absolute inset-x-0 top-0 px-3 pb-8 pt-2.5 text-xs font-medium leading-snug text-white sm:px-4 sm:pt-3 sm:text-sm"
+                    className="pointer-events-none absolute inset-x-0 top-0 pb-8 pl-3 pr-12 pt-2.5 text-xs font-medium leading-snug text-white sm:pl-4 sm:pt-3 sm:text-sm"
                     style={{ background: "linear-gradient(0deg, rgba(11,11,11,0) 0%, rgba(11,11,11,0.8) 100%)" }}
                   >
                     {item.caption}
@@ -76,7 +86,7 @@ export default function TallerGallery() {
               key={item.id}
               type="button"
               aria-label={`Ver foto en grande${item.caption ? `: ${item.caption}` : ""}`}
-              onClick={() => setOpen(photos.findIndex((p) => p.id === item.id))}
+              onClick={() => setOpen(viewerItems.findIndex((p) => p.id === item.id))}
               className={`group relative block cursor-zoom-in overflow-hidden rounded-xl border border-[#1E2226] bg-[#14171A] text-left focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-mCyan ${
                 banner ? "col-span-2 aspect-[5/2] sm:aspect-[4/1] lg:col-span-3 lg:aspect-[6/1]" : "aspect-[4/3] sm:aspect-video"
               }`}
@@ -107,8 +117,8 @@ export default function TallerGallery() {
         })}
       </div>
 
-      {open !== null && photos[open] && (
-        <PhotoViewer photos={photos} index={open} onIndex={setOpen} onClose={() => setOpen(null)} />
+      {open !== null && viewerItems[open] && (
+        <PhotoViewer photos={viewerItems} index={open} onIndex={setOpen} onClose={() => setOpen(null)} />
       )}
     </>
   );

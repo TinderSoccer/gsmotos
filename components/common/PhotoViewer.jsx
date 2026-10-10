@@ -3,11 +3,15 @@
 // Visor de fotos a pantalla completa, compartido por la galería del taller
 // (components/nosotros/TallerGallery.jsx) y las fotos de Grúas
 // (app/servicio-gruas). `photos`: [{ id, photo, caption? }] — el texto
-// (caption) es opcional y se muestra debajo de la foto.
+// (caption) es opcional y se muestra debajo de la foto. También muestra
+// videos ({ type: "video", url, poster? }): subidos (se reproducen ahí mismo)
+// o links de YouTube/Vimeo (incrustados), para que el carrusel en grande
+// recorra todo, no solo las fotos.
 import { useCallback, useEffect, useRef, useState } from "react";
 import { ChevronLeft, ChevronRight, X } from "lucide-react";
 import Image from "next/image";
 import { BACKDROP_OUT, CARD_OUT, useClosing } from "@/lib/useClosing";
+import { isDirectVideoUrl, toEmbedUrl } from "@/lib/taller";
 
 // Foto en grande a pantalla completa: flechas o deslizar para pasar a la
 // siguiente, Escape / X / tocar afuera para cerrar.
@@ -16,6 +20,11 @@ export default function PhotoViewer({ photos, index, onIndex, onClose }) {
   const photo = photos[index];
   // Proporción de la foto actual (ancho / alto); 4:3 hasta que carga.
   const [ratio, setRatio] = useState(4 / 3);
+  // YouTube/Vimeo no avisan su tamaño: se muestran en 16:9.
+  const isEmbed = photo?.type === "video" && !isDirectVideoUrl(photo.url);
+  useEffect(() => {
+    if (isEmbed) setRatio(16 / 9);
+  }, [isEmbed, photo?.id]);
   const [closing, close] = useClosing(onClose);
   // Dirección del último cambio de foto (1 = siguiente, -1 = anterior, 0 =
   // recién abierto): la foto nueva entra desde ese lado.
@@ -54,7 +63,10 @@ export default function PhotoViewer({ photos, index, onIndex, onClose }) {
       className="fixed inset-0 z-[300] flex flex-col items-center justify-center bg-black/90 px-3 py-14 sm:px-16"
       style={{ animation: closing ? BACKDROP_OUT : "gsmBack 220ms ease both", pointerEvents: closing ? "none" : undefined, paddingTop: "max(3.5rem, env(safe-area-inset-top))" }}
       onClick={close}
-      onTouchStart={(ev) => (touchX.current = ev.touches[0].clientX)}
+      onTouchStart={(ev) => {
+        // Deslizar sobre un video es usar su barra de avance, no cambiar de foto.
+        touchX.current = ev.target.closest?.("video") ? null : ev.touches[0].clientX;
+      }}
       onTouchEnd={(ev) => {
         if (touchX.current == null || !many) return;
         const dx = ev.changedTouches[0].clientX - touchX.current;
@@ -93,7 +105,28 @@ export default function PhotoViewer({ photos, index, onIndex, onClose }) {
           }}
           onClick={(ev) => ev.stopPropagation()}
         >
-          {photo.photo.startsWith("data:") ? (
+          {photo.type === "video" ? (
+            isDirectVideoUrl(photo.url) ? (
+              // eslint-disable-next-line jsx-a11y/media-has-caption
+              <video
+                src={photo.url}
+                poster={photo.poster}
+                controls
+                autoPlay
+                playsInline
+                onLoadedMetadata={(ev) => ev.currentTarget.videoWidth && setRatio(ev.currentTarget.videoWidth / ev.currentTarget.videoHeight)}
+                className="absolute inset-0 h-full w-full bg-black object-contain"
+              />
+            ) : (
+              <iframe
+                src={toEmbedUrl(photo.url)}
+                title={photo.caption || "Video"}
+                className="absolute inset-0 h-full w-full"
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                allowFullScreen
+              />
+            )
+          ) : photo.photo.startsWith("data:") ? (
             // eslint-disable-next-line @next/next/no-img-element
             <img
               src={photo.photo}
@@ -112,7 +145,17 @@ export default function PhotoViewer({ photos, index, onIndex, onClose }) {
               className="object-cover"
             />
           )}
-          {photo.caption && (
+          {/* En un video el texto va arriba, para no tapar sus controles; en
+              YouTube/Vimeo no, su reproductor ya muestra el título. */}
+          {photo.caption && photo.type === "video" && isDirectVideoUrl(photo.url) && (
+            <div
+              className="pointer-events-none absolute inset-x-0 top-0 px-4 pb-10 pt-3 sm:px-6 sm:pt-4"
+              style={{ background: "linear-gradient(0deg, rgba(0,0,0,0) 0%, rgba(0,0,0,0.75) 100%)" }}
+            >
+              <p className="text-left text-[15px] font-semibold leading-snug text-white [text-shadow:0_1px_2px_rgba(0,0,0,0.95)] sm:text-lg">{photo.caption}</p>
+            </div>
+          )}
+          {photo.caption && photo.type !== "video" && (
             <div
               className="absolute inset-x-0 bottom-0 px-4 pb-3.5 pt-12 sm:px-6 sm:pb-5 sm:pt-16"
               style={{ background: "linear-gradient(180deg, rgba(0,0,0,0) 0%, rgba(0,0,0,0.55) 45%, rgba(0,0,0,0.88) 100%)" }}
