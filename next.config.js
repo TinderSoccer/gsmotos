@@ -18,6 +18,22 @@ const nextConfig = {
   // esperar un año como con un `immutable`.
   async headers() {
     return [
+      // Encabezados de seguridad en todo el sitio: nadie puede incrustarlo en
+      // otra página (frame-ancestors / X-Frame-Options), el navegador no
+      // adivina tipos de archivo, al salir a otro sitio no se manda la ruta
+      // completa, y se bloquean cámara, micrófono, ubicación y pagos (el
+      // sitio no los usa). No se limita autoplay/pantalla completa: los
+      // videos de YouTube y Vimeo los necesitan.
+      {
+        source: "/:path*",
+        headers: [
+          { key: "Content-Security-Policy", value: "frame-ancestors 'self'" },
+          { key: "X-Frame-Options", value: "SAMEORIGIN" },
+          { key: "X-Content-Type-Options", value: "nosniff" },
+          { key: "Referrer-Policy", value: "strict-origin-when-cross-origin" },
+          { key: "Permissions-Policy", value: "camera=(), microphone=(), geolocation=(), payment=()" },
+        ],
+      },
       {
         source: "/images/:path*",
         headers: [{ key: "Cache-Control", value: "public, max-age=3600, stale-while-revalidate=86400" }],
