@@ -18,7 +18,7 @@ export default function TallerPortada({ children }) {
         fill
         priority
         sizes="100vw"
-        className="object-cover opacity-[0.45]"
+        className="object-cover opacity-[0.3]"
       />
       <div
         className="pointer-events-none absolute inset-0"
