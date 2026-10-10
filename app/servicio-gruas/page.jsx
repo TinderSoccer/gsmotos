@@ -56,46 +56,54 @@ export default function ServicioGruasPage() {
         </div>
       </div>
 
-      {/* Celular: texto, fotos y "Qué incluye", uno bajo otro. Escritorio:
-          dos columnas, con el texto y "Qué incluye" a la izquierda y las
-          fotos a la derecha (antes todo quedaba arriba a la izquierda, con
-          las fotos chicas y mucho espacio vacío). */}
-      <div className="grid grid-cols-1 gap-x-10 gap-y-4 px-6 pb-6 pt-3 sm:px-10 lg:grid-cols-2 lg:grid-rows-[auto_1fr] lg:pt-6">
-        <div className="flex flex-col gap-2 lg:col-start-1">
-          <div className="max-w-2xl font-display text-xl font-bold italic uppercase leading-[1.1] text-white sm:text-[24px]">
-            {INTRO.lead}
+      {/* Celular: frase, fotos y "Qué incluye", uno bajo otro. Escritorio:
+          dos columnas, con la frase y "Qué incluye" a la izquierda, centrados
+          frente al carrusel de la derecha. */}
+      <div className="grid grid-cols-1 gap-x-14 gap-y-7 px-6 pb-10 pt-5 sm:px-10 lg:grid-cols-[1fr_1.1fr] lg:items-center lg:pb-14 lg:pt-8">
+        {/* En el celular este bloque se "disuelve" (contents) para que el
+            carrusel quede entre la frase y la lista, como antes. */}
+        <div className="contents lg:col-start-1 lg:row-start-1 lg:flex lg:flex-col lg:gap-7">
+          <div className="order-1 flex flex-col gap-2 lg:order-none">
+            <p className="max-w-xl text-balance font-display text-[26px] font-bold italic uppercase leading-[1.04] tracking-[-0.01em] text-white sm:text-[32px]">
+              {INTRO.lead}
+            </p>
+            {INTRO.body && <p className="max-w-2xl text-sm leading-[1.5] text-[#B9C0C7]">{INTRO.body}</p>}
           </div>
-          {INTRO.body && <p className="max-w-2xl text-sm leading-[1.5] text-[#B9C0C7]">{INTRO.body}</p>}
+
+          {/* Lista con separadores en vez de cuatro tarjetas iguales. */}
+          <div className="order-3 lg:order-none">
+            <h2 className="mb-1 font-display text-lg font-bold italic uppercase tracking-wide text-white">Qué incluye</h2>
+            <ul className="divide-y divide-white/[0.07] border-y border-white/[0.07]">
+              {FEATURES.map(({ Icon, title }) => (
+                <li key={title} className="flex items-center gap-4 py-3.5">
+                  <span className="flex h-10 w-10 flex-none items-center justify-center rounded-lg bg-mCyan/10 text-mCyan">
+                    <Icon size={20} strokeWidth={1.7} aria-hidden="true" />
+                  </span>
+                  <span className="font-display text-[15px] font-semibold uppercase leading-tight tracking-[0.02em] text-white sm:text-base">
+                    {title}
+                  </span>
+                </li>
+              ))}
+            </ul>
+          </div>
         </div>
 
-        <div className="lg:col-start-2 lg:row-span-2 lg:row-start-1">
+        <div className="order-2 lg:order-none lg:col-start-2 lg:row-start-1">
           <GruasCarousel photos={photos} onOpen={setOpen} />
-        </div>
-
-        <div className="lg:col-start-1">
-          <div className="mb-3 font-display text-base font-bold uppercase tracking-wide text-white">Qué incluye</div>
-          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-            {FEATURES.map(({ Icon, title }) => (
-              <div key={title} className="flex items-center gap-3 rounded-xl border border-[#1E2226] bg-surface-card p-3.5">
-                <Icon size={22} strokeWidth={1.6} className="flex-none text-mCyan" />
-                <div className="font-display text-[15px] font-semibold uppercase leading-tight text-white">{title}</div>
-              </div>
-            ))}
-          </div>
         </div>
       </div>
 
       {/* Franja de urgencia: se enciende hacia la derecha con el rojo de la
           zona de corte del tablero, el único lugar del sitio que lo usa así. */}
       <section
-        className="flex flex-col items-start gap-4 border-t border-mRed/40 px-6 py-5 sm:flex-row sm:items-center sm:justify-between sm:px-10"
+        className="flex flex-col items-start gap-5 border-t border-mRed/40 px-6 py-8 sm:flex-row sm:items-center sm:justify-between sm:px-10 sm:py-10"
         style={{ background: "linear-gradient(90deg, #101316 0%, #101316 45%, rgba(231,0,42,0.16) 100%)" }}
       >
         <div className="flex max-w-xl flex-col gap-1">
-          <div className="font-display text-xl font-bold italic uppercase leading-[1.05] text-white sm:text-2xl">
+          <h2 className="font-display text-2xl font-bold italic uppercase leading-[1.05] text-white sm:text-[30px]">
             ¿Necesitas una grúa ahora?
-          </div>
-          <div className="text-sm leading-[1.5] text-[#B9C0C7]">
+          </h2>
+          <div className="text-[15px] leading-[1.5] text-[#C3C9CE]">
             Escríbenos, llámanos o coordina el servicio — lo que te resulte más rápido.
           </div>
         </div>
