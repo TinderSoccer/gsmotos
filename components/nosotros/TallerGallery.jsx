@@ -9,7 +9,8 @@
 //
 // En mobile las fotos normales van de a dos (miniaturas) — a lo ancho se
 // veían demasiado grandes — y al tocar cualquier foto se abre en grande
-// (components/common/PhotoViewer). Banners y videos siguen a lo ancho.
+// (components/common/PhotoViewer). Los banners siguen a lo ancho; los
+// videos van del mismo tamaño que una foto.
 import { useState } from "react";
 import { Maximize2 } from "lucide-react";
 import { isDirectVideoUrl, toEmbedUrl, useTallerItems } from "@/lib/taller";
@@ -37,24 +38,32 @@ export default function TallerGallery() {
         {items.map((item) => {
           const banner = item.type === "photo" && item.size === "banner";
 
+          // Video: mismo tamaño que una foto normal (pedido del cliente: antes
+          // ocupaba dos columnas y se veía más grande que el resto). El texto
+          // va arriba, para no tapar los controles del video.
           if (item.type === "video") {
             return (
-              <div key={item.id} className="col-span-2 flex flex-col overflow-hidden rounded-xl border border-[#1E2226] bg-[#0B0D0F]">
-                <div className="relative aspect-video overflow-hidden bg-[#14171A]">
-                  {isDirectVideoUrl(item.url) ? (
-                    // eslint-disable-next-line jsx-a11y/media-has-caption
-                    <video src={item.url} poster={item.poster} controls preload="metadata" playsInline className="h-full w-full object-cover" />
-                  ) : (
-                    <iframe
-                      src={toEmbedUrl(item.url)}
-                      title={item.caption || "Video del taller"}
-                      className="h-full w-full"
-                      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                      allowFullScreen
-                    />
-                  )}
-                </div>
-                {item.caption && <div className="px-3 py-2 text-xs text-[#C3C9CE] sm:px-4 sm:py-3 sm:text-sm">{item.caption}</div>}
+              <div key={item.id} className="relative aspect-[4/3] overflow-hidden rounded-xl border border-[#1E2226] bg-[#14171A] sm:aspect-video">
+                {isDirectVideoUrl(item.url) ? (
+                  // eslint-disable-next-line jsx-a11y/media-has-caption
+                  <video src={item.url} poster={item.poster} controls preload="metadata" playsInline className="h-full w-full object-cover" />
+                ) : (
+                  <iframe
+                    src={toEmbedUrl(item.url)}
+                    title={item.caption || "Video del taller"}
+                    className="h-full w-full"
+                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                    allowFullScreen
+                  />
+                )}
+                {item.caption && (
+                  <span
+                    className="pointer-events-none absolute inset-x-0 top-0 px-3 pb-8 pt-2.5 text-xs font-medium leading-snug text-white sm:px-4 sm:pt-3 sm:text-sm"
+                    style={{ background: "linear-gradient(0deg, rgba(11,11,11,0) 0%, rgba(11,11,11,0.8) 100%)" }}
+                  >
+                    {item.caption}
+                  </span>
+                )}
               </div>
             );
           }
