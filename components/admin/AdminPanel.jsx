@@ -164,6 +164,39 @@ function VideoUploadButton({ job, onFile, hint }) {
   );
 }
 
+// Recuadro "Agregar foto o video" (Taller y Grúas): según el archivo elegido
+// lo sube como foto o lo optimiza como video. Mientras un video se prepara o
+// sube, el avance se ve en el mismo recuadro.
+function AddMediaTile({ aspect, job, onPhoto, onVideo }) {
+  function onChange(ev) {
+    const file = ev.target.files?.[0];
+    if (file?.type.startsWith("video/")) onVideo(ev);
+    else onPhoto(ev);
+  }
+  return (
+    <label
+      className={`flex ${aspect} flex-col items-center justify-center gap-2 rounded-xl border-2 border-dashed border-[#2E3A45] px-4 text-center text-[#8FC2E6] transition-colors ${
+        job ? "pointer-events-none" : "cursor-pointer hover:border-mCyan hover:text-mCyan"
+      }`}
+    >
+      {job ? (
+        <>
+          <Loader2 size={26} strokeWidth={1.8} className="animate-spin" aria-hidden="true" />
+          <span className="font-display text-sm font-semibold uppercase tracking-wide" role="status">
+            {job.phase === "optimizando" ? "Optimizando video…" : "Subiendo video…"} {job.pct}%
+          </span>
+        </>
+      ) : (
+        <>
+          <Camera size={28} strokeWidth={1.6} />
+          <span className="font-display text-sm font-semibold uppercase tracking-wide">Agregar foto o video</span>
+        </>
+      )}
+      <input type="file" accept="image/*,video/*" className="hidden" onChange={onChange} disabled={Boolean(job)} />
+    </label>
+  );
+}
+
 // Pregunta antes de borrar o restaurar algo — un clic accidental en
 // "Eliminar" o "Quitar" antes no tenía vuelta atrás. Es un cuadro propio
 // del panel (ConfirmDialog, más abajo) y no el del navegador, que decía
@@ -1599,11 +1632,7 @@ function TallerTab() {
               </div>
               );
             })}
-            <label className="flex aspect-video cursor-pointer flex-col items-center justify-center gap-2 rounded-xl border-2 border-dashed border-[#2E3A45] text-[#8FC2E6] transition-colors hover:border-mCyan hover:text-mCyan">
-              <Camera size={28} strokeWidth={1.6} />
-              <span className="font-display text-sm font-semibold uppercase tracking-wide">Agregar foto</span>
-              <input type="file" accept="image/*" className="hidden" onChange={(ev) => handleFile(ev)} />
-            </label>
+            <AddMediaTile aspect="aspect-video" job={videoJob} onPhoto={(ev) => handleFile(ev)} onVideo={addVideoFile} />
             <label className="flex aspect-video cursor-pointer flex-col items-center justify-center gap-2 rounded-xl border-2 border-dashed border-[#2E3A45] text-[#8FC2E6] transition-colors hover:border-mCyan hover:text-mCyan">
               <Camera size={28} strokeWidth={1.6} />
               <span className="font-display text-sm font-semibold uppercase tracking-wide">Agregar banner</span>
@@ -1754,11 +1783,7 @@ function GruasTab() {
                 </div>
               </div>
             ))}
-            <label className="flex aspect-[4/3] cursor-pointer flex-col items-center justify-center gap-2 rounded-xl border-2 border-dashed border-[#2E3A45] text-[#8FC2E6] transition-colors hover:border-mCyan hover:text-mCyan">
-              <Camera size={28} strokeWidth={1.6} />
-              <span className="font-display text-sm font-semibold uppercase tracking-wide">Agregar foto</span>
-              <input type="file" accept="image/*" className="hidden" onChange={addPhoto} />
-            </label>
+            <AddMediaTile aspect="aspect-[4/3]" job={videoJob} onPhoto={addPhoto} onVideo={addVideoFile} />
           </div>
         </SitePanel>
       </div>
