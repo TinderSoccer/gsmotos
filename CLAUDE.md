@@ -4,7 +4,7 @@ Sitio de GSmotos, un taller especialista en BMW Motorrad en Santiago, Chile. El 
 
 ## Stack y deploy
 
-- Next.js 14 (App Router), React 18, Tailwind, lucide-react. Comandos: `npm run dev`, `npm run build`.
+- Next.js 16 (App Router, Turbopack), React 19, Tailwind, lucide-react. Comandos: `npm run dev`, `npm run build`.
 - Hosting en Vercel, proyecto `gsmotos` (equipo `tindersoccers-projects`). **Cada push a `main` despliega a producción** (https://gsmotos.vercel.app). Para ver el estado: `npx vercel@latest ls gsmotos --prod`.
 - Variables de entorno: ver `.env.example`. `.env.local` se baja con `npx vercel@latest env pull`. La contraseña del panel en `.env.local` **no es la de producción**.
 
