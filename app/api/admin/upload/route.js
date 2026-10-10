@@ -9,7 +9,7 @@ const MAX_BYTES = 4 * 1024 * 1024; // el límite de Vercel para el body es 4.5MB
 // ya la redimensiona/comprime en el navegador (lib/readImage.js) y la manda
 // como data URL: { dataUrl }.
 export async function POST(request) {
-  if (!isValidSession(cookies().get(SESSION_COOKIE)?.value)) {
+  if (!isValidSession((await cookies()).get(SESSION_COOKIE)?.value)) {
     return NextResponse.json({ ok: false, error: "Tu sesión expiró. Vuelve a entrar al panel." }, { status: 401 });
   }
   if (!process.env.BLOB_READ_WRITE_TOKEN) {

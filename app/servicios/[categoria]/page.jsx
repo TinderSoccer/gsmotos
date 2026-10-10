@@ -17,8 +17,9 @@ export function generateStaticParams() {
   return SERVICE_MENUS.map((m) => ({ categoria: m.slug }));
 }
 
-export function generateMetadata({ params }) {
-  const menu = SERVICE_MENUS.find((m) => m.slug === params.categoria);
+export async function generateMetadata({ params }) {
+  const { categoria } = await params;
+  const menu = SERVICE_MENUS.find((m) => m.slug === categoria);
   if (!menu) return { title: "GSmotos" };
   return {
     title: `${menu.title} — GSmotos`,
@@ -26,8 +27,9 @@ export function generateMetadata({ params }) {
   };
 }
 
-export default function CategoriaServiciosPage({ params }) {
-  const menu = SERVICE_MENUS.find((m) => m.slug === params.categoria);
+export default async function CategoriaServiciosPage({ params }) {
+  const { categoria } = await params;
+  const menu = SERVICE_MENUS.find((m) => m.slug === categoria);
   if (!menu) notFound();
 
   return (

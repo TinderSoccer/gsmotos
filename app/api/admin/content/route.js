@@ -8,7 +8,7 @@ import { CONTENT_TAG, isContentStorageConfigured, writeContent } from "@/lib/con
 // Guarda una clave de contenido desde el panel: { key, value } — value null
 // la borra (vuelve al contenido base del sitio).
 export async function POST(request) {
-  if (!isValidSession(cookies().get(SESSION_COOKIE)?.value)) {
+  if (!isValidSession((await cookies()).get(SESSION_COOKIE)?.value)) {
     return NextResponse.json({ ok: false, error: "Tu sesión expiró. Vuelve a entrar al panel." }, { status: 401 });
   }
   if (!isContentStorageConfigured()) {
@@ -39,6 +39,8 @@ export async function POST(request) {
     console.error("POST /api/admin/content:", err);
     return NextResponse.json({ ok: false, error: "No se pudo guardar en el servidor. Intenta de nuevo." }, { status: 502 });
   }
-  revalidateTag(CONTENT_TAG);
+  // { expire: 0 }: la próxima visita ya trae lo nuevo (sin servir la versión
+  // anterior mientras se actualiza), igual que antes de Next 16.
+  revalidateTag(CONTENT_TAG, { expire: 0 });
   return NextResponse.json({ ok: true });
 }

@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { use, useEffect, useState } from "react";
 import Link from "next/link";
 import ColorBars from "@/components/services/ColorBars";
 import ContactInfo from "@/components/ContactInfo";
@@ -30,7 +30,10 @@ const MOTIVO_NOTE = {
 // `searchParams` llega como prop (y no con useSearchParams) para que la
 // página se arme completa en el servidor y Google vea el formulario.
 export default function ContactoPage({ searchParams }) {
-  const motivoNote = MOTIVO_NOTE[searchParams?.motivo] || "";
+  // Desde Next 15 `searchParams` es una promesa; en un componente cliente se
+  // lee con `use`.
+  const params = use(searchParams);
+  const motivoNote = MOTIVO_NOTE[params?.motivo] || "";
   const [form, setForm] = useState(() => ({ ...EMPTY_FORM, note: motivoNote }));
   const [slots, setSlots] = useState([]);
   const [status, setStatus] = useState("idle"); // idle | done

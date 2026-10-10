@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { use, useCallback, useEffect, useState } from "react";
 import { Search } from "lucide-react";
 import { FaWhatsapp } from "react-icons/fa6";
 import ColorBars from "@/components/services/ColorBars";
@@ -23,8 +23,11 @@ const INTRO_CARDS = menus.find((m) => m.kind === "catalog")?.cards ?? [];
 // parte calculada, para que la página se arme completa en el servidor y
 // Google vea los productos.
 export default function ProductosPage({ searchParams }) {
+  // Desde Next 15 `searchParams` es una promesa; en un componente cliente se
+  // lee con `use`.
+  const params = use(searchParams);
   const s = useSettings();
-  const [query, setQuery] = useState(() => (typeof searchParams?.q === "string" ? searchParams.q : ""));
+  const [query, setQuery] = useState(() => (typeof params?.q === "string" ? params.q : ""));
   const [items, setItems] = useState(() => stockSnapshot(query));
   const [loading, setLoading] = useState(false);
   const [openProduct, setOpenProduct] = useState(null);

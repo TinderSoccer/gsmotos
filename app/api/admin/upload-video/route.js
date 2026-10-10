@@ -28,7 +28,7 @@ export async function POST(request) {
       body,
       request,
       onBeforeGenerateToken: async () => {
-        if (!isValidSession(cookies().get(SESSION_COOKIE)?.value)) {
+        if (!isValidSession((await cookies()).get(SESSION_COOKIE)?.value)) {
           throw new Error("Tu sesión expiró. Vuelve a entrar al panel.");
         }
         return {
