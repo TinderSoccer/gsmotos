@@ -43,7 +43,7 @@ export default function TallerGallery() {
                 <div className="relative aspect-video overflow-hidden bg-[#14171A]">
                   {isDirectVideoUrl(item.url) ? (
                     // eslint-disable-next-line jsx-a11y/media-has-caption
-                    <video src={item.url} controls className="h-full w-full object-cover" />
+                    <video src={item.url} poster={item.poster} controls preload="metadata" playsInline className="h-full w-full object-cover" />
                   ) : (
                     <iframe
                       src={toEmbedUrl(item.url)}

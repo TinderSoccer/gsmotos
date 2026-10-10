@@ -11,12 +11,15 @@ import SmartImage from "@/components/common/SmartImage";
 // - Pasa sola cada 5 s; se detiene mientras el mouse o el dedo están
 //   encima, y no pasa sola con "reducir movimiento".
 // - Tocar una foto la abre en grande (`onOpen(i)`, PhotoViewer).
+// - Un video ({ type: "video", url, poster }) se reproduce ahí mismo; mientras
+//   suena el carrusel no pasa solo, y se pausa al cambiar de diapositiva.
 const AUTO_MS = 5000;
 
 export default function GruasCarousel({ photos, onOpen }) {
   const trackRef = useRef(null);
   const [current, setCurrent] = useState(0);
   const [paused, setPaused] = useState(false);
+  const [playing, setPlaying] = useState(false);
   const count = photos.length;
 
   const goTo = useCallback((i) => {
@@ -28,17 +31,21 @@ export default function GruasCarousel({ photos, onOpen }) {
   function onScroll() {
     const track = trackRef.current;
     if (!track || !track.clientWidth) return;
-    setCurrent(Math.min(count - 1, Math.round(track.scrollLeft / track.clientWidth)));
+    const next = Math.min(count - 1, Math.round(track.scrollLeft / track.clientWidth));
+    if (next !== current) {
+      track.querySelectorAll("video").forEach((v) => v.pause());
+      setCurrent(next);
+    }
   }
 
   useEffect(() => {
-    if (count < 2 || paused) return;
+    if (count < 2 || paused || playing) return;
     if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
     const id = setInterval(() => {
       if (!document.hidden) goTo((current + 1) % count);
     }, AUTO_MS);
     return () => clearInterval(id);
-  }, [count, current, paused, goTo]);
+  }, [count, current, paused, playing, goTo]);
 
   if (!count) {
     return (
@@ -65,7 +72,32 @@ export default function GruasCarousel({ photos, onOpen }) {
           onScroll={onScroll}
           className="flex aspect-[4/3] snap-x snap-mandatory overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
         >
-          {photos.map((photo, i) => (
+          {photos.map((photo, i) =>
+            photo.type === "video" ? (
+              <div key={photo.id ?? i} className="relative h-full w-full flex-none snap-center bg-black">
+                {/* eslint-disable-next-line jsx-a11y/media-has-caption */}
+                <video
+                  src={photo.url}
+                  poster={photo.poster}
+                  controls
+                  playsInline
+                  preload="metadata"
+                  onPlay={() => setPlaying(true)}
+                  onPause={() => setPlaying(false)}
+                  onEnded={() => setPlaying(false)}
+                  aria-label={photo.caption || `Video ${i + 1} de ${count}`}
+                  className="h-full w-full object-cover"
+                />
+                {photo.caption && !playing && (
+                  <span
+                    className="pointer-events-none absolute inset-x-0 top-0 px-4 pb-10 pt-3 text-left text-sm leading-snug text-white"
+                    style={{ background: "linear-gradient(0deg, rgba(11,11,11,0) 0%, rgba(11,11,11,0.8) 100%)" }}
+                  >
+                    {photo.caption}
+                  </span>
+                )}
+              </div>
+            ) : (
             <button
               key={photo.id ?? i}
               type="button"
@@ -88,7 +120,8 @@ export default function GruasCarousel({ photos, onOpen }) {
                 </span>
               )}
             </button>
-          ))}
+            )
+          )}
         </div>
 
         {count > 1 &&

@@ -28,8 +28,9 @@ import { setFounderPhoto, useFounderPhoto } from "@/lib/founderPhoto";
 import { setLogo, setLogoOnLight, useLogo, useLogoOnLight } from "@/lib/logo";
 import { formatCLP, resetProductos, useProductos, writeProductos } from "@/lib/catalogo";
 import { PLACEHOLDER_PHOTO } from "@/lib/productosData";
-import { resetTallerItems, useTallerItems, writeTallerItems } from "@/lib/taller";
-import { useGruasPhotos, writeGruasPhotos } from "@/lib/gruas";
+import { isDirectVideoUrl, readTallerItems, resetTallerItems, useTallerItems, writeTallerItems } from "@/lib/taller";
+import { optimizeVideo, videoPoster } from "@/lib/videoOptimize";
+import { readGruasPhotos, useGruasPhotos, writeGruasPhotos } from "@/lib/gruas";
 import { useNeumaticosStock, writeNeumaticosStock } from "@/lib/neumaticosStock";
 import { menus } from "@/lib/servicesData";
 import { resetServicePhotos, servicePhotoKey, setServicePhoto, useServicePhotos } from "@/lib/servicePhotos";
@@ -85,6 +86,82 @@ async function readAndUpload(ev, opts) {
     avisar(lastSaveError());
   }
   return url;
+}
+
+// Subida de un video desde el equipo (Taller y Grúas). El navegador lo
+// optimiza (MP4 liviano, ver lib/videoOptimize.js) y lo sube directo a Blob
+// (app/api/admin/upload-video), más una portada. Si el navegador no puede
+// convertir, se sube el original solo si ya es MP4 y no es muy pesado.
+// `setJob` recibe { phase: "optimizando" | "subiendo", pct } o null.
+// Devuelve { url, poster? } o null si se canceló o falló (ya avisado).
+async function pickAndUploadVideo(ev, setJob) {
+  const file = ev.target.files?.[0];
+  ev.target.value = "";
+  if (!file) return null;
+  setJob({ phase: "optimizando", pct: 0 });
+  let blob = null;
+  try {
+    blob = await optimizeVideo(file, (p) => setJob({ phase: "optimizando", pct: Math.round(p * 100) }));
+  } catch {
+    blob = null;
+  }
+  if (!blob) {
+    if (file.type === "video/mp4" && file.size <= 200 * 1024 * 1024) {
+      blob = file;
+    } else {
+      setJob(null);
+      avisar("Este navegador no pudo preparar el video. Prueba desde Chrome o Safari actualizados, o con un video .mp4 más liviano.");
+      return null;
+    }
+  }
+  setJob({ phase: "subiendo", pct: 0 });
+  try {
+    const { upload } = await import("@vercel/blob/client");
+    const res = await upload("admin/video.mp4", blob, {
+      access: "public",
+      contentType: "video/mp4",
+      handleUploadUrl: "/api/admin/upload-video",
+      multipart: blob.size > 20 * 1024 * 1024,
+      onUploadProgress: ({ percentage }) => setJob({ phase: "subiendo", pct: Math.round(percentage) }),
+    });
+    const posterData = await videoPoster(blob);
+    const poster = posterData ? await uploadImage(posterData) : "";
+    setJob(null);
+    return poster ? { url: res.url, poster } : { url: res.url };
+  } catch (err) {
+    setJob(null);
+    avisar(err?.message ? `No se pudo subir el video: ${err.message}` : "No se pudo subir el video. Revisa tu conexión e intenta de nuevo.");
+    return null;
+  }
+}
+
+// Botón "Subir video" con su barra de progreso (Taller y Grúas).
+function VideoUploadButton({ job, onFile, hint }) {
+  return (
+    <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
+      <label
+        className={`inline-flex min-h-11 items-center justify-center gap-2 rounded bg-mBlue px-5 py-2.5 font-display text-sm font-semibold uppercase tracking-wide text-white transition-colors ${
+          job ? "pointer-events-none opacity-60" : "cursor-pointer hover:bg-[#164f92]"
+        }`}
+      >
+        <PlayCircle size={18} strokeWidth={1.8} aria-hidden="true" />
+        Subir video
+        <input type="file" accept="video/*" className="hidden" onChange={onFile} disabled={Boolean(job)} />
+      </label>
+      {job ? (
+        <div className="flex min-w-0 flex-1 items-center gap-3" role="status">
+          <div className="h-2 min-w-[120px] flex-1 overflow-hidden rounded-full bg-[#E4E4E4]">
+            <div className="h-full rounded-full bg-mBlue transition-[width] duration-300" style={{ width: `${job.pct}%` }} />
+          </div>
+          <span className="whitespace-nowrap text-sm text-[#3A3A3A]">
+            {job.phase === "optimizando" ? "Optimizando video…" : "Subiendo…"} {job.pct}%
+          </span>
+        </div>
+      ) : (
+        hint && <span className="text-sm text-[#8A8A8A]">{hint}</span>
+      )}
+    </div>
+  );
 }
 
 // Pregunta antes de borrar o restaurar algo — un clic accidental en
@@ -1332,6 +1409,8 @@ function TallerTab() {
   const items = useTallerItems();
   const [videoUrl, setVideoUrl] = useState("");
   const [videoCaption, setVideoCaption] = useState("");
+  // Subida de un video desde el equipo: { phase: "optimizando" | "subiendo", pct }.
+  const [videoJob, setVideoJob] = useState(null);
 
   function patch(id, changes) {
     warnIfFailed(writeTallerItems(items.map((it) => (it.id === id ? { ...it, ...changes } : it))));
@@ -1366,6 +1445,14 @@ function TallerTab() {
     warnIfFailed(writeTallerItems(next));
   }
 
+  async function addVideoFile(ev) {
+    const video = await pickAndUploadVideo(ev, setVideoJob);
+    if (!video) return;
+    const item = { id: `video-${Date.now()}`, type: "video", ...video, caption: "" };
+    // readTallerItems: la lista actual, por si cambió durante la subida.
+    await warnIfFailed(writeTallerItems([...readTallerItems(), item]), "Video agregado ✓");
+  }
+
   async function addVideo(ev) {
     ev.preventDefault();
     const url = videoUrl.trim();
@@ -1383,8 +1470,9 @@ function TallerTab() {
             Contenido del taller
           </h1>
           <p className="max-w-xl text-[15.5px] leading-[1.6] text-[#5A5A5A]">
-            Fotos y videos de la página &ldquo;Nuestro taller&rdquo;. Para agregar un video, pega el link de
-            YouTube, Vimeo o de un archivo .mp4.
+            Fotos y videos de la página &ldquo;Nuestro taller&rdquo;. Los videos se suben desde tu teléfono o
+            computador y se dejan livianos solos; mejor si son cortos (hasta 1 minuto). También puedes pegar un
+            link de YouTube o Vimeo.
           </p>
           <SeeOnSite href="/nosotros/taller" />
         </div>
@@ -1394,14 +1482,15 @@ function TallerTab() {
         </div>
       </div>
 
-      <div className="px-6 pb-6 sm:px-10">
+      <div className="flex flex-col gap-3 px-6 pb-6 sm:px-10">
+        <VideoUploadButton job={videoJob} onFile={addVideoFile} hint="o pega un link de YouTube o Vimeo:" />
         <form onSubmit={addVideo} className="flex flex-col gap-2 sm:flex-row">
           <input
             type="url"
             required
             value={videoUrl}
             onChange={(ev) => setVideoUrl(ev.target.value)}
-            placeholder="Link del video (YouTube, Vimeo o .mp4)"
+            placeholder="Link del video (YouTube o Vimeo)"
             aria-label="Link del video"
             className="min-w-0 flex-1 rounded-md border border-[#E0E0E0] bg-[#FBFBFB] px-3.5 py-2.5 text-sm text-[#0B0B0B] outline-none focus:border-mCyan"
           />
@@ -1440,6 +1529,9 @@ function TallerTab() {
                   >
                     <SmartImage src={item.photo} alt={item.caption || "Foto del taller"} sizes={banner ? "1200px" : "420px"} />
                   </PhotoPicker>
+                ) : isDirectVideoUrl(item.url) ? (
+                  // eslint-disable-next-line jsx-a11y/media-has-caption
+                  <video src={item.url} poster={item.poster} controls preload="metadata" playsInline className="aspect-video w-full bg-[#14171A] object-cover" />
                 ) : (
                   <div className="relative flex aspect-video flex-col items-center justify-center gap-2 bg-[#14171A]">
                     <PlayCircle size={40} strokeWidth={1.4} color="#4E9AD1" />
@@ -1549,11 +1641,12 @@ function TallerTab() {
   );
 }
 
-// Fotos del carrusel de la página "Servicio de grúa" (ver lib/gruas.js).
+// Fotos y videos del carrusel de la página "Servicio de grúa" (ver lib/gruas.js).
 // Misma proporción que en la web (4:3); cada foto tiene un texto opcional que
 // aparece al abrirla en grande.
 function GruasTab() {
   const items = useGruasPhotos();
+  const [videoJob, setVideoJob] = useState(null);
 
   function save(next, okMsg) {
     return warnIfFailed(writeGruasPhotos(next), okMsg);
@@ -1566,6 +1659,11 @@ function GruasTab() {
   async function addPhoto(ev) {
     const url = await readAndUpload(ev, { maxSize: 1600, quality: 0.85 });
     if (url) save([...items, { id: `grua-${Date.now()}`, photo: url, caption: "" }]);
+  }
+
+  async function addVideoFile(ev) {
+    const video = await pickAndUploadVideo(ev, setVideoJob);
+    if (video) save([...readGruasPhotos(), { id: `grua-video-${Date.now()}`, type: "video", ...video, caption: "" }], "Video agregado ✓");
   }
 
   async function replacePhoto(id, ev) {
@@ -1586,19 +1684,23 @@ function GruasTab() {
       <div className="flex flex-wrap items-end justify-between gap-8 px-6 pb-5 pt-11 sm:px-10">
         <div className="flex flex-col gap-2.5">
           <h1 className="font-display text-[32px] font-bold italic uppercase leading-none text-[#0B0B0B] sm:text-4xl">
-            Fotos de Grúas
+            Fotos y videos de Grúa
           </h1>
           <p className="max-w-xl text-[15.5px] leading-[1.6] text-[#5A5A5A]">
-            Las fotos de la página &ldquo;Servicio de grúa&rdquo;. En la web pasan solas, una tras otra, en el
-            orden de aquí abajo. Al tocar una foto se abre en grande; si le escribes un texto, aparece sobre la
-            foto. Mientras no subas ninguna, la página muestra un recuadro de &ldquo;Foto próximamente&rdquo;.
+            Las fotos y videos de la página &ldquo;Servicio de grúa&rdquo;. En la web pasan solos, uno tras otro, en
+            el orden de aquí abajo. Al tocar una foto se abre en grande; si le escribes un texto, aparece sobre la
+            foto. Los videos se dejan livianos solos al subirlos; mejor si son cortos (hasta 1 minuto).
           </p>
           <SeeOnSite href="/servicio-gruas" />
         </div>
         <div className="flex flex-col items-end gap-0.5">
           <div className="font-display text-[32px] font-bold italic leading-none text-mBlue">{items.length}</div>
-          <div className="font-display text-[13px] uppercase tracking-[2px] text-[#8A8A8A]">Fotos</div>
+          <div className="font-display text-[13px] uppercase tracking-[2px] text-[#8A8A8A]">Fotos y videos</div>
         </div>
+      </div>
+
+      <div className="px-6 pb-5 sm:px-10">
+        <VideoUploadButton job={videoJob} onFile={addVideoFile} />
       </div>
 
       <div className="px-6 pb-14 sm:px-10">
@@ -1607,14 +1709,19 @@ function GruasTab() {
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
             {items.map((item, index) => (
               <div key={item.id} className="flex flex-col overflow-hidden rounded-xl border border-[#1E2226] bg-[#0B0D0F]">
-                <PhotoPicker onFile={(ev) => replacePhoto(item.id, ev)} className="aspect-[4/3] overflow-hidden bg-[#14171A]">
-                  <SmartImage src={item.photo} alt={item.caption || "Foto de grúa"} sizes="400px" />
-                </PhotoPicker>
+                {item.type === "video" ? (
+                  // eslint-disable-next-line jsx-a11y/media-has-caption
+                  <video src={item.url} poster={item.poster} controls preload="metadata" playsInline className="aspect-[4/3] w-full bg-[#14171A] object-cover" />
+                ) : (
+                  <PhotoPicker onFile={(ev) => replacePhoto(item.id, ev)} className="aspect-[4/3] overflow-hidden bg-[#14171A]">
+                    <SmartImage src={item.photo} alt={item.caption || "Foto de grúa"} sizes="400px" />
+                  </PhotoPicker>
+                )}
                 <textarea
                   rows={2}
                   value={item.caption || ""}
                   onChange={(ev) => patch(item.id, { caption: ev.target.value })}
-                  placeholder="Texto sobre la foto (opcional)"
+                  placeholder={item.type === "video" ? "Texto sobre el video (opcional)" : "Texto sobre la foto (opcional)"}
                   aria-label="Texto de la foto"
                   className="w-full resize-none border-0 border-t border-[#1E2226] bg-transparent px-4 py-3 text-sm text-[#C3C9CE] outline-none placeholder:text-[#5E666D] focus:bg-white/[0.04]"
                 />
@@ -1639,7 +1746,7 @@ function GruasTab() {
                   </div>
                   <button
                     type="button"
-                    onClick={async () => await confirmar("¿Eliminar esta foto? No se puede deshacer.") && save(items.filter((it) => it.id !== item.id))}
+                    onClick={async () => await confirmar(item.type === "video" ? "¿Eliminar este video? No se puede deshacer." : "¿Eliminar esta foto? No se puede deshacer.") && save(items.filter((it) => it.id !== item.id))}
                     className="ml-auto px-1.5 py-1.5 font-display text-[12px] font-semibold uppercase tracking-wide text-[#8A939B] transition-colors hover:text-mRed"
                   >
                     Eliminar

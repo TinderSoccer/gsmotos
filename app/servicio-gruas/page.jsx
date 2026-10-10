@@ -39,12 +39,14 @@ const FEATURES = [
 export default function ServicioGruasPage() {
   const s = useSettings();
   const photos = useGruasPhotos();
+  // El visor en grande es solo para fotos; los videos se ven en el carrusel.
+  const viewerPhotos = photos.filter((p) => p.type !== "video");
   const [open, setOpen] = useState(null);
 
   return (
     <main className="flex min-h-screen flex-col bg-[#0B0B0B]">
-      {open !== null && photos[open] && (
-        <PhotoViewer photos={photos} index={open} onIndex={setOpen} onClose={() => setOpen(null)} />
+      {open !== null && viewerPhotos[open] && (
+        <PhotoViewer photos={viewerPhotos} index={open} onIndex={setOpen} onClose={() => setOpen(null)} />
       )}
       <MobileTopBar />
 
@@ -89,7 +91,7 @@ export default function ServicioGruasPage() {
         </div>
 
         <div className="order-2 lg:order-none lg:col-start-2 lg:row-start-1">
-          <GruasCarousel photos={photos} onOpen={setOpen} />
+          <GruasCarousel photos={photos} onOpen={(i) => setOpen(viewerPhotos.indexOf(photos[i]))} />
         </div>
       </div>
 
