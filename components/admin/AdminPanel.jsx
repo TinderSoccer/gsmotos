@@ -164,6 +164,27 @@ function VideoUploadButton({ job, onFile, hint }) {
   );
 }
 
+// Texto de avance de una subida de video, para mostrarlo sobre la foto o el
+// recuadro donde se eligió.
+const videoJobText = (job) => (job ? `${job.phase === "optimizando" ? "Optimizando video…" : "Subiendo video…"} ${job.pct}%` : "");
+
+// Botón chico "Cambiar" sobre un video ya subido (Taller y Grúas): el video
+// tiene sus propios controles, así que no puede ser todo él un botón como
+// las fotos.
+function ChangeMediaButton({ job, busy, onFile }) {
+  return (
+    <label
+      className={`absolute right-2.5 top-2.5 z-20 inline-flex items-center gap-1.5 rounded-full bg-white/95 px-3 py-2 font-display text-[12px] font-semibold uppercase tracking-wide text-[#0B0B0B] shadow-[0_2px_8px_rgba(0,0,0,0.35)] ${
+        job ? "pointer-events-none opacity-90" : busy ? "pointer-events-none opacity-50" : "cursor-pointer hover:bg-white"
+      }`}
+    >
+      {job ? <Loader2 size={14} className="animate-spin" aria-hidden="true" /> : <Camera size={14} strokeWidth={2} aria-hidden="true" />}
+      <span role={job ? "status" : undefined}>{job ? videoJobText(job) : "Cambiar"}</span>
+      <input type="file" accept="image/*,video/*" className="hidden" onChange={onFile} disabled={Boolean(job || busy)} />
+    </label>
+  );
+}
+
 // Recuadro "Agregar foto o video" (Taller y Grúas): según el archivo elegido
 // lo sube como foto o lo optimiza como video. Mientras un video se prepara o
 // sube, el avance se ve en el mismo recuadro.
@@ -183,7 +204,7 @@ function AddMediaTile({ aspect, job, onPhoto, onVideo }) {
         <>
           <Loader2 size={26} strokeWidth={1.8} className="animate-spin" aria-hidden="true" />
           <span className="font-display text-sm font-semibold uppercase tracking-wide" role="status">
-            {job.phase === "optimizando" ? "Optimizando video…" : "Subiendo video…"} {job.pct}%
+            {videoJobText(job)}
           </span>
         </>
       ) : (
@@ -381,7 +402,7 @@ function Tab({ active, onClick, children }) {
 // degradados y proporciones), así se ve el resultado antes de cambiarla.
 // Toda la foto es clickeable: al tocarla se elige el archivo nuevo.
 
-function PhotoPicker({ onFile, className = "", children }) {
+function PhotoPicker({ onFile, className = "", children, accept = "image/*", label = "Cambiar foto", busyText = "" }) {
   // Mientras la foto se sube, la misma foto dice "Subiendo…" (antes solo
   // lo decía un aviso abajo, fácil de no ver con una conexión lenta).
   const [busy, setBusy] = useState(false);
@@ -398,11 +419,11 @@ function PhotoPicker({ onFile, className = "", children }) {
   return (
     <label className={`group/photo relative block ${busy ? "cursor-wait" : "cursor-pointer"} ${className}`}>
       {children}
-      <input type="file" accept="image/*" className="hidden" onChange={handle} disabled={busy} />
+      <input type="file" accept={accept} className="hidden" onChange={handle} disabled={busy} />
       {busy && (
         <span className="absolute inset-0 z-30 flex flex-col items-center justify-center gap-2 bg-black/65 text-white" role="status">
           <Loader2 size={26} className="animate-spin motion-reduce:animate-none" />
-          <span className="font-display text-sm font-semibold uppercase tracking-wide">Subiendo…</span>
+          <span className="font-display text-sm font-semibold uppercase tracking-wide">{busyText || "Subiendo…"}</span>
         </span>
       )}
       {/* Ícono siempre visible (en el celular no hay "pasar el mouse").
@@ -414,7 +435,7 @@ function PhotoPicker({ onFile, className = "", children }) {
           </span>
           <span className="pointer-events-none absolute inset-0 z-10 flex items-center justify-center bg-black/50 opacity-0 transition-opacity group-hover/photo:opacity-100">
             <span className="inline-flex items-center gap-2 rounded-full bg-white px-4 py-2.5 font-display text-sm font-semibold uppercase tracking-wide text-[#0B0B0B] shadow-[0_4px_14px_rgba(0,0,0,0.35)]">
-              <Camera size={16} strokeWidth={2} /> Cambiar foto
+              <Camera size={16} strokeWidth={2} /> {label}
             </span>
           </span>
         </>
@@ -1444,6 +1465,8 @@ function TallerTab() {
   const [videoCaption, setVideoCaption] = useState("");
   // Subida de un video desde el equipo: { phase: "optimizando" | "subiendo", pct }.
   const [videoJob, setVideoJob] = useState(null);
+  // Cuál foto o video se está cambiando por un video (para mostrar el avance ahí).
+  const [videoTarget, setVideoTarget] = useState(null);
 
   function patch(id, changes) {
     warnIfFailed(writeTallerItems(items.map((it) => (it.id === id ? { ...it, ...changes } : it))));
@@ -1461,6 +1484,25 @@ function TallerTab() {
       if (size === "banner") item.size = "banner";
       warnIfFailed(writeTallerItems([...items, item]));
     }
+  }
+
+  // Cambiar una foto (o un video) por otra foto o por un video.
+  async function replaceMedia(item, ev) {
+    const file = ev.target.files?.[0];
+    if (!file?.type.startsWith("video/")) {
+      if (item.type !== "video") return replacePhoto(item, ev);
+      // Video → foto: queda como foto normal, con su mismo texto.
+      const url = await readAndUpload(ev, { maxSize: 1600, quality: 0.85 });
+      if (url) await warnIfFailed(writeTallerItems(readTallerItems().map((it) => (it.id === item.id ? { id: it.id, type: "photo", photo: url, caption: it.caption || "" } : it))));
+      return;
+    }
+    setVideoTarget(item.id);
+    const video = await pickAndUploadVideo(ev, setVideoJob);
+    setVideoTarget(null);
+    if (!video) return;
+    const { photo, size, poster, ...rest } = item;
+    // readTallerItems: la lista actual, por si cambió durante la subida.
+    await warnIfFailed(writeTallerItems(readTallerItems().map((it) => (it.id === item.id ? { ...rest, type: "video", ...video } : it))), "Video agregado ✓");
   }
 
   async function replacePhoto(item, ev) {
@@ -1557,14 +1599,20 @@ function TallerTab() {
               >
                 {item.type === "photo" ? (
                   <PhotoPicker
-                    onFile={(ev) => replacePhoto(item, ev)}
+                    onFile={(ev) => replaceMedia(item, ev)}
+                    accept="image/*,video/*"
+                    label="Cambiar foto o video"
+                    busyText={videoJobText(videoJob)}
                     className={`overflow-hidden bg-[#14171A] ${banner ? "aspect-[5/2] sm:aspect-[4/1] lg:aspect-[6/1]" : "aspect-video"}`}
                   >
                     <SmartImage src={item.photo} alt={item.caption || "Foto del taller"} sizes={banner ? "1200px" : "420px"} />
                   </PhotoPicker>
                 ) : isDirectVideoUrl(item.url) ? (
-                  // eslint-disable-next-line jsx-a11y/media-has-caption
-                  <video src={item.url} poster={item.poster} controls preload="metadata" playsInline className="aspect-video w-full bg-[#14171A] object-cover" />
+                  <div className="relative">
+                    {/* eslint-disable-next-line jsx-a11y/media-has-caption */}
+                    <video src={item.url} poster={item.poster} controls preload="metadata" playsInline className="aspect-video w-full bg-[#14171A] object-cover" />
+                    <ChangeMediaButton job={videoTarget === item.id ? videoJob : null} busy={Boolean(videoJob)} onFile={(ev) => replaceMedia(item, ev)} />
+                  </div>
                 ) : (
                   <div className="relative flex aspect-video flex-col items-center justify-center gap-2 bg-[#14171A]">
                     <PlayCircle size={40} strokeWidth={1.4} color="#4E9AD1" />
@@ -1676,6 +1724,8 @@ function TallerTab() {
 function GruasTab() {
   const items = useGruasPhotos();
   const [videoJob, setVideoJob] = useState(null);
+  // Cuál foto o video se está cambiando por un video (para mostrar el avance ahí).
+  const [videoTarget, setVideoTarget] = useState(null);
 
   function save(next, okMsg) {
     return warnIfFailed(writeGruasPhotos(next), okMsg);
@@ -1693,6 +1743,24 @@ function GruasTab() {
   async function addVideoFile(ev) {
     const video = await pickAndUploadVideo(ev, setVideoJob);
     if (video) save([...readGruasPhotos(), { id: `grua-video-${Date.now()}`, type: "video", ...video, caption: "" }], "Video agregado ✓");
+  }
+
+  // Cambiar una foto (o un video) por otra foto o por un video.
+  async function replaceMedia(item, ev) {
+    const file = ev.target.files?.[0];
+    if (!file?.type.startsWith("video/")) {
+      if (item.type !== "video") return replacePhoto(item.id, ev);
+      // Video → foto: queda como foto normal, con su mismo texto.
+      const url = await readAndUpload(ev, { maxSize: 1600, quality: 0.85 });
+      if (url) save(readGruasPhotos().map((it) => (it.id === item.id ? { id: it.id, photo: url, caption: it.caption || "" } : it)));
+      return;
+    }
+    setVideoTarget(item.id);
+    const video = await pickAndUploadVideo(ev, setVideoJob);
+    setVideoTarget(null);
+    if (!video) return;
+    const { photo, poster, ...rest } = item;
+    save(readGruasPhotos().map((it) => (it.id === item.id ? { ...rest, type: "video", ...video } : it)), "Video agregado ✓");
   }
 
   async function replacePhoto(id, ev) {
@@ -1739,10 +1807,19 @@ function GruasTab() {
             {items.map((item, index) => (
               <div key={item.id} className="flex flex-col overflow-hidden rounded-xl border border-[#1E2226] bg-[#0B0D0F]">
                 {item.type === "video" ? (
-                  // eslint-disable-next-line jsx-a11y/media-has-caption
-                  <video src={item.url} poster={item.poster} controls preload="metadata" playsInline className="aspect-[4/3] w-full bg-[#14171A] object-cover" />
+                  <div className="relative">
+                    {/* eslint-disable-next-line jsx-a11y/media-has-caption */}
+                    <video src={item.url} poster={item.poster} controls preload="metadata" playsInline className="aspect-[4/3] w-full bg-[#14171A] object-cover" />
+                    <ChangeMediaButton job={videoTarget === item.id ? videoJob : null} busy={Boolean(videoJob)} onFile={(ev) => replaceMedia(item, ev)} />
+                  </div>
                 ) : (
-                  <PhotoPicker onFile={(ev) => replacePhoto(item.id, ev)} className="aspect-[4/3] overflow-hidden bg-[#14171A]">
+                  <PhotoPicker
+                    onFile={(ev) => replaceMedia(item, ev)}
+                    accept="image/*,video/*"
+                    label="Cambiar foto o video"
+                    busyText={videoJobText(videoJob)}
+                    className="aspect-[4/3] overflow-hidden bg-[#14171A]"
+                  >
                     <SmartImage src={item.photo} alt={item.caption || "Foto de grúa"} sizes="400px" />
                   </PhotoPicker>
                 )}
