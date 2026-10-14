@@ -2,7 +2,9 @@
 
 import { useEffect, useRef, useState } from "react";
 import { ImageOff } from "lucide-react";
-import ColorBars from "@/components/services/ColorBars";
+import { FaWhatsapp } from "react-icons/fa6";
+import ColorBars, { ColorEdge } from "@/components/services/ColorBars";
+import ProductModal from "@/components/home/ProductModal";
 import SmartImage from "@/components/common/SmartImage";
 import Button from "@/components/common/Button";
 import { NEUMATICOS_USOS } from "@/lib/neumaticosContent";
@@ -19,9 +21,16 @@ export const VITRINA_ID = "en-stock";
 // cliente: solo foto, título y valor, sin buscador). Christopher las
 // administra desde /administracion → "Stock neumáticos" (ver
 // lib/neumaticosStock.js).
-function TireCard({ item }) {
+// Tarjeta como las de productos (ProductCard): toda la tarjeta abre el
+// popup con foto grande, precio y "Consultar por WhatsApp".
+function TireCard({ item, onOpen }) {
   return (
-    <div className="flex flex-col overflow-hidden rounded-xl border border-[#1E2226] bg-surface-card">
+    <button
+      type="button"
+      onClick={() => onOpen(item)}
+      className="group relative flex flex-col overflow-hidden rounded-xl border border-[#1E2226] bg-surface-card text-left press press-soft focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-mCyan sm:hover:-translate-y-1 sm:hover:border-[#2E3A45]"
+    >
+      <ColorEdge />
       <div className="relative aspect-square w-full overflow-hidden bg-[#EFEDE9]">
         {item.photo ? (
           <SmartImage src={item.photo} alt={item.title || "Neumático"} fit="contain" className="p-2.5 sm:p-3" sizes="(max-width: 639px) 45vw, (max-width: 1023px) 30vw, 240px" />
@@ -32,15 +41,23 @@ function TireCard({ item }) {
           </div>
         )}
       </div>
-      <div className="flex flex-1 flex-col gap-2.5 px-3.5 pb-3.5 pt-3 sm:px-4 sm:pb-4">
+      <div className="flex w-full flex-1 flex-col gap-2.5 px-3.5 pb-3.5 pt-3 sm:px-4 sm:pb-4">
         <div className="line-clamp-3 font-display text-[15px] font-semibold uppercase leading-[1.15] tracking-[0.4px] text-white sm:text-[17px]">
           {item.title || "Neumático"}
         </div>
-        <div className="mt-auto border-t border-white/[0.07] pt-2.5 font-display text-[17px] font-bold leading-none text-white sm:text-xl">
-          {item.price > 0 ? formatCLP(item.price) : "Precio a consultar"}
+        <div className="mt-auto flex items-center justify-between gap-2 border-t border-white/[0.07] pt-2.5">
+          <span className="font-display text-[17px] font-bold leading-none text-white sm:text-xl">
+            {item.price > 0 ? formatCLP(item.price) : "Precio a consultar"}
+          </span>
+          <span
+            aria-hidden="true"
+            className="flex h-8 w-8 flex-none items-center justify-center rounded-full border border-[#25D366]/40 text-[#25D366] transition-colors group-hover:border-[#25D366] group-hover:bg-[#25D366] group-hover:text-[#0B0D0F] sm:h-9 sm:w-9"
+          >
+            <FaWhatsapp size={16} />
+          </span>
         </div>
       </div>
-    </div>
+    </button>
   );
 }
 
@@ -49,6 +66,7 @@ export default function NeumaticosVitrina({ embedded = false }) {
   const stock = useNeumaticosStock();
   const s = useSettings();
   const [active, setActive] = useState(NEUMATICOS_USOS[0].slot);
+  const [openTire, setOpenTire] = useState(null);
   const sectionRef = useRef(null);
 
   useEffect(() => {
@@ -98,7 +116,7 @@ export default function NeumaticosVitrina({ embedded = false }) {
         {items.length ? (
           <div role="tabpanel" className="grid grid-cols-2 gap-3 sm:grid-cols-3 sm:gap-4 lg:grid-cols-4 xl:grid-cols-5">
             {items.map((item) => (
-              <TireCard key={item.id} item={item} />
+              <TireCard key={item.id} item={item} onOpen={setOpenTire} />
             ))}
           </div>
         ) : (
@@ -123,6 +141,19 @@ export default function NeumaticosVitrina({ embedded = false }) {
           </Button>
         </div>
       </div>
+
+      {/* Mismo popup que los productos, con los datos del neumático. */}
+      <ProductModal
+        prod={openTire ? { name: openTire.title || "Neumático", photo: openTire.photo, price: openTire.price } : null}
+        showEstado={false}
+        ficha={[["Tipo de uso", uso.title]]}
+        message={
+          openTire
+            ? `Hola GSmotos, me interesa el neumático ${openTire.title || ""} (${uso.title.toLowerCase()})${openTire.price > 0 ? `, ${formatCLP(openTire.price)}` : ""}. ¿Está disponible?`
+            : ""
+        }
+        onClose={() => setOpenTire(null)}
+      />
     </section>
   );
 }

@@ -16,7 +16,10 @@ import Button from "@/components/common/Button";
 // /productos?q=..., el cliente pidió que en vez de eso abra un popup para
 // escribir por WhatsApp directo, sin salir de la Home. Misma animación
 // (gsmBack/gsmPop) que el resto de los popups del sitio.
-export default function ProductModal({ prod, onClose }) {
+// También lo usan las vitrinas de neumáticos (NeumaticosVitrina.jsx), con su
+// propia ficha (`ficha`), su mensaje de WhatsApp (`message`) y sin la
+// etiqueta Nuevo/Usado (`showEstado`).
+export default function ProductModal({ prod, onClose, ficha: fichaProp, message, showEstado = true }) {
   const [closing, close] = useClosing(onClose);
   const s = useSettings();
 
@@ -39,7 +42,7 @@ export default function ProductModal({ prod, onClose }) {
   const usado = prod.estado === "usado";
 
   // Filas de la ficha: solo las que el producto tiene.
-  const ficha = [
+  const ficha = fichaProp || [
     prod.cat && ["Tipo de pieza", prod.cat],
     prod.aplicacion && ["Sirve para", prod.aplicacion],
     prod.codigo && [isBmwCode(prod.codigo) ? "Código BMW" : "Código", prod.codigo],
@@ -85,6 +88,7 @@ export default function ProductModal({ prod, onClose }) {
               <span className="font-display text-[11px] uppercase tracking-[2px] text-[#5E5850]">Foto próximamente</span>
             </div>
           )}
+          {showEstado && (
           <span
             className={`absolute left-3 top-3 rounded-sm border border-white/15 font-display font-bold uppercase tracking-[1.5px] text-white ${
               usado ? "px-2.5 py-1.5 text-[11px] shadow-[0_2px_8px_rgba(231,0,42,0.5)]" : "px-2 py-1 text-[10px]"
@@ -93,6 +97,7 @@ export default function ProductModal({ prod, onClose }) {
           >
             {usado ? "Usado" : "Nuevo"}
           </span>
+          )}
         </div>
 
         <div className="flex min-h-0 flex-1 flex-col overflow-y-auto px-6 pb-[max(1.5rem,env(safe-area-inset-bottom))] pt-5 md:px-9 md:pb-8 md:pt-9">
@@ -129,7 +134,7 @@ export default function ProductModal({ prod, onClose }) {
               {prod.price > 0 ? formatCLP(prod.price) : "Precio a consultar"}
             </div>
             <Button
-              href={whatsappUrl(s.phoneDigits, productConsultMessage(prod))}
+              href={whatsappUrl(s.phoneDigits, message || productConsultMessage(prod))}
               block
               arrow={false}
               icon={<FaWhatsapp size={18} color="#fff" aria-hidden="true" />}
