@@ -6,6 +6,9 @@ const nextConfig = {
   // listados acá; sin esto, cualquier foto subida rompía la página.
   images: {
     remotePatterns: [{ protocol: "https", hostname: "*.public.blob.vercel-storage.com" }],
+    // 90 para la carta de tarifas (textos chicos y precios): con el 75 por
+    // defecto se notaba la compresión. El resto del sitio sigue en 75.
+    qualities: [75, 90],
   },
   // Sin esto, los archivos de /public (fotos, logos, SVGs de marcas) se
   // sirven con `Cache-Control: max-age=0, must-revalidate` — Vercel los

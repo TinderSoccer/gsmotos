@@ -2092,14 +2092,19 @@ function TarifasTab() {
       setPreview([]);
       const { pages: images, sections: found } = await pdfToImages(file, (p, n, total, page) => {
         setJob({ text: `Preparando página ${n} de ${total}…`, pct: Math.round(p * 100) });
-        if (page) setPreview((list) => [...list, page.dataUrl]);
+        if (page) setPreview((list) => [...list, page.preview]);
       });
       const pages = [];
       for (let i = 0; i < images.length; i++) {
         setJob({ text: `Publicando página ${i + 1} de ${images.length}…`, pct: Math.round(((i + 1) / images.length) * 100) });
-        const url = await uploadImage(images[i].dataUrl);
-        if (!url) throw new Error(lastSaveError());
-        pages.push({ url, w: images[i].w, h: images[i].h });
+        // Directo a Blob (sin pasar por el servidor ni volver a comprimir).
+        const pageRes = await upload("admin/tarifas-pagina.jpg", images[i].blob, {
+          access: "public",
+          contentType: "image/jpeg",
+          handleUploadUrl: "/api/admin/upload-pdf",
+        });
+        pages.push({ url: pageRes.url, w: images[i].w, h: images[i].h });
+        URL.revokeObjectURL(images[i].preview);
       }
       // Índice: el que se detectó en el PDF; si no trae nada, se mantiene el
       // anterior (solo se descartan las secciones que apuntan a páginas que ya

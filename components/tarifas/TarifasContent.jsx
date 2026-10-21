@@ -5,7 +5,7 @@ import { useEffect, useRef, useState } from "react";
 import { CalendarCheck, Download, FileText, List, Maximize2, X } from "lucide-react";
 import { FaWhatsapp } from "react-icons/fa6";
 import Link from "next/link";
-import PhotoViewer from "@/components/common/PhotoViewer";
+import TarifasZoom from "./TarifasZoom";
 import ColorBars from "@/components/services/ColorBars";
 import Button from "@/components/common/Button";
 import { sectionForPage, useTarifas } from "@/lib/tarifas";
@@ -21,7 +21,7 @@ import { useSettings, whatsappUrl } from "@/lib/settings";
 // - Celular y tablet: barra fija abajo (sobre la barra de contacto del
 //   sitio) con el índice, Agendar y WhatsApp. El mensaje de WhatsApp dice
 //   en qué sección iba la persona.
-// Tocar una página la abre en grande, con flechas para pasar.
+// Tocar una página la abre en el visor con zoom (TarifasZoom.jsx).
 export default function TarifasContent() {
   const t = useTarifas();
   const s = useSettings();
@@ -34,7 +34,6 @@ export default function TarifasContent() {
   const [current, setCurrent] = useState(0); // página a la vista (desde 0)
   const [indexOpen, setIndexOpen] = useState(false);
   const pagesRef = useRef(null);
-  const viewerPages = t.pages.map((page) => ({ id: page.url, photo: page.url, caption: "" }));
 
   // Página a la vista: la que cruza una línea a un tercio de la pantalla.
   useEffect(() => {
@@ -90,9 +89,7 @@ export default function TarifasContent() {
 
   return (
     <div className="flex flex-col gap-6 px-6 pb-36 pt-8 sm:px-10 sm:pb-40 sm:pt-10 lg:pb-12">
-      {open !== null && viewerPages[open] && (
-        <PhotoViewer photos={viewerPages} index={open} onIndex={setOpen} onClose={() => setOpen(null)} />
-      )}
+      {open !== null && t.pages[open] && <TarifasZoom pages={t.pages} index={open} onIndex={setOpen} onClose={() => setOpen(null)} title={t.title} />}
 
       <header className="flex max-w-2xl flex-col gap-3">
         <div className="flex items-center gap-4">
@@ -167,6 +164,7 @@ export default function TarifasContent() {
                   width={page.w}
                   height={page.h}
                   sizes="(max-width: 880px) 100vw, 880px"
+                  quality={90}
                   priority={i < 2}
                   className="block h-auto w-full"
                 />

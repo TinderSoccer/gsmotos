@@ -3,9 +3,11 @@ import { cookies } from "next/headers";
 import { handleUpload } from "@vercel/blob/client";
 import { isValidSession, SESSION_COOKIE } from "@/lib/adminAuth";
 
-// Subida del PDF de tarifas directo desde el navegador a Vercel Blob (igual
-// que los videos, ver app/api/admin/upload-video): el archivo no pasa por
-// esta función, que solo entrega el permiso a quien tiene sesión.
+// Subida del PDF de tarifas y de sus páginas ya convertidas a JPEG, directo
+// desde el navegador a Vercel Blob (igual que los videos, ver
+// app/api/admin/upload-video): los archivos no pasan por esta función (que
+// limitaría cada página a 4,5 MB), solo se entrega el permiso a quien tiene
+// sesión.
 const MAX_PDF_BYTES = 50 * 1024 * 1024;
 
 export async function POST(request) {
@@ -26,7 +28,7 @@ export async function POST(request) {
         if (!isValidSession((await cookies()).get(SESSION_COOKIE)?.value)) {
           throw new Error("Tu sesión expiró. Vuelve a entrar al panel.");
         }
-        return { allowedContentTypes: ["application/pdf"], maximumSizeInBytes: MAX_PDF_BYTES, addRandomSuffix: true };
+        return { allowedContentTypes: ["application/pdf", "image/jpeg"], maximumSizeInBytes: MAX_PDF_BYTES, addRandomSuffix: true };
       },
     });
     return NextResponse.json(result);
