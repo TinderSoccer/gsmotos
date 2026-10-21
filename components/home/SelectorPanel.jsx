@@ -1,8 +1,8 @@
 "use client";
 
 import { useEffect, useLayoutEffect, useRef, useState } from "react";
-import { FileText, Search } from "lucide-react";
-import Link from "next/link";
+import { Search } from "lucide-react";
+import TarifasBanner from "../tarifas/TarifasBanner";
 import { FaWhatsapp } from "react-icons/fa6";
 import ColorBars from "../services/ColorBars";
 import ServiceGrid from "../services/ServiceGrid";
@@ -280,19 +280,11 @@ export default function SelectorPanel({
         <ColorBars size="lg" />
         <div className="font-display text-[32px] font-bold italic uppercase leading-none text-white">{menuTitle}</div>
         {menuHint && <div className="hidden font-display text-base uppercase tracking-wide text-[#7A838C] sm:block">{menuHint}</div>}
-        {/* Acceso a la carta de precios desde los servicios (no en Productos,
-            que tiene sus propios precios). */}
-        {!isProductos && (
-          <Link
-            href="/tarifas"
-            className="ml-auto inline-flex min-h-11 flex-none items-center gap-2 font-display text-sm font-semibold uppercase tracking-[1.5px] text-mCyan underline-offset-4 transition-colors hover:text-white hover:underline"
-          >
-            <FileText size={17} strokeWidth={1.8} aria-hidden="true" />
-            <span className="hidden sm:inline">Ver tarifas</span>
-            <span className="sm:hidden">Tarifas</span>
-          </Link>
-        )}
       </div>
+
+      {/* Acceso destacado a la carta de precios en todas las pestañas de
+          servicios (no en Productos, que tiene sus propios precios). */}
+      {!isProductos && <TarifasBanner />}
 
       {isProductos ? (
         <ProductCarousel

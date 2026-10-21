@@ -10,6 +10,7 @@ import { MobileTopBar } from "@/components/mobile/MobileNav";
 import { getAvailableSlots } from "@/lib/tallergp";
 import { useSettings, whatsappUrl } from "@/lib/settings";
 import Button from "@/components/common/Button";
+import TarifasBanner from "@/components/tarifas/TarifasBanner";
 
 const EMPTY_FORM = { name: "", phone: "", model: "", note: "", date: "", time: "" };
 
@@ -96,123 +97,121 @@ export default function ContactoPage({ searchParams }) {
           <MapaTaller className="hidden aspect-[4/3] md:block" />
         </div>
 
-        <div className="rounded-xl border border-[#1E2226] bg-surface-card p-6 sm:p-8">
-          {status === "done" ? (
-            // Momento único para el cliente: entra con un pequeño rebote
-            // (misma curva que la franja fija). Ver gsmSuccessIn.
-            <div
-              className="flex flex-col items-center gap-3 py-10 text-center"
-              style={{ animation: "gsmSuccessIn 400ms cubic-bezier(0.34,1.56,0.64,1) both" }}
-            >
-              <div className="font-display text-2xl font-bold italic uppercase text-white">¡Ya casi!</div>
-              <p className="max-w-sm text-[14.5px] leading-relaxed text-[#B9C0C7]">
-                Te abrimos WhatsApp con tu solicitud escrita. Envía el mensaje y te confirmamos la hora por ahí.
-              </p>
-              <Button variant="whatsapp" href={waLink}>
-                Abrir WhatsApp de nuevo
-              </Button>
-              <div className="mt-2 flex flex-wrap items-center justify-center gap-x-6 gap-y-2">
-                <button
-                  type="button"
-                  onClick={() => {
-                    setForm(EMPTY_FORM);
-                    setStatus("idle");
-                  }}
-                  className="inline-flex min-h-11 items-center font-display text-sm uppercase tracking-wide text-mCyan hover:text-mCyan/80"
-                >
-                  Agendar otra hora
-                </button>
-                <Link
-                  href="/"
-                  className="inline-flex min-h-11 items-center font-display text-sm uppercase tracking-wide text-white/70 hover:text-white"
-                >
-                  ← Volver al inicio
-                </Link>
-              </div>
-            </div>
-          ) : (
-            <form onSubmit={handleSubmit} className="flex flex-col gap-4">
-              <Link
-                href="/tarifas"
-                className="group flex items-center justify-between gap-3 rounded-lg border border-[#2E3A45] bg-white/[0.03] px-4 py-3 transition-colors hover:border-mCyan"
+        <div className="flex flex-col gap-4">
+          {/* Acceso destacado a las tarifas, arriba del formulario (pedido del
+              cliente: que destaque). */}
+          <TarifasBanner />
+          <div className="rounded-xl border border-[#1E2226] bg-surface-card p-6 sm:p-8">
+            {status === "done" ? (
+              // Momento único para el cliente: entra con un pequeño rebote
+              // (misma curva que la franja fija). Ver gsmSuccessIn.
+              <div
+                className="flex flex-col items-center gap-3 py-10 text-center"
+                style={{ animation: "gsmSuccessIn 400ms cubic-bezier(0.34,1.56,0.64,1) both" }}
               >
-                <span className="text-sm text-[#C3C9CE]">¿Quieres ver los precios antes de agendar?</span>
-                <span className="whitespace-nowrap font-display text-sm font-semibold uppercase tracking-[1.5px] text-mCyan group-hover:text-white">Ver tarifas →</span>
-              </Link>
-              <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-                <label className="flex flex-col gap-1.5 text-sm text-white/80">
-                  Nombre
-                  <input
-                    required
-                    value={form.name}
-                    onChange={(e) => update("name", e.target.value)}
-                    className="rounded border border-white/15 bg-black/40 px-3.5 py-2.5 text-white outline-none focus:border-mCyan"
-                  />
-                </label>
-                <label className="flex flex-col gap-1.5 text-sm text-white/80">
-                  Teléfono
-                  <input
-                    required
-                    type="tel"
-                    value={form.phone}
-                    onChange={(e) => update("phone", e.target.value)}
-                    className="rounded border border-white/15 bg-black/40 px-3.5 py-2.5 text-white outline-none focus:border-mCyan"
-                  />
-                </label>
-              </div>
-              <label className="flex flex-col gap-1.5 text-sm text-white/80">
-                Modelo de moto
-                <input
-                  value={form.model}
-                  onChange={(e) => update("model", e.target.value)}
-                  placeholder="Ej. BMW R 1250 GS"
-                  className="rounded border border-white/15 bg-black/40 px-3.5 py-2.5 text-white outline-none placeholder:text-white/30 focus:border-mCyan"
-                />
-              </label>
-              <label className="flex flex-col gap-1.5 text-sm text-white/80">
-                ¿Qué necesita tu moto?
-                <textarea
-                  value={form.note}
-                  onChange={(e) => update("note", e.target.value)}
-                  rows={3}
-                  className="resize-none rounded border border-white/15 bg-black/40 px-3.5 py-2.5 text-white outline-none focus:border-mCyan"
-                />
-              </label>
-              <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-                <label className="flex flex-col gap-1.5 text-sm text-white/80">
-                  Fecha preferida
-                  <input
-                    required
-                    type="date"
-                    min={today}
-                    value={form.date}
-                    onChange={(e) => update("date", e.target.value)}
-                    className="rounded border border-white/15 bg-black/40 px-3.5 py-2.5 text-white outline-none focus:border-mCyan [color-scheme:dark]"
-                  />
-                </label>
-                <label className="flex flex-col gap-1.5 text-sm text-white/80">
-                  Hora preferida
-                  <select
-                    required
-                    value={form.time}
-                    onChange={(e) => update("time", e.target.value)}
-                    className="rounded border border-white/15 bg-black/40 px-3.5 py-2.5 text-white outline-none focus:border-mCyan [color-scheme:dark]"
-                  >
-                    <option value="">Selecciona una hora</option>
-                    {slots.map((s) => (
-                      <option key={s} value={s}>{s}</option>
-                    ))}
-                  </select>
-                </label>
-              </div>
-              <div className="mt-2 flex flex-wrap items-center gap-x-6 gap-y-3">
-                <Button type="submit" variant="whatsapp">
-                  Enviar por WhatsApp
+                <div className="font-display text-2xl font-bold italic uppercase text-white">¡Ya casi!</div>
+                <p className="max-w-sm text-[14.5px] leading-relaxed text-[#B9C0C7]">
+                  Te abrimos WhatsApp con tu solicitud escrita. Envía el mensaje y te confirmamos la hora por ahí.
+                </p>
+                <Button variant="whatsapp" href={waLink}>
+                  Abrir WhatsApp de nuevo
                 </Button>
-                <span className="text-[13px] text-[#8A939C]">Te confirmamos la hora por WhatsApp.</span>
+                <div className="mt-2 flex flex-wrap items-center justify-center gap-x-6 gap-y-2">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setForm(EMPTY_FORM);
+                      setStatus("idle");
+                    }}
+                    className="inline-flex min-h-11 items-center font-display text-sm uppercase tracking-wide text-mCyan hover:text-mCyan/80"
+                  >
+                    Agendar otra hora
+                  </button>
+                  <Link
+                    href="/"
+                    className="inline-flex min-h-11 items-center font-display text-sm uppercase tracking-wide text-white/70 hover:text-white"
+                  >
+                    ← Volver al inicio
+                  </Link>
+                </div>
               </div>
-            </form>
-          )}
+            ) : (
+              <form onSubmit={handleSubmit} className="flex flex-col gap-4">
+                <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                  <label className="flex flex-col gap-1.5 text-sm text-white/80">
+                    Nombre
+                    <input
+                      required
+                      value={form.name}
+                      onChange={(e) => update("name", e.target.value)}
+                      className="rounded border border-white/15 bg-black/40 px-3.5 py-2.5 text-white outline-none focus:border-mCyan"
+                    />
+                  </label>
+                  <label className="flex flex-col gap-1.5 text-sm text-white/80">
+                    Teléfono
+                    <input
+                      required
+                      type="tel"
+                      value={form.phone}
+                      onChange={(e) => update("phone", e.target.value)}
+                      className="rounded border border-white/15 bg-black/40 px-3.5 py-2.5 text-white outline-none focus:border-mCyan"
+                    />
+                  </label>
+                </div>
+                <label className="flex flex-col gap-1.5 text-sm text-white/80">
+                  Modelo de moto
+                  <input
+                    value={form.model}
+                    onChange={(e) => update("model", e.target.value)}
+                    placeholder="Ej. BMW R 1250 GS"
+                    className="rounded border border-white/15 bg-black/40 px-3.5 py-2.5 text-white outline-none placeholder:text-white/30 focus:border-mCyan"
+                  />
+                </label>
+                <label className="flex flex-col gap-1.5 text-sm text-white/80">
+                  ¿Qué necesita tu moto?
+                  <textarea
+                    value={form.note}
+                    onChange={(e) => update("note", e.target.value)}
+                    rows={3}
+                    className="resize-none rounded border border-white/15 bg-black/40 px-3.5 py-2.5 text-white outline-none focus:border-mCyan"
+                  />
+                </label>
+                <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                  <label className="flex flex-col gap-1.5 text-sm text-white/80">
+                    Fecha preferida
+                    <input
+                      required
+                      type="date"
+                      min={today}
+                      value={form.date}
+                      onChange={(e) => update("date", e.target.value)}
+                      className="rounded border border-white/15 bg-black/40 px-3.5 py-2.5 text-white outline-none focus:border-mCyan [color-scheme:dark]"
+                    />
+                  </label>
+                  <label className="flex flex-col gap-1.5 text-sm text-white/80">
+                    Hora preferida
+                    <select
+                      required
+                      value={form.time}
+                      onChange={(e) => update("time", e.target.value)}
+                      className="rounded border border-white/15 bg-black/40 px-3.5 py-2.5 text-white outline-none focus:border-mCyan [color-scheme:dark]"
+                    >
+                      <option value="">Selecciona una hora</option>
+                      {slots.map((s) => (
+                        <option key={s} value={s}>{s}</option>
+                      ))}
+                    </select>
+                  </label>
+                </div>
+                <div className="mt-2 flex flex-wrap items-center gap-x-6 gap-y-3">
+                  <Button type="submit" variant="whatsapp">
+                    Enviar por WhatsApp
+                  </Button>
+                  <span className="text-[13px] text-[#8A939C]">Te confirmamos la hora por WhatsApp.</span>
+                </div>
+              </form>
+            )}
+          </div>
         </div>
       </div>
 
