@@ -11,15 +11,24 @@ import Button from "@/components/common/Button";
 // entre los párrafos y la cita (eso se probó antes — en fila, con la cita
 // en una caja con glow — y no convenció). La cita queda como el resto del
 // texto, solo con una línea lateral para distinguirla, nada más.
-export default function NeumaticosHero({ agendarHref }) {
+//
+// `embedded`: dentro de la pestaña Neumáticos del inicio, que ya tiene su
+// título y sus márgenes (antes ahí no aparecía este texto y parecía que se
+// había borrado todo).
+export default function NeumaticosHero({ agendarHref, embedded = false }) {
   return (
-    <section id="neumaticos-hero" className="flex flex-col gap-2.5 px-6 pt-6 sm:px-10 sm:pt-8">
-      <div className="flex items-center gap-4">
-        <ColorBars size="lg" />
-        <h1 className="font-display text-[32px] font-bold italic uppercase leading-none text-white sm:text-4xl">
-          {NEUMATICOS_HERO.title}
-        </h1>
-      </div>
+    <section
+      id={embedded ? undefined : "neumaticos-hero"}
+      className={`flex flex-col gap-2.5 ${embedded ? "" : "px-6 pt-6 sm:px-10 sm:pt-8"}`}
+    >
+      {!embedded && (
+        <div className="flex items-center gap-4">
+          <ColorBars size="lg" />
+          <h1 className="font-display text-[32px] font-bold italic uppercase leading-none text-white sm:text-4xl">
+            {NEUMATICOS_HERO.title}
+          </h1>
+        </div>
+      )}
       <p className="font-display text-xl italic leading-snug text-mCyan sm:text-2xl">{NEUMATICOS_HERO.lead}</p>
       {NEUMATICOS_HERO.paragraphs.map((p) => (
         <p key={p} className="max-w-4xl text-[15px] leading-[1.6] text-[#B9C0C7]">
@@ -29,7 +38,7 @@ export default function NeumaticosHero({ agendarHref }) {
       <p className="max-w-4xl border-l-[3px] border-mBlue pl-4 font-display text-lg italic leading-snug text-white sm:text-xl">
         {NEUMATICOS_HERO.quote}
       </p>
-      <Button href={agendarHref} arrow={false} icon={<Calendar size={17} strokeWidth={2} aria-hidden="true" />} className="mt-1">
+      <Button href={agendarHref} arrow={false} icon={<Calendar size={17} strokeWidth={2} aria-hidden="true" />} className="mt-1" block={embedded ? "mobile" : undefined}>
         Agendar hora
       </Button>
     </section>

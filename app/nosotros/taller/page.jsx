@@ -38,7 +38,10 @@ const COMO_TRABAJAMOS = [
 export default function TallerPage() {
   return (
     <main className="flex min-h-screen flex-col bg-[#0B0B0B]">
-      <MobileTopBar />
+      {/* La foto llega hasta arriba, con el logo y "Volver al inicio" encima
+          (pedido del cliente: sin la franja negra superior). */}
+      <div className="relative">
+      <MobileTopBar overlay />
       <TallerPortada>
         <section className="grid grid-cols-1 gap-5 sm:grid-cols-3 sm:gap-8">
           {COMO_TRABAJAMOS.map(({ Icon, title, desc }) => (
@@ -52,6 +55,7 @@ export default function TallerPage() {
           ))}
         </section>
       </TallerPortada>
+      </div>
 
       <section className="px-6 py-10 sm:px-10">
         <h2 className="mb-5 font-display text-[26px] font-bold italic uppercase leading-none text-white">Fotos y videos</h2>

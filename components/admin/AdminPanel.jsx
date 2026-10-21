@@ -870,8 +870,6 @@ function NeumaticosTab() {
                   <div className="pointer-events-none absolute inset-0" style={overlay} />
                   <div className="absolute inset-x-0 bottom-0 flex items-end justify-between gap-1.5 px-3.5 py-3">
                     <div className="flex min-w-0 items-center gap-1.5 sm:gap-2">
-                      {/* eslint-disable-next-line @next/next/no-img-element */}
-                      <img src="/images/marcas/bmw.svg" alt="BMW" className="h-3.5 w-3.5 flex-none sm:h-4 sm:w-4" />
                       <span className="font-display text-base font-bold italic uppercase leading-tight text-white [text-shadow:0_1px_4px_rgba(0,0,0,0.6)] sm:text-lg">
                         {title}
                       </span>

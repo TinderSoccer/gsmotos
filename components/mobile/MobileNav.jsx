@@ -174,11 +174,13 @@ export function MobileHomeButton({ className = "" }) {
 // Servicios...). Antes era solo mobile y en computador esas páginas
 // quedaban sin logo ni forma visible de volver; ahora va en todos los
 // tamaños (el nombre se mantiene para no tocar cada página).
-export function MobileTopBar() {
+// `overlay`: va encima de la foto de portada (Nuestro taller), sin franja
+// negra propia.
+export function MobileTopBar({ overlay = false }) {
   return (
-    <div className="flex items-center justify-between px-6 pb-2 pt-6 sm:px-10">
+    <div className={`flex items-center justify-between px-6 pb-2 pt-6 sm:px-10 ${overlay ? "absolute inset-x-0 top-0 z-20" : ""}`}>
       <Link href="/" className="block leading-none" aria-label="GSmotos — inicio">
-        <Logo className="block h-auto w-[130px] sm:w-[150px]" />
+        <Logo className={`block h-auto w-[130px] sm:w-[150px] ${overlay ? "drop-shadow-[0_2px_8px_rgba(0,0,0,0.85)]" : ""}`} />
       </Link>
       <MobileHomeButton />
     </div>

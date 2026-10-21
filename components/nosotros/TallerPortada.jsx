@@ -6,8 +6,9 @@ import ColorBars from "@/components/services/ColorBars";
 // `children` (cómo trabajamos) encima. Se probó con el video, pero repetía
 // el hero de la home y pesaba 8MB; la foto fija pesa ~110KB y deja que la
 // página respire.
-// El alto lo da el contenido, con un mínimo para que la foto se alcance a
-// ver arriba del título.
+// La foto empieza en el borde superior: el logo y "Volver al inicio" van
+// encima (ver app/nosotros/taller/page.jsx), con una sombra suave arriba para
+// que se lean. El alto lo da el contenido.
 export default function TallerPortada({ children }) {
   return (
     <section className="relative w-full overflow-hidden bg-[#050505]">
@@ -24,7 +25,7 @@ export default function TallerPortada({ children }) {
       <div className="pointer-events-none absolute inset-0 bg-black/[0.06]" />
       <div
         className="pointer-events-none absolute inset-0"
-        style={{ background: "linear-gradient(180deg, rgba(5,5,5,0) 0%, rgba(5,5,5,0.15) 45%, rgba(5,5,5,0.75) 85%, #0B0B0B 100%)" }}
+        style={{ background: "linear-gradient(180deg, rgba(5,5,5,0.55) 0%, rgba(5,5,5,0) 22%, rgba(5,5,5,0.15) 45%, rgba(5,5,5,0.75) 85%, #0B0B0B 100%)" }}
       />
       <div className="relative flex flex-col gap-6 px-6 pb-8 pt-[150px] sm:gap-8 sm:px-10 sm:pb-10 sm:pt-[170px]">
         <div className="flex flex-col gap-2.5">

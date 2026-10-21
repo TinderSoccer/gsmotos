@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { ExternalLink } from "lucide-react";
 import CertificadosGrid from "@/components/nosotros/CertificadosGrid";
 import ChristopherHeroBg from "@/components/nosotros/ChristopherHeroBg";
 import ColorBars from "@/components/services/ColorBars";
@@ -132,6 +133,22 @@ export default function ChristopherPage() {
                           desc={item.photo.desc}
                           href={item.photo.href}
                         />
+                      )}
+                      {/* Enlace directo al artículo, al lado de la foto (pedido
+                          del cliente: que se pueda ir sin abrir la foto). */}
+                      {item.photo?.href && (
+                        <a
+                          href={item.photo.href}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="inline-flex min-h-11 items-center gap-1.5 font-display text-[13px] font-semibold uppercase leading-tight tracking-[1.5px] text-mBlue underline-offset-4 hover:underline"
+                        >
+                          <span>
+                            Leer el artículo
+                            <span className="block font-body text-xs font-normal normal-case tracking-normal text-[#6A6A6A]">{item.photo.org}</span>
+                          </span>
+                          <ExternalLink size={15} strokeWidth={2} aria-hidden="true" className="flex-none" />
+                        </a>
                       )}
                     </div>
                   )}
