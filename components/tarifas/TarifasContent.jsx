@@ -59,10 +59,9 @@ export default function TarifasContent() {
       </div>
 
       {hasPages ? (
-        // Celular: una página a lo ancho. Desde computador, de a dos como una
-        // revista abierta, usando todo el ancho. Tocar una página la abre en
-        // grande para leer los precios con zoom.
-        <div className="-mx-3 grid grid-cols-1 gap-3 sm:mx-0 sm:gap-4 lg:grid-cols-2">
+        // Una página por fila, a todo el ancho (pedido del cliente). Tocar una
+        // página la abre en grande, con flechas para pasar.
+        <div className="-mx-3 flex flex-col gap-3 sm:mx-0 sm:gap-5">
           {t.pages.map((page, i) => (
             <button
               key={page.url}
@@ -76,7 +75,7 @@ export default function TarifasContent() {
                 alt={`${t.title} — página ${i + 1} de ${t.pages.length}`}
                 width={page.w}
                 height={page.h}
-                sizes="(max-width: 1023px) 100vw, 50vw"
+                sizes="100vw"
                 priority={i < 2}
                 className="block h-auto w-full"
               />
