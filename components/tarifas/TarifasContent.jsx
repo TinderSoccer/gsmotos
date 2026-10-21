@@ -20,7 +20,9 @@ export default function TarifasContent() {
   const t = useTarifas();
   const s = useSettings();
   const hasPages = t.pages.length > 0;
-  const sections = (t.sections || []).filter((sec) => sec.title && sec.page >= 1 && sec.page <= t.pages.length);
+  const sections = (t.sections || [])
+    .filter((sec) => sec.title?.trim() && sec.page >= 1 && sec.page <= t.pages.length)
+    .map((sec) => ({ ...sec, title: sec.title.trim() }));
   const [open, setOpen] = useState(null);
   const [current, setCurrent] = useState(0); // página a la vista (desde 0)
   const [indexOpen, setIndexOpen] = useState(false);

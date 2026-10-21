@@ -21,7 +21,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import Logo from "@/components/Logo";
 import { useRouter } from "next/navigation";
-import { Award, Camera, ChevronLeft, ChevronRight, ExternalLink, ImageOff, Loader2, LogOut, PlayCircle, Search, Trash2, Upload } from "lucide-react";
+import { Award, Camera, ChevronLeft, ChevronRight, ExternalLink, ImageOff, Loader2, LogOut, PlayCircle, Search, Upload } from "lucide-react";
 import ColorBars from "@/components/services/ColorBars";
 import { CERTIFICADOS } from "@/lib/certificados";
 import { setCertPhoto, useCertPhotos } from "@/lib/useCertPhotos";
@@ -2162,17 +2162,6 @@ function TarifasTab() {
                 <span className="whitespace-nowrap text-sm text-[#3A3A3A]">{job.text}</span>
               </div>
             )}
-            {t.pages.length > 0 && (
-              <div className="grid grid-cols-3 gap-2 sm:grid-cols-5 lg:grid-cols-6">
-                {t.pages.map((page, i) => (
-                  <a key={page.url} href={page.url} target="_blank" rel="noreferrer" className="relative overflow-hidden rounded border border-[#E0E0E0] bg-[#F4F4F4]" style={{ aspectRatio: `${page.w} / ${page.h}` }}>
-                    {/* <img> directo: miniaturas chicas, sin pasar 17 fotos por el optimizador. */}
-                    {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img src={page.url} alt={`Página ${i + 1}`} loading="lazy" className="absolute inset-0 h-full w-full object-cover" />
-                  </a>
-                ))}
-              </div>
-            )}
           </div>
 
           <IndiceEditor t={t} />
@@ -2210,80 +2199,73 @@ function TarifasTab() {
   );
 }
 
-// Índice de la carta (secciones y la página donde empieza cada una). Con la
-// carta actual, que son solo imágenes, se arma a mano; con un PDF que traiga
-// marcadores o texto, se arma solo al subirlo (lib/pdfPages.js).
+// Índice de la carta: cada página detectada del PDF, con su miniatura y un
+// nombre opcional. Las páginas con nombre son las que aparecen en el índice
+// de la web (se guardan como `sections`: [{ title, page }]). Con un PDF que
+// traiga marcadores o texto, los nombres vienen ya escritos al subirlo
+// (lib/pdfPages.js); con uno que son solo imágenes, se escriben acá.
 function IndiceEditor({ t }) {
   const sections = t.sections || [];
   const total = t.pages.length;
+  const nameFor = (page) => sections.find((sec) => sec.page === page)?.title || "";
 
-  function save(next) {
-    return warnIfFailed(writeTarifas({ sections: next }));
+  function setName(page, title) {
+    const rest = sections.filter((sec) => sec.page !== page);
+    // Se guarda tal cual se escribe (con espacios), para no mover el cursor;
+    // la web descarta los nombres vacíos.
+    const next = title ? [...rest, { title, page }] : rest;
+    next.sort((x, y) => x.page - y.page);
+    warnIfFailed(writeTarifas({ sections: next }));
   }
-  function patch(i, changes) {
-    save(sections.map((sec, j) => (j === i ? { ...sec, ...changes } : sec)));
-  }
-  function add() {
-    const last = sections[sections.length - 1]?.page || 0;
-    save([...sections, { title: "", page: Math.min(total || 1, last + 1) }]);
-  }
+
+  if (!total) return null;
+  const named = sections.filter((sec) => sec.title.trim() && sec.page <= total).length;
 
   return (
     <div className="flex flex-col gap-4 rounded-xl border border-[#E0E0E0] bg-white p-6">
-      <div className="flex flex-col gap-1">
-        <div className="font-display text-lg font-semibold uppercase tracking-wide text-[#0B0B0B]">Índice</div>
-        <p className="text-sm leading-relaxed text-[#6A6A6A]">
-          Las secciones que aparecen al costado de la carta (y en el botón &ldquo;Índice&rdquo; del celular). Escribe el
-          nombre y elige en qué página empieza. Si queda vacío, la carta se muestra sin índice.
-        </p>
+      <div className="flex flex-wrap items-end justify-between gap-3">
+        <div className="flex max-w-xl flex-col gap-1">
+          <div className="font-display text-lg font-semibold uppercase tracking-wide text-[#0B0B0B]">Índice</div>
+          <p className="text-sm leading-relaxed text-[#6A6A6A]">
+            Escribe un nombre en las páginas que quieras que aparezcan en el índice (al costado de la carta, y en el
+            botón &ldquo;Índice&rdquo; del celular). Las que dejes vacías no aparecen.
+          </p>
+        </div>
+        <div className="text-sm text-[#6A6A6A]">
+          <span className="font-display text-xl font-bold italic text-mBlue">{named}</span> en el índice
+        </div>
       </div>
-      {sections.length > 0 && (
-        <ol className="flex flex-col gap-2">
-          {sections.map((sec, i) => (
-            <li key={i} className="flex items-center gap-2">
-              <input
-                type="text"
-                value={sec.title}
-                onChange={(ev) => patch(i, { title: ev.target.value })}
-                placeholder="Nombre de la sección"
-                aria-label={`Nombre de la sección ${i + 1}`}
-                className="min-w-0 flex-1 rounded-md border border-[#E0E0E0] bg-[#FBFBFB] px-3 py-2 text-[15px] text-[#0B0B0B] outline-none focus:border-mCyan"
-              />
-              <label className="flex items-center gap-1.5 text-sm text-[#6A6A6A]">
-                Pág.
-                <select
-                  value={sec.page}
-                  onChange={(ev) => patch(i, { page: Number(ev.target.value) })}
-                  aria-label={`Página donde empieza la sección ${i + 1}`}
-                  className="rounded-md border border-[#E0E0E0] bg-[#FBFBFB] px-2 py-2 text-[15px] text-[#0B0B0B] outline-none focus:border-mCyan"
-                >
-                  {Array.from({ length: Math.max(total, sec.page) }, (_, n) => (
-                    <option key={n + 1} value={n + 1}>
-                      {n + 1}
-                    </option>
-                  ))}
-                </select>
-              </label>
-              <button
-                type="button"
-                onClick={async () => (await confirmar("¿Quitar esta sección del índice?")) && save(sections.filter((_, j) => j !== i))}
-                aria-label={`Quitar la sección ${sec.title || i + 1}`}
-                className="flex h-10 w-10 flex-none items-center justify-center rounded-md text-[#8A939B] transition-colors hover:bg-[#F4F4F4] hover:text-mRed"
+      <ol className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+        {t.pages.map((page, i) => {
+          const n = i + 1;
+          const value = nameFor(n);
+          return (
+            <li key={page.url} className={`flex items-center gap-3 rounded-lg border p-2 ${value.trim() ? "border-mBlue/40 bg-mBlue/[0.04]" : "border-[#E8E8E8]"}`}>
+              <a
+                href={page.url}
+                target="_blank"
+                rel="noreferrer"
+                className="relative block w-[64px] flex-none overflow-hidden rounded border border-[#E0E0E0] bg-[#F4F4F4]"
+                style={{ aspectRatio: `${page.w} / ${page.h}` }}
+                aria-label={`Ver página ${n} en grande`}
               >
-                <Trash2 size={17} aria-hidden="true" />
-              </button>
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img src={page.url} alt="" loading="lazy" className="absolute inset-0 h-full w-full object-cover" />
+              </a>
+              <label className="flex min-w-0 flex-1 flex-col gap-1">
+                <span className="font-display text-xs font-semibold uppercase tracking-[1.5px] text-[#8A8A8A]">Página {n}</span>
+                <input
+                  type="text"
+                  value={value}
+                  onChange={(ev) => setName(n, ev.target.value)}
+                  placeholder="Nombre en el índice (opcional)"
+                  className="w-full rounded-md border border-[#E0E0E0] bg-[#FBFBFB] px-3 py-2 text-[15px] text-[#0B0B0B] outline-none placeholder:text-[#ABABAB] focus:border-mCyan"
+                />
+              </label>
             </li>
-          ))}
-        </ol>
-      )}
-      <button
-        type="button"
-        onClick={add}
-        disabled={!total}
-        className="self-start rounded border border-[#0B0B0B] px-4 py-2.5 font-display text-sm font-semibold uppercase tracking-wide text-[#0B0B0B] transition-colors hover:border-mBlue hover:text-mBlue disabled:opacity-40"
-      >
-        + Agregar sección
-      </button>
+          );
+        })}
+      </ol>
     </div>
   );
 }
