@@ -2,7 +2,9 @@
 
 import { useCallback, useEffect, useLayoutEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
-import { ChevronLeft, ChevronRight, Minus, Plus, X } from "lucide-react";
+import Link from "next/link";
+import { CalendarCheck, ChevronLeft, ChevronRight, Minus, Plus, X } from "lucide-react";
+import { FaWhatsapp } from "react-icons/fa6";
 
 // Visor con zoom para la carta de tarifas (el visor de fotos del sitio solo
 // encaja la imagen en la pantalla y no deja acercarse a los precios).
@@ -12,11 +14,13 @@ import { ChevronLeft, ChevronRight, Minus, Plus, X } from "lucide-react";
 //   con la rueda del mouse + Ctrl/⌘ y pellizcando con dos dedos.
 // - Con zoom se arrastra para moverse; sin zoom se baja normal.
 // - Flechas o teclado para pasar de página; Escape cierra.
+// - Abajo, "Agendar" y WhatsApp siempre a mano (`whatsappFor(index)` arma el
+//   mensaje con la sección de la página que se está viendo).
 const MIN = 1;
 const MAX = 3;
 const clamp = (z) => Math.min(MAX, Math.max(MIN, z));
 
-export default function TarifasZoom({ pages, index, onIndex, onClose, title }) {
+export default function TarifasZoom({ pages, index, onIndex, onClose, title, whatsappFor }) {
   const page = pages[index];
   const scrollRef = useRef(null);
   const [zoom, setZoom] = useState(1);
@@ -213,9 +217,32 @@ export default function TarifasZoom({ pages, index, onIndex, onClose, title }) {
         </>
       )}
 
-      <div className="pointer-events-none absolute inset-x-0 bottom-3 text-center text-xs text-[#7A838C]" style={{ paddingBottom: "env(safe-area-inset-bottom)" }}>
-        <span className="hidden sm:inline">Doble clic o Ctrl + rueda para acercar · arrastra para moverte</span>
-        <span className="sm:hidden">Doble toque o pellizca para acercar</span>
+      {/* Contacto siempre visible, también con zoom. */}
+      <div className="flex flex-none flex-col items-center gap-2 border-t border-white/10 px-3 pb-3 pt-2.5" style={{ paddingBottom: "max(0.75rem, env(safe-area-inset-bottom))" }}>
+        <div className="text-center text-xs text-[#7A838C]">
+          <span className="hidden sm:inline">Doble clic o Ctrl + rueda para acercar · arrastra para moverte</span>
+          <span className="sm:hidden">Doble toque o pellizca para acercar</span>
+        </div>
+        <div className="flex w-full max-w-[460px] gap-2">
+          <Link
+            href="/contacto"
+            className="flex min-h-11 flex-1 items-center justify-center gap-2 rounded-xl bg-mBlue px-4 font-display text-[13px] font-semibold uppercase tracking-[1.5px] text-white transition-colors hover:bg-[#2470c4]"
+          >
+            <CalendarCheck size={17} strokeWidth={2} aria-hidden="true" />
+            Agendar hora
+          </Link>
+          {whatsappFor && (
+            <a
+              href={whatsappFor(index)}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex min-h-11 flex-1 items-center justify-center gap-2 rounded-xl border border-[#25D366]/60 bg-[#25D366]/10 px-4 font-display text-[13px] font-semibold uppercase tracking-[1.5px] text-white transition-colors hover:bg-[#25D366]/20"
+            >
+              <FaWhatsapp size={18} color="#25D366" aria-hidden="true" />
+              WhatsApp
+            </a>
+          )}
+        </div>
       </div>
     </div>,
     document.body

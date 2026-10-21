@@ -53,10 +53,16 @@ export default function TarifasContent() {
 
   const activeSection = sectionForPage(sections, current);
   const activeTitle = activeSection >= 0 ? sections[activeSection].title : "";
-  const waMessage = activeTitle
-    ? `Hola GSmotos, vi sus tarifas y quiero consultar por: ${activeTitle}.`
-    : "Hola GSmotos, vi sus tarifas y quiero hacer una consulta.";
-  const waHref = whatsappUrl(s.phoneDigits, waMessage);
+  // WhatsApp con la sección de una página (la que se ve, o la abierta en el zoom).
+  const whatsappFor = (pageIndex) => {
+    const sec = sectionForPage(sections, pageIndex);
+    const title = sec >= 0 ? sections[sec].title : "";
+    return whatsappUrl(
+      s.phoneDigits,
+      title ? `Hola GSmotos, vi sus tarifas y quiero consultar por: ${title}.` : "Hola GSmotos, vi sus tarifas y quiero hacer una consulta."
+    );
+  };
+  const waHref = whatsappFor(current);
   const pdfHref = t.pdfUrl ? `${t.pdfUrl}?download=1` : "";
 
   function goTo(page) {
@@ -89,7 +95,7 @@ export default function TarifasContent() {
 
   return (
     <div className="flex flex-col gap-6 px-6 pb-36 pt-8 sm:px-10 sm:pb-40 sm:pt-10 lg:pb-12">
-      {open !== null && t.pages[open] && <TarifasZoom pages={t.pages} index={open} onIndex={setOpen} onClose={() => setOpen(null)} title={t.title} />}
+      {open !== null && t.pages[open] && <TarifasZoom pages={t.pages} index={open} onIndex={setOpen} onClose={() => setOpen(null)} title={t.title} whatsappFor={whatsappFor} />}
 
       <header className="flex max-w-2xl flex-col gap-3">
         <div className="flex items-center gap-4">
