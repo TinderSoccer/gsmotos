@@ -33,7 +33,7 @@ import { isDirectVideoUrl, readTallerItems, resetTallerItems, useTallerItems, wr
 import { optimizeVideo, videoPoster } from "@/lib/videoOptimize";
 import { readGruasPhotos, useGruasPhotos, writeGruasPhotos } from "@/lib/gruas";
 import { useNeumaticosStock, writeNeumaticosStock } from "@/lib/neumaticosStock";
-import { useTarifas, writeTarifas } from "@/lib/tarifas";
+import { readTarifas, useTarifas, writeTarifas } from "@/lib/tarifas";
 import { pdfToImages } from "@/lib/pdfPages";
 import { SITE_URL } from "@/lib/site";
 import { menus } from "@/lib/servicesData";
@@ -2045,6 +2045,8 @@ function StockNeumaticosTab() {
 function TarifasTab() {
   const t = useTarifas();
   const [job, setJob] = useState(null); // { text, pct }
+  // Mientras se sube un PDF, las páginas ya convertidas se van mostrando.
+  const [preview, setPreview] = useState([]);
   const [qr, setQr] = useState("");
   const pageUrl = `${SITE_URL}/tarifas`;
 
@@ -2087,7 +2089,11 @@ function TarifasTab() {
         onUploadProgress: ({ percentage }) => setJob({ text: "Subiendo PDF…", pct: Math.round(percentage) }),
       });
       setJob({ text: "Preparando páginas…", pct: 0 });
-      const { pages: images, sections: found } = await pdfToImages(file, (p, n, total) => setJob({ text: `Preparando página ${n} de ${total}…`, pct: Math.round(p * 100) }));
+      setPreview([]);
+      const { pages: images, sections: found } = await pdfToImages(file, (p, n, total, page) => {
+        setJob({ text: `Preparando página ${n} de ${total}…`, pct: Math.round(p * 100) });
+        if (page) setPreview((list) => [...list, page.dataUrl]);
+      });
       const pages = [];
       for (let i = 0; i < images.length; i++) {
         setJob({ text: `Publicando página ${i + 1} de ${images.length}…`, pct: Math.round(((i + 1) / images.length) * 100) });
@@ -2098,12 +2104,14 @@ function TarifasTab() {
       // Índice: el que se detectó en el PDF; si no trae nada, se mantiene el
       // anterior (solo se descartan las secciones que apuntan a páginas que ya
       // no existen).
-      const sections = found.length ? found : (t.sections || []).filter((sec) => sec.page <= pages.length);
+      // readTarifas: lo guardado más reciente (no lo que había al abrir el panel).
+      const sections = found.length ? found : (readTarifas().sections || []).filter((sec) => sec.page <= pages.length);
       await warnIfFailed(writeTarifas({ pdfUrl: res.url, pdfName: file.name, pages, sections, updatedAt: Date.now() }), "Tarifas publicadas ✓");
     } catch (err) {
       avisar(err?.message ? `No se pudo publicar el PDF: ${err.message}` : "No se pudo publicar el PDF. Intenta de nuevo.");
     }
     setJob(null);
+    setPreview([]);
   }
 
   return (
@@ -2160,6 +2168,14 @@ function TarifasTab() {
                   <div className="h-full rounded-full bg-mBlue transition-[width] duration-300" style={{ width: `${job.pct}%` }} />
                 </div>
                 <span className="whitespace-nowrap text-sm text-[#3A3A3A]">{job.text}</span>
+              </div>
+            )}
+            {job && preview.length > 0 && (
+              <div className="grid grid-cols-4 gap-2 sm:grid-cols-6 lg:grid-cols-8">
+                {preview.map((src, i) => (
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img key={i} src={src} alt={`Página ${i + 1}`} className="aspect-[1/1.414] w-full rounded border border-[#E0E0E0] bg-[#F4F4F4] object-cover" />
+                ))}
               </div>
             )}
           </div>
