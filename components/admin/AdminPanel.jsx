@@ -21,7 +21,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import Logo from "@/components/Logo";
 import { useRouter } from "next/navigation";
-import { Award, Camera, ChevronLeft, ChevronRight, ExternalLink, ImageOff, Loader2, LogOut, PlayCircle, Search, Upload } from "lucide-react";
+import { Award, Camera, ChevronLeft, ChevronRight, ExternalLink, ImageOff, Loader2, LogOut, PlayCircle, Search, Trash2, Upload } from "lucide-react";
 import ColorBars from "@/components/services/ColorBars";
 import { CERTIFICADOS } from "@/lib/certificados";
 import { setCertPhoto, useCertPhotos } from "@/lib/useCertPhotos";
@@ -2087,7 +2087,7 @@ function TarifasTab() {
         onUploadProgress: ({ percentage }) => setJob({ text: "Subiendo PDF…", pct: Math.round(percentage) }),
       });
       setJob({ text: "Preparando páginas…", pct: 0 });
-      const images = await pdfToImages(file, (p, n, total) => setJob({ text: `Preparando página ${n} de ${total}…`, pct: Math.round(p * 100) }));
+      const { pages: images, sections: found } = await pdfToImages(file, (p, n, total) => setJob({ text: `Preparando página ${n} de ${total}…`, pct: Math.round(p * 100) }));
       const pages = [];
       for (let i = 0; i < images.length; i++) {
         setJob({ text: `Publicando página ${i + 1} de ${images.length}…`, pct: Math.round(((i + 1) / images.length) * 100) });
@@ -2095,7 +2095,11 @@ function TarifasTab() {
         if (!url) throw new Error(lastSaveError());
         pages.push({ url, w: images[i].w, h: images[i].h });
       }
-      await warnIfFailed(writeTarifas({ pdfUrl: res.url, pdfName: file.name, pages, updatedAt: Date.now() }), "Tarifas publicadas ✓");
+      // Índice: el que se detectó en el PDF; si no trae nada, se mantiene el
+      // anterior (solo se descartan las secciones que apuntan a páginas que ya
+      // no existen).
+      const sections = found.length ? found : (t.sections || []).filter((sec) => sec.page <= pages.length);
+      await warnIfFailed(writeTarifas({ pdfUrl: res.url, pdfName: file.name, pages, sections, updatedAt: Date.now() }), "Tarifas publicadas ✓");
     } catch (err) {
       avisar(err?.message ? `No se pudo publicar el PDF: ${err.message}` : "No se pudo publicar el PDF. Intenta de nuevo.");
     }
@@ -2170,9 +2174,11 @@ function TarifasTab() {
               </div>
             )}
           </div>
+
+          <IndiceEditor t={t} />
         </div>
 
-        <div className="flex flex-col items-center gap-3 self-start rounded-xl border border-[#E0E0E0] bg-white p-6 text-center">
+        <div className="flex flex-col items-center gap-3 self-start rounded-xl border border-[#E0E0E0] bg-white p-6 text-center lg:col-start-2 lg:row-start-1">
           <div className="font-display text-lg font-semibold uppercase tracking-wide text-[#0B0B0B]">QR para imprimir</div>
           {qr ? (
             // eslint-disable-next-line @next/next/no-img-element
@@ -2201,6 +2207,84 @@ function TarifasTab() {
         </div>
       </div>
     </>
+  );
+}
+
+// Índice de la carta (secciones y la página donde empieza cada una). Con la
+// carta actual, que son solo imágenes, se arma a mano; con un PDF que traiga
+// marcadores o texto, se arma solo al subirlo (lib/pdfPages.js).
+function IndiceEditor({ t }) {
+  const sections = t.sections || [];
+  const total = t.pages.length;
+
+  function save(next) {
+    return warnIfFailed(writeTarifas({ sections: next }));
+  }
+  function patch(i, changes) {
+    save(sections.map((sec, j) => (j === i ? { ...sec, ...changes } : sec)));
+  }
+  function add() {
+    const last = sections[sections.length - 1]?.page || 0;
+    save([...sections, { title: "", page: Math.min(total || 1, last + 1) }]);
+  }
+
+  return (
+    <div className="flex flex-col gap-4 rounded-xl border border-[#E0E0E0] bg-white p-6">
+      <div className="flex flex-col gap-1">
+        <div className="font-display text-lg font-semibold uppercase tracking-wide text-[#0B0B0B]">Índice</div>
+        <p className="text-sm leading-relaxed text-[#6A6A6A]">
+          Las secciones que aparecen al costado de la carta (y en el botón &ldquo;Índice&rdquo; del celular). Escribe el
+          nombre y elige en qué página empieza. Si queda vacío, la carta se muestra sin índice.
+        </p>
+      </div>
+      {sections.length > 0 && (
+        <ol className="flex flex-col gap-2">
+          {sections.map((sec, i) => (
+            <li key={i} className="flex items-center gap-2">
+              <input
+                type="text"
+                value={sec.title}
+                onChange={(ev) => patch(i, { title: ev.target.value })}
+                placeholder="Nombre de la sección"
+                aria-label={`Nombre de la sección ${i + 1}`}
+                className="min-w-0 flex-1 rounded-md border border-[#E0E0E0] bg-[#FBFBFB] px-3 py-2 text-[15px] text-[#0B0B0B] outline-none focus:border-mCyan"
+              />
+              <label className="flex items-center gap-1.5 text-sm text-[#6A6A6A]">
+                Pág.
+                <select
+                  value={sec.page}
+                  onChange={(ev) => patch(i, { page: Number(ev.target.value) })}
+                  aria-label={`Página donde empieza la sección ${i + 1}`}
+                  className="rounded-md border border-[#E0E0E0] bg-[#FBFBFB] px-2 py-2 text-[15px] text-[#0B0B0B] outline-none focus:border-mCyan"
+                >
+                  {Array.from({ length: Math.max(total, sec.page) }, (_, n) => (
+                    <option key={n + 1} value={n + 1}>
+                      {n + 1}
+                    </option>
+                  ))}
+                </select>
+              </label>
+              <button
+                type="button"
+                onClick={async () => (await confirmar("¿Quitar esta sección del índice?")) && save(sections.filter((_, j) => j !== i))}
+                aria-label={`Quitar la sección ${sec.title || i + 1}`}
+                className="flex h-10 w-10 flex-none items-center justify-center rounded-md text-[#8A939B] transition-colors hover:bg-[#F4F4F4] hover:text-mRed"
+              >
+                <Trash2 size={17} aria-hidden="true" />
+              </button>
+            </li>
+          ))}
+        </ol>
+      )}
+      <button
+        type="button"
+        onClick={add}
+        disabled={!total}
+        className="self-start rounded border border-[#0B0B0B] px-4 py-2.5 font-display text-sm font-semibold uppercase tracking-wide text-[#0B0B0B] transition-colors hover:border-mBlue hover:text-mBlue disabled:opacity-40"
+      >
+        + Agregar sección
+      </button>
+    </div>
   );
 }
 
