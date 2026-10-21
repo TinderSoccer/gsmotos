@@ -1,7 +1,9 @@
 "use client";
 
 import Image from "next/image";
-import { Download, FileText } from "lucide-react";
+import { useState } from "react";
+import { Download, FileText, Maximize2 } from "lucide-react";
+import PhotoViewer from "@/components/common/PhotoViewer";
 import ColorBars from "@/components/services/ColorBars";
 import Button from "@/components/common/Button";
 import { useTarifas } from "@/lib/tarifas";
@@ -14,9 +16,14 @@ export default function TarifasContent() {
   const t = useTarifas();
   const s = useSettings();
   const hasPages = t.pages.length > 0;
+  const [open, setOpen] = useState(null);
+  const viewerPages = t.pages.map((page) => ({ id: page.url, photo: page.url, caption: "" }));
 
   return (
     <div className="flex flex-col gap-6 px-6 pb-12 pt-8 sm:px-10 sm:pt-10">
+      {open !== null && viewerPages[open] && (
+        <PhotoViewer photos={viewerPages} index={open} onIndex={setOpen} onClose={() => setOpen(null)} />
+      )}
       <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
         <div className="flex max-w-2xl flex-col gap-3">
           <div className="flex items-center gap-4">
@@ -25,38 +32,61 @@ export default function TarifasContent() {
           </div>
           {t.intro && <p className="whitespace-pre-line text-[15px] leading-relaxed text-[#C3C9CE]">{t.intro}</p>}
         </div>
-        <div className="flex flex-wrap items-center gap-3">
+        {/* En el celular, los tres botones en una fila compacta, para que la
+            carta aparezca enseguida. */}
+        <div className="grid grid-cols-[0.8fr_1fr_1.3fr] gap-2 sm:flex sm:flex-wrap sm:items-center sm:gap-3">
           {t.pdfUrl && (
             <Button
               block="mobile"
+              size="sm"
               variant="secondary"
               href={`${t.pdfUrl}?download=1`}
-              icon={<Download size={17} strokeWidth={2} aria-hidden="true" />}
+              icon={<Download size={16} strokeWidth={2} aria-hidden="true" />}
+              className="!px-2 !tracking-[1px] sm:!px-5 sm:!tracking-[1.8px]"
             >
-              Descargar PDF
+              <span className="sm:hidden">PDF</span>
+              <span className="hidden sm:inline">Descargar PDF</span>
             </Button>
           )}
-          <Button block="mobile" href="/contacto">Agendar hora</Button>
-          <Button block="mobile" variant="whatsapp" href={whatsappUrl(s.phoneDigits, "Hola GSmotos, vi las tarifas y quiero hacer una consulta.")}>
+          <Button block="mobile" size="sm" href="/contacto" arrow={false} className="!px-2 !tracking-[1px] sm:!px-5 sm:!tracking-[1.8px]">
+            <span className="sm:hidden">Agendar</span>
+            <span className="hidden sm:inline">Agendar hora</span>
+          </Button>
+          <Button block="mobile" size="sm" variant="whatsapp" href={whatsappUrl(s.phoneDigits, "Hola GSmotos, vi las tarifas y quiero hacer una consulta.")} className="!px-2 !tracking-[1px] sm:!px-5 sm:!tracking-[1.8px]">
             WhatsApp
           </Button>
         </div>
       </div>
 
       {hasPages ? (
-        <div className="mx-auto flex w-full max-w-[900px] flex-col gap-3 sm:gap-4">
+        // Celular: una página a lo ancho. Desde computador, de a dos como una
+        // revista abierta, usando todo el ancho. Tocar una página la abre en
+        // grande para leer los precios con zoom.
+        <div className="-mx-3 grid grid-cols-1 gap-3 sm:mx-0 sm:gap-4 lg:grid-cols-2">
           {t.pages.map((page, i) => (
-            <div key={page.url} className="overflow-hidden rounded-lg border border-[#1E2226] bg-white shadow-[0_10px_30px_rgba(0,0,0,0.35)]">
+            <button
+              key={page.url}
+              type="button"
+              onClick={() => setOpen(i)}
+              aria-label={`Ver página ${i + 1} de ${t.pages.length} en grande`}
+              className="group relative block cursor-zoom-in overflow-hidden rounded-lg border border-[#1E2226] bg-white shadow-[0_10px_30px_rgba(0,0,0,0.35)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-mCyan"
+            >
               <Image
                 src={page.url}
                 alt={`${t.title} — página ${i + 1} de ${t.pages.length}`}
                 width={page.w}
                 height={page.h}
-                sizes="(max-width: 960px) 100vw, 900px"
+                sizes="(max-width: 1023px) 100vw, 50vw"
                 priority={i < 2}
                 className="block h-auto w-full"
               />
-            </div>
+              <span
+                aria-hidden="true"
+                className="absolute right-2.5 top-2.5 flex h-9 w-9 items-center justify-center rounded-full bg-black/60 text-white opacity-0 transition-opacity group-hover:opacity-100"
+              >
+                <Maximize2 size={16} />
+              </span>
+            </button>
           ))}
         </div>
       ) : (
