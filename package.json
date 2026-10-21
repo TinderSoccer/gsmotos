@@ -14,6 +14,8 @@
     "lucide-react": "^1.42.0",
     "mediabunny": "^1.61.3",
     "next": "^16.4.0",
+    "pdfjs-dist": "^6.4.299",
+    "qrcode": "^1.5.4",
     "react": "^19.3.0",
     "react-dom": "^19.3.0",
     "react-icons": "^5.7.0"

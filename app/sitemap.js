@@ -8,6 +8,7 @@ export default function sitemap() {
     "/",
     "/servicios/neumaticos",
     "/servicio-gruas",
+    "/tarifas",
     "/productos",
     "/contacto",
     "/nosotros",

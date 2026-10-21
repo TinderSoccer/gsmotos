@@ -132,6 +132,13 @@ export default function ContactoPage({ searchParams }) {
             </div>
           ) : (
             <form onSubmit={handleSubmit} className="flex flex-col gap-4">
+              <Link
+                href="/tarifas"
+                className="group flex items-center justify-between gap-3 rounded-lg border border-[#2E3A45] bg-white/[0.03] px-4 py-3 transition-colors hover:border-mCyan"
+              >
+                <span className="text-sm text-[#C3C9CE]">¿Quieres ver los precios antes de agendar?</span>
+                <span className="whitespace-nowrap font-display text-sm font-semibold uppercase tracking-[1.5px] text-mCyan group-hover:text-white">Ver tarifas →</span>
+              </Link>
               <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                 <label className="flex flex-col gap-1.5 text-sm text-white/80">
                   Nombre

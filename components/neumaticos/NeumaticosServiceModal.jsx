@@ -1,6 +1,7 @@
 "use client";
 
 import { createPortal } from "react-dom";
+import { FileText } from "lucide-react";
 import ColorBars from "@/components/services/ColorBars";
 import { useSettings, whatsappUrl } from "@/lib/settings";
 import SmartImage from "@/components/common/SmartImage";
@@ -66,6 +67,9 @@ export default function NeumaticosServiceModal({ card, photo, agendarHref, onClo
           <p className="text-[15.5px] leading-[1.75] text-[#C3C9CE]">{text}</p>
           <div className="flex flex-wrap items-center gap-4">
             <Button block="mobile" href={agendarHref}>Agendar ahora</Button>
+            <Button block="mobile" variant="secondary" href="/tarifas" icon={<FileText size={17} strokeWidth={1.8} aria-hidden="true" />}>
+              Ver tarifas
+            </Button>
             <Button block="mobile" variant="whatsapp" href={whatsappUrl(s.phoneDigits, `Hola, quiero consultar por: ${title}`)}>
               Escribir por WhatsApp
             </Button>

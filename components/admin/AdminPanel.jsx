@@ -10,6 +10,7 @@
 // - Neumáticos: fotos de la página /servicios/neumaticos (lib/neumaticosPhotos.js).
 // - Stock neumáticos: vitrinas On road / Mixtos / Off road de esa página
 //   (lib/neumaticosStock.js).
+// - Tarifas: la carta en PDF de /tarifas y su QR (lib/tarifas.js).
 // - Taller: fotos y videos de /nosotros/taller (lib/taller.js).
 // - Contacto: teléfono/mail/dirección/Instagram y cifras del sitio
 //   (lib/settings.js).
@@ -20,7 +21,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import Logo from "@/components/Logo";
 import { useRouter } from "next/navigation";
-import { Award, Camera, ChevronLeft, ChevronRight, ExternalLink, ImageOff, Loader2, LogOut, PlayCircle, Search } from "lucide-react";
+import { Award, Camera, ChevronLeft, ChevronRight, ExternalLink, ImageOff, Loader2, LogOut, PlayCircle, Search, Upload } from "lucide-react";
 import ColorBars from "@/components/services/ColorBars";
 import { CERTIFICADOS } from "@/lib/certificados";
 import { setCertPhoto, useCertPhotos } from "@/lib/useCertPhotos";
@@ -32,6 +33,9 @@ import { isDirectVideoUrl, readTallerItems, resetTallerItems, useTallerItems, wr
 import { optimizeVideo, videoPoster } from "@/lib/videoOptimize";
 import { readGruasPhotos, useGruasPhotos, writeGruasPhotos } from "@/lib/gruas";
 import { useNeumaticosStock, writeNeumaticosStock } from "@/lib/neumaticosStock";
+import { useTarifas, writeTarifas } from "@/lib/tarifas";
+import { pdfToImages } from "@/lib/pdfPages";
+import { SITE_URL } from "@/lib/site";
 import { menus } from "@/lib/servicesData";
 import { resetServicePhotos, servicePhotoKey, setServicePhoto, useServicePhotos } from "@/lib/servicePhotos";
 import { NEUMATICOS_PHOTO_SLOTS, NEUMATICOS_SERVICIOS, NEUMATICOS_USOS } from "@/lib/neumaticosContent";
@@ -2034,6 +2038,172 @@ function StockNeumaticosTab() {
   );
 }
 
+// Página /tarifas: título, texto, la carta en PDF y el QR que apunta a la
+// página. Al subir un PDF, el navegador lo sube directo a Blob
+// (app/api/admin/upload-pdf) y convierte cada página en imagen
+// (lib/pdfPages.js), que es lo que se ve en la web.
+function TarifasTab() {
+  const t = useTarifas();
+  const [job, setJob] = useState(null); // { text, pct }
+  const [qr, setQr] = useState("");
+  const pageUrl = `${SITE_URL}/tarifas`;
+
+  useEffect(() => {
+    let alive = true;
+    import("qrcode").then((QR) =>
+      QR.toDataURL(pageUrl, { width: 1024, margin: 2, errorCorrectionLevel: "M", color: { dark: "#0B0B0B", light: "#FFFFFF" } }).then((url) => alive && setQr(url))
+    );
+    return () => {
+      alive = false;
+    };
+  }, [pageUrl]);
+
+  async function downloadSvg() {
+    const QR = await import("qrcode");
+    const svg = await QR.toString(pageUrl, { type: "svg", margin: 2, errorCorrectionLevel: "M", color: { dark: "#0B0B0B", light: "#FFFFFF" } });
+    const a = document.createElement("a");
+    a.href = URL.createObjectURL(new Blob([svg], { type: "image/svg+xml" }));
+    a.download = "QR-Tarifas-GSmotos.svg";
+    a.click();
+    setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+  }
+
+  async function onPdf(ev) {
+    const file = ev.target.files?.[0];
+    ev.target.value = "";
+    if (!file) return;
+    if (file.type !== "application/pdf" && !file.name.toLowerCase().endsWith(".pdf")) {
+      avisar("Elige un archivo PDF.");
+      return;
+    }
+    try {
+      setJob({ text: "Subiendo PDF…", pct: 0 });
+      const { upload } = await import("@vercel/blob/client");
+      const res = await upload("admin/tarifas.pdf", file, {
+        access: "public",
+        contentType: "application/pdf",
+        handleUploadUrl: "/api/admin/upload-pdf",
+        multipart: file.size > 20 * 1024 * 1024,
+        onUploadProgress: ({ percentage }) => setJob({ text: "Subiendo PDF…", pct: Math.round(percentage) }),
+      });
+      setJob({ text: "Preparando páginas…", pct: 0 });
+      const images = await pdfToImages(file, (p, n, total) => setJob({ text: `Preparando página ${n} de ${total}…`, pct: Math.round(p * 100) }));
+      const pages = [];
+      for (let i = 0; i < images.length; i++) {
+        setJob({ text: `Publicando página ${i + 1} de ${images.length}…`, pct: Math.round(((i + 1) / images.length) * 100) });
+        const url = await uploadImage(images[i].dataUrl);
+        if (!url) throw new Error(lastSaveError());
+        pages.push({ url, w: images[i].w, h: images[i].h });
+      }
+      await warnIfFailed(writeTarifas({ pdfUrl: res.url, pdfName: file.name, pages, updatedAt: Date.now() }), "Tarifas publicadas ✓");
+    } catch (err) {
+      avisar(err?.message ? `No se pudo publicar el PDF: ${err.message}` : "No se pudo publicar el PDF. Intenta de nuevo.");
+    }
+    setJob(null);
+  }
+
+  return (
+    <>
+      <div className="flex flex-wrap items-end justify-between gap-8 px-6 pb-5 pt-11 sm:px-10">
+        <div className="flex flex-col gap-2.5">
+          <h1 className="font-display text-[32px] font-bold italic uppercase leading-none text-[#0B0B0B] sm:text-4xl">Tarifas</h1>
+          <p className="max-w-xl text-[15.5px] leading-[1.6] text-[#5A5A5A]">
+            La página con tu carta de precios. Sube el PDF y se publica solo; las personas lo ven en la web y lo pueden
+            descargar. Para cambiarlo, sube uno nuevo.
+          </p>
+          <SeeOnSite href="/tarifas" />
+        </div>
+        <div className="flex flex-col items-end gap-0.5">
+          <div className="font-display text-[32px] font-bold italic leading-none text-mBlue">{t.pages.length}</div>
+          <div className="font-display text-[13px] uppercase tracking-[2px] text-[#8A8A8A]">Páginas</div>
+        </div>
+      </div>
+
+      <div className="grid grid-cols-1 gap-6 px-6 pb-14 sm:px-10 lg:grid-cols-[1fr_320px]">
+        <div className="flex flex-col gap-6">
+          <div className="flex flex-col gap-4 rounded-xl border border-[#E0E0E0] bg-white p-6">
+            <Field label="Título de la página" value={t.title} onChange={(v) => warnIfFailed(writeTarifas({ title: v }))} />
+            <label className="flex flex-col gap-1.5 text-sm text-[#3A3A3A]">
+              Texto de presentación
+              <textarea
+                rows={3}
+                value={t.intro}
+                onChange={(ev) => warnIfFailed(writeTarifas({ intro: ev.target.value }))}
+                className="resize-y rounded-md border border-[#E0E0E0] bg-[#FBFBFB] px-3.5 py-2.5 text-[15px] text-[#0B0B0B] outline-none focus:border-mCyan"
+              />
+            </label>
+          </div>
+
+          <div className="flex flex-col gap-4 rounded-xl border border-[#E0E0E0] bg-white p-6">
+            <div className="flex flex-wrap items-center justify-between gap-3">
+              <div className="flex flex-col gap-0.5">
+                <div className="font-display text-lg font-semibold uppercase tracking-wide text-[#0B0B0B]">Carta en PDF</div>
+                <div className="text-sm text-[#6A6A6A]">{t.pdfName ? `Publicada: ${t.pdfName}` : "Todavía no has subido la carta."}</div>
+              </div>
+              <label
+                className={`inline-flex min-h-11 items-center gap-2 rounded bg-mBlue px-5 py-2.5 font-display text-sm font-semibold uppercase tracking-wide text-white transition-colors ${
+                  job ? "pointer-events-none opacity-60" : "cursor-pointer hover:bg-[#164f92]"
+                }`}
+              >
+                <Upload size={16} aria-hidden="true" />
+                {t.pdfName ? "Cambiar PDF" : "Subir PDF"}
+                <input type="file" accept="application/pdf,.pdf" className="hidden" onChange={onPdf} disabled={Boolean(job)} />
+              </label>
+            </div>
+            {job && (
+              <div className="flex items-center gap-3" role="status">
+                <div className="h-2 flex-1 overflow-hidden rounded-full bg-[#E4E4E4]">
+                  <div className="h-full rounded-full bg-mBlue transition-[width] duration-300" style={{ width: `${job.pct}%` }} />
+                </div>
+                <span className="whitespace-nowrap text-sm text-[#3A3A3A]">{job.text}</span>
+              </div>
+            )}
+            {t.pages.length > 0 && (
+              <div className="grid grid-cols-3 gap-2 sm:grid-cols-5 lg:grid-cols-6">
+                {t.pages.map((page, i) => (
+                  <a key={page.url} href={page.url} target="_blank" rel="noreferrer" className="relative overflow-hidden rounded border border-[#E0E0E0] bg-[#F4F4F4]" style={{ aspectRatio: `${page.w} / ${page.h}` }}>
+                    {/* <img> directo: miniaturas chicas, sin pasar 17 fotos por el optimizador. */}
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img src={page.url} alt={`Página ${i + 1}`} loading="lazy" className="absolute inset-0 h-full w-full object-cover" />
+                  </a>
+                ))}
+              </div>
+            )}
+          </div>
+        </div>
+
+        <div className="flex flex-col items-center gap-3 self-start rounded-xl border border-[#E0E0E0] bg-white p-6 text-center">
+          <div className="font-display text-lg font-semibold uppercase tracking-wide text-[#0B0B0B]">QR para imprimir</div>
+          {qr ? (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img src={qr} alt="Código QR de la página de tarifas" className="h-auto w-full max-w-[240px]" />
+          ) : (
+            <div className="aspect-square w-full max-w-[240px] animate-pulse rounded bg-[#F0F0F0]" />
+          )}
+          <div className="break-all text-xs text-[#6A6A6A]">{pageUrl}</div>
+          <div className="flex w-full flex-col gap-2">
+            <a
+              href={qr || undefined}
+              download="QR-Tarifas-GSmotos.png"
+              className="rounded bg-[#0B0B0B] px-4 py-2.5 font-display text-sm font-semibold uppercase tracking-wide text-white transition-colors hover:bg-mBlue"
+            >
+              Descargar QR (imagen)
+            </a>
+            <button
+              type="button"
+              onClick={downloadSvg}
+              className="rounded border border-[#0B0B0B] px-4 py-2.5 font-display text-sm font-semibold uppercase tracking-wide text-[#0B0B0B] transition-colors hover:border-mBlue hover:text-mBlue"
+            >
+              Descargar QR para imprenta
+            </button>
+          </div>
+          <p className="text-xs leading-relaxed text-[#8A8A8A]">El QR siempre lleva a la página de tarifas: aunque cambies el PDF, no hay que reimprimirlo.</p>
+        </div>
+      </div>
+    </>
+  );
+}
+
 function Field({ label, value, onChange, placeholder, hint, type = "text" }) {
   return (
     <label className="flex flex-col gap-1.5 text-sm text-[#3A3A3A]">
@@ -2241,6 +2411,7 @@ const TABS = {
   servicios: ServiciosTab,
   neumaticos: NeumaticosTab,
   stock: StockNeumaticosTab,
+  tarifas: TarifasTab,
   prods: ProductosTab,
   taller: TallerTab,
   gruas: GruasTab,
@@ -2327,6 +2498,9 @@ export default function AdminPanel() {
           </Tab>
           <Tab active={tab === "stock"} onClick={() => setTab("stock")}>
             Stock neumáticos
+          </Tab>
+          <Tab active={tab === "tarifas"} onClick={() => setTab("tarifas")}>
+            Tarifas
           </Tab>
           <Tab active={tab === "prods"} onClick={() => setTab("prods")}>
             Productos
