@@ -9,14 +9,16 @@ import { isDirectVideoUrl, toEmbedUrl } from "@/lib/taller";
 // foto grande y el resto chicas debajo). Las fotos y su orden se manejan
 // desde /administracion → Grúas.
 // - Se desliza con el dedo (scroll-snap) y, desde sm, con flechas.
-// - Pasa sola cada 5 s; se detiene mientras el mouse o el dedo están
-//   encima, y no pasa sola con "reducir movimiento".
+// - Pasa sola cada 3 s (pedido del cliente: a 5 s se sentía lenta); se
+//   detiene solo mientras el mouse o el dedo están encima, y no pasa sola con
+//   "reducir movimiento". Antes también se detenía al tocar una flecha o un
+//   punto (quedaban con el foco) y no volvía a andar hasta tocar otra cosa.
 // - Tocar una foto la abre en grande (`onOpen(i)`, PhotoViewer).
 // - Un video ({ type: "video", url, poster }) se reproduce ahí mismo; mientras
 //   suena el carrusel no pasa solo, y se pausa al cambiar de diapositiva.
 //   Un link de YouTube/Vimeo se incrusta; como no se puede saber si lo están
 //   viendo, el carrusel no pasa solo mientras esa diapositiva está a la vista.
-const AUTO_MS = 5000;
+const AUTO_MS = 3000;
 
 export default function GruasCarousel({ photos, onOpen }) {
   const trackRef = useRef(null);
@@ -67,8 +69,6 @@ export default function GruasCarousel({ photos, onOpen }) {
       onMouseLeave={() => setPaused(false)}
       onTouchStart={() => setPaused(true)}
       onTouchEnd={() => setPaused(false)}
-      onFocus={() => setPaused(true)}
-      onBlur={() => setPaused(false)}
     >
       <div className="group/carrusel relative overflow-hidden rounded-xl border border-[#1E2226] bg-[#14171A]">
         <div
