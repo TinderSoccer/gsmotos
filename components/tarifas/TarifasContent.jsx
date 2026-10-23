@@ -11,7 +11,7 @@ import Button from "@/components/common/Button";
 import { sectionForPage, useTarifas } from "@/lib/tarifas";
 import { useSettings, whatsappUrl } from "@/lib/settings";
 
-// Carta de tarifas: las páginas del PDF como imágenes una bajo otra (se ven
+// Carta de servicios: las páginas del PDF como imágenes una bajo otra (se ven
 // igual en cualquier celular), con el PDF original para descargar.
 //
 // Los botones de contacto siempre a mano mientras se recorre la carta
@@ -59,7 +59,7 @@ export default function TarifasContent() {
     const title = sec >= 0 ? sections[sec].title : "";
     return whatsappUrl(
       s.phoneDigits,
-      title ? `Hola GSmotos, vi sus tarifas y quiero consultar por: ${title}.` : "Hola GSmotos, vi sus tarifas y quiero hacer una consulta."
+      title ? `Hola GSmotos, vi su carta de servicios y quiero consultar por: ${title}.` : "Hola GSmotos, vi su carta de servicios y quiero hacer una consulta."
     );
   };
   const waHref = whatsappFor(current);
@@ -188,7 +188,7 @@ export default function TarifasContent() {
         <div className="flex flex-col items-center gap-3 rounded-xl border border-dashed border-white/[0.16] px-5 py-14 text-center">
           <FileText size={30} strokeWidth={1.4} className="text-[#7A838C]" aria-hidden="true" />
           <div className="font-display text-2xl font-bold italic uppercase text-white">Muy pronto</div>
-          <p className="max-w-md text-sm text-[#9AA1A8]">Estamos preparando nuestra carta de tarifas. Mientras tanto, escríbenos y te contamos.</p>
+          <p className="max-w-md text-sm text-[#9AA1A8]">Estamos preparando nuestra carta de servicios. Mientras tanto, escríbenos y te contamos.</p>
           <Button variant="whatsapp" size="sm" href={waHref} className="mt-1">
             Escribir por WhatsApp
           </Button>

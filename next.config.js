@@ -19,6 +19,12 @@ const nextConfig = {
   // la revalidación, y si se reemplaza una foto (pasa de vez en cuando,
   // vía deploy) el cambio se nota en como máximo una hora, no hace falta
   // esperar un año como con un `immutable`.
+  // La página "Tarifas" pasó a llamarse "Carta de servicios" (pedido del
+  // cliente). La dirección vieja redirige para no romper enlaces ni los QR ya
+  // impresos.
+  async redirects() {
+    return [{ source: "/tarifas", destination: "/carta-de-servicios", permanent: true }];
+  },
   async headers() {
     return [
       // Encabezados de seguridad en todo el sitio: nadie puede incrustarlo en

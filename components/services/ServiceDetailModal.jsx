@@ -1,6 +1,6 @@
 "use client";
 
-import { MessageCircle, FileText } from "lucide-react";
+import { MessageCircle, BookOpen } from "lucide-react";
 import { FaInstagram } from "react-icons/fa6";
 import ColorBars from "./ColorBars";
 import { useServicePhoto } from "@/lib/servicePhotos";
@@ -65,8 +65,8 @@ export default function ServiceDetailModal({ card, onClose }) {
           </div>
           <div className="flex flex-wrap items-center gap-4">
             <Button block="mobile" href="/contacto">Agendar ahora</Button>
-            <Button block="mobile" variant="secondary" href="/tarifas" icon={<FileText size={17} strokeWidth={1.8} aria-hidden="true" />}>
-              Ver tarifas
+            <Button block="mobile" variant="secondary" href="/carta-de-servicios" icon={<BookOpen size={17} strokeWidth={1.8} aria-hidden="true" />}>
+              Ver carta de servicios
             </Button>
             <Button block="mobile" variant="whatsapp" href={whatsappUrl(s.phoneDigits, `Hola, quiero consultar por: ${card.title}`)}>
               Escribir por WhatsApp

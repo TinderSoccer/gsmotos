@@ -1,6 +1,6 @@
 "use client";
 
-import { FileText } from "lucide-react";
+import { BookOpen } from "lucide-react";
 
 import Link from "next/link";
 import { FaInstagram } from "react-icons/fa6";
@@ -54,8 +54,8 @@ export default function ServiceDetailContent({ card, backHref, backLabel }) {
           </div>
           <div className="flex flex-wrap items-center gap-4 pt-1">
             <Button block="mobile" href="/contacto">Agendar ahora</Button>
-            <Button block="mobile" variant="secondary" href="/tarifas" icon={<FileText size={17} strokeWidth={1.8} aria-hidden="true" />}>
-              Ver tarifas
+            <Button block="mobile" variant="secondary" href="/carta-de-servicios" icon={<BookOpen size={17} strokeWidth={1.8} aria-hidden="true" />}>
+              Ver carta de servicios
             </Button>
             <Button block="mobile" variant="whatsapp" href={whatsappUrl(s.phoneDigits, `Hola, quiero consultar por: ${card.title}`)}>
               Escribir por WhatsApp

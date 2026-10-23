@@ -98,7 +98,7 @@ export default function ContactoPage({ searchParams }) {
         </div>
 
         <div className="flex flex-col gap-4">
-          {/* Acceso destacado a las tarifas, arriba del formulario (pedido del
+          {/* Acceso destacado a la carta de servicios, arriba del formulario (pedido del
               cliente: que destaque). */}
           <TarifasBanner />
           <div className="rounded-xl border border-[#1E2226] bg-surface-card p-6 sm:p-8">
