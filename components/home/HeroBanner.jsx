@@ -61,7 +61,7 @@ export default function HeroBanner({ onSelect }) {
           de alto) con object-cover, así que solo se veía ~37% del ancho,
           ampliado y tapado por el texto, los botones y el tablero. Desde sm
           vuelve a ser fondo de todo el hero. */}
-      <div className="relative aspect-[4/3] w-full sm:absolute sm:inset-0 sm:aspect-auto">
+      <div className="relative aspect-[4/3] w-full sm:absolute sm:inset-y-0 sm:left-[max(25%,400px)] sm:right-0 sm:w-auto sm:aspect-auto">
         <video
           ref={videoRef}
           autoPlay
@@ -70,17 +70,16 @@ export default function HeroBanner({ onSelect }) {
           playsInline
           preload="auto"
           poster="/images/hero-timelapse-poster.jpg"
-          className="absolute inset-0 block h-full w-full object-cover sm:brightness-110"
+          className="absolute inset-0 block h-full w-full object-cover sm:object-left sm:brightness-110"
         >
-          {/* Timelapse del taller armado con los clips originales del cliente
-              (~/Desktop/gsmotos/MP_ROOT): solo los tramos con más gente
-              moviéndose, a 15x, 40s en loop, sin el clip borroso (MAH07004) ni
-              el tramo final borroso de MAH07003, con el logo como marca de agua.
-              Antes era un video de 62MB (1920px, agrandado desde 1440px y CRF 18)
-              que cada visitante descargaba entero; ahora 7.9MB en computador y
-              2.5MB en celular. El navegador elige el primer <source> cuyo
-              `media` coincide. `poster`: primer cuadro, visible al instante
-              mientras carga el video. */}
+          {/* Timelapse del taller con la grabación del 27/10/2026: los 10 minutos
+              con más movimiento alrededor de la moto en trabajo, a 15x, 40s en loop, sin marca de agua (el tablero
+              la taparía y el logo ya está en la franja blanca). En computador va
+              a 1280×536. En celular va a 720×540, recortado a 4:3 y encuadrado
+              en la moto donde trabajan. En computador el video parte donde
+              termina la franja blanca para que ella no tape esa moto. El navegador elige el primer
+              <source> cuyo `media` coincide. `poster`: primer cuadro, visible
+              al instante mientras carga el video. */}
           <source src="/videos/hero-timelapse-movil.mp4" type="video/mp4" media="(max-width: 639px)" />
           <source src="/videos/hero-timelapse.mp4" type="video/mp4" />
         </video>
@@ -88,7 +87,7 @@ export default function HeroBanner({ onSelect }) {
             abajo hacia el fondo, donde arranca el título. */}
         <div
           className="pointer-events-none absolute inset-0 sm:hidden"
-          style={{ background: "linear-gradient(180deg, rgba(5,5,5,0.82) 0%, rgba(5,5,5,0.45) 22%, rgba(5,5,5,0) 40%, rgba(5,5,5,0.15) 52%, rgba(5,5,5,0.78) 76%, #050505 100%)" }}
+          style={{ background: "linear-gradient(180deg, rgba(5,5,5,0.6) 0%, rgba(5,5,5,0.25) 20%, rgba(5,5,5,0) 34%, rgba(5,5,5,0) 58%, rgba(5,5,5,0.72) 80%, #050505 100%)" }}
         />
       </div>
 

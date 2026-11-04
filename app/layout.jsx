@@ -34,7 +34,7 @@ export const metadata = {
     siteName: SITE_NAME,
     locale: "es_CL",
     url: "./",
-    images: [{ url: "/images/hero-timelapse-poster.jpg", width: 1280, height: 960, alt: "Taller GSmotos" }],
+    images: [{ url: "/images/hero-timelapse-poster.jpg", width: 1280, height: 536, alt: "Taller GSmotos" }],
   },
   twitter: { card: "summary_large_image" },
 };
