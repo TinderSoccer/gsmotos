@@ -32,5 +32,6 @@ Sitio de GSmotos, un taller especialista en BMW Motorrad en Santiago, Chile. El 
 
 ## Medios
 
-- Hero: timelapse `public/videos/hero-timelapse.mp4` (desktop, con marca de agua) y `hero-timelapse-movil.mp4` (sin marca de agua), más el poster `public/images/hero-timelapse-poster.jpg`.
-- Material original del cliente (fuera del repo): `~/Desktop/gsmotos/MP_ROOT/100ANV01/*.MP4`, de 1440×1080. **MAH07004** y el final de **MAH07003** están borrosos, no usarlos. También están ahí los escaneos de los certificados y el inventario de productos.
+- Hero: timelapse `public/videos/hero-timelapse.mp4` (desktop) y `hero-timelapse-movil.mp4` (recortado a 4:3), ambos sin marca de agua, más el poster `public/images/hero-timelapse-poster.jpg`.
+- El timelapse actual sale de `~/Desktop/nuevo video gsmotos.mp4` (1920×1080 con franjas negras incluidas, se recorta a 1920×804).
+- Material original anterior (fuera del repo): `~/Desktop/gsmotos/MP_ROOT/100ANV01/*.MP4`, de 1440×1080. **MAH07004** y el final de **MAH07003** están borrosos, no usarlos. También están ahí los escaneos de los certificados y el inventario de productos.
