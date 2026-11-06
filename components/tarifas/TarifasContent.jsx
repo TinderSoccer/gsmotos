@@ -2,7 +2,7 @@
 
 import Image from "next/image";
 import { useEffect, useRef, useState } from "react";
-import { CalendarCheck, Download, FileText, List, Maximize2, X } from "lucide-react";
+import { CalendarCheck, FileText, List, Maximize2, X } from "lucide-react";
 import { FaWhatsapp } from "react-icons/fa6";
 import Link from "next/link";
 import TarifasZoom from "./TarifasZoom";
@@ -12,12 +12,13 @@ import { sectionForPage, useTarifas } from "@/lib/tarifas";
 import { useSettings, whatsappUrl } from "@/lib/settings";
 
 // Carta de servicios: las páginas del PDF como imágenes una bajo otra (se ven
-// igual en cualquier celular), con el PDF original para descargar.
+// igual en cualquier celular). El PDF original no se ofrece para descargar
+// (pedido del cliente, nov 2026); ver también app/layout.jsx.
 //
 // Los botones de contacto siempre a mano mientras se recorre la carta
 // (pedido del cliente):
-// - Computador: columna fija al costado con "Agendar hora", WhatsApp y el
-//   PDF, y debajo el índice, que marca la sección en la que va uno.
+// - Computador: columna fija al costado con "Agendar hora" y WhatsApp, y
+//   debajo el índice, que marca la sección en la que va uno.
 // - Celular y tablet: barra fija abajo (sobre la barra de contacto del
 //   sitio) con el índice, Agendar y WhatsApp. El mensaje de WhatsApp dice
 //   en qué sección iba la persona.
@@ -63,7 +64,6 @@ export default function TarifasContent() {
     );
   };
   const waHref = whatsappFor(current);
-  const pdfHref = t.pdfUrl ? `${t.pdfUrl}?download=1` : "";
 
   function goTo(page) {
     setIndexOpen(false);
@@ -106,12 +106,6 @@ export default function TarifasContent() {
         {hasPages && (
           <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-[13px] text-[#8A939C]">
             <span className="tabular-nums">{total} páginas</span>
-            {pdfHref && (
-              <a href={pdfHref} className="inline-flex items-center gap-1.5 text-mCyan underline-offset-4 hover:underline lg:hidden">
-                <Download size={14} aria-hidden="true" />
-                Descargar PDF
-              </a>
-            )}
           </div>
         )}
       </header>
@@ -129,15 +123,6 @@ export default function TarifasContent() {
               <Button block size="sm" variant="whatsapp" href={waHref}>
                 WhatsApp
               </Button>
-              {pdfHref && (
-                <a
-                  href={pdfHref}
-                  className="mt-0.5 inline-flex items-center justify-center gap-1.5 py-1 font-display text-[13px] font-semibold uppercase tracking-[1.5px] text-[#9AA1A8] transition-colors hover:text-white"
-                >
-                  <Download size={14} aria-hidden="true" />
-                  Descargar PDF
-                </a>
-              )}
             </div>
 
             {sections.length > 0 && (

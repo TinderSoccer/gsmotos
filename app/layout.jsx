@@ -43,7 +43,14 @@ export const metadata = {
 // leído una vez en el servidor y entregado a todos los componentes — ver
 // lib/contentServer.js y lib/contentStore.js.
 export default async function RootLayout({ children }) {
-  const content = await getAllContent();
+  let content = await getAllContent();
+  // La carta de servicios no se ofrece para descargar: el enlace al PDF
+  // original no llega a la página (solo se muestran sus páginas como fotos).
+  if (content.tarifas) {
+    // eslint-disable-next-line no-unused-vars
+    const { pdfUrl, ...tarifas } = content.tarifas;
+    content = { ...content, tarifas };
+  }
   return (
     <html lang="es" className={`${barlowCondensed.variable} ${barlow.variable}`}>
       <body className="font-body">

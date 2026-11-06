@@ -2276,8 +2276,8 @@ function TarifasTab() {
         <div className="flex flex-col gap-2.5">
           <h1 className="font-display text-[32px] font-bold italic uppercase leading-none text-[#0B0B0B] sm:text-4xl">Carta de servicios</h1>
           <p className="max-w-xl text-[15.5px] leading-[1.6] text-[#5A5A5A]">
-            La página con tu carta de servicios. Sube el PDF y se publica solo; las personas lo ven en la web y lo pueden
-            descargar. Para cambiarlo, sube uno nuevo.
+            La página con tu carta de servicios. Sube el PDF y se publica solo; las personas lo ven en la web (sin poder
+            descargar el PDF). Para cambiarlo, sube uno nuevo.
           </p>
           <SeeOnSite href="/carta-de-servicios" />
         </div>
