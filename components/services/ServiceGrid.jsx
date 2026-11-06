@@ -4,6 +4,7 @@ import { useState } from "react";
 import Link from "next/link";
 import ServiceDetailModal from "./ServiceDetailModal";
 import { servicePhotoKey, useServicePhotos } from "@/lib/servicePhotos";
+import { useFounderPhoto } from "@/lib/founderPhoto";
 import SmartImage from "@/components/common/SmartImage";
 import { ColorEdge } from "./ColorBars";
 
@@ -15,6 +16,7 @@ import { ColorEdge } from "./ColorBars";
 export default function ServiceGrid({ cards, animClass }) {
   const [openIndex, setOpenIndex] = useState(null);
   const photoOverrides = useServicePhotos();
+  const founderPhoto = useFounderPhoto();
 
   return (
     <>
@@ -23,7 +25,12 @@ export default function ServiceGrid({ cards, animClass }) {
         style={animClass ? { animation: `${animClass} 760ms cubic-bezier(0.33,0.02,0.16,1) both` } : undefined}
       >
         {cards.map((card, i) => {
-          const photo = (card.categorySlug && photoOverrides[servicePhotoKey(card.categorySlug, card.slug)]) || card.photo;
+          // `photoFrom: "founderPhoto"`: la tarjeta de Christopher muestra la
+          // foto principal de su página (ver lib/servicesData.js).
+          const photo =
+            (card.photoFrom === "founderPhoto"
+              ? founderPhoto
+              : card.categorySlug && photoOverrides[servicePhotoKey(card.categorySlug, card.slug)]) || card.photo;
           const content = (
             <>
               <ColorEdge />

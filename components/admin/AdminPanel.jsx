@@ -601,7 +601,7 @@ function FounderHeroPhoto() {
       <div className="rounded-xl border border-[#E0E0E0] bg-white p-5 shadow-[0_2px_10px_rgba(11,11,11,0.05)] sm:p-6">
         <div className="font-display text-xl font-bold uppercase tracking-wide text-[#0B0B0B]">Foto principal</div>
         <p className="mt-1 flex items-center gap-2 text-sm text-[#5A5A5A]">
-          <Camera size={15} /> Toca cualquiera de las dos para cambiarla. Así se ve arriba en su página.
+          <Camera size={15} /> Toca cualquiera de las dos para cambiarla. Así se ve arriba en su página; es también la foto de su tarjeta en el inicio.
         </p>
 
         <div className="mt-4 grid grid-cols-1 gap-5 lg:grid-cols-[1fr_240px] lg:items-end">
@@ -857,25 +857,32 @@ function CertificadosTab() {
   );
 }
 
-// Más la foto de "Nosotros" (categoría GSmotos): se ve en su tarjeta del
-// inicio y en /nosotros. Las otras dos tarjetas de GSmotos (taller y
-// Christopher) quedan con su foto fija. Neumáticos no va: su página propia
+// Más las 3 tarjetas de GSmotos: cada foto se ve en su tarjeta del inicio y
+// en su página (Nosotros, Nuestro taller y Christopher; la de Christopher es
+// su "Foto principal", la misma de la pestaña de su página). Neumáticos no va: su página propia
 // tiene sus fotos en la pestaña "Neumáticos" y sus tarjetas antiguas ya no
 // se muestran en la web.
 const SERVICE_CATEGORIES = [
   ...menus.filter((m) => m.kind === "service" && m.slug !== "neumaticos"),
   ...menus
     .filter((m) => m.slug === "gsmotos")
-    .map((m) => ({ ...m, cards: m.cards.filter((c) => c.slug === "nosotros") })),
+    .map((m) => ({ ...m, cards: m.cards.filter((c) => c.href) })),
 ];
 
 function ServiciosTab() {
   const overrides = useServicePhotos();
-  const customCount = Object.keys(overrides).length;
+  const founderPhoto = useFounderPhoto();
+  const customCount = Object.keys(overrides).length + (founderPhoto ? 1 : 0);
 
   async function handleFile(key, ev) {
     const url = await readAndUpload(ev, { maxSize: 1600, quality: 0.85 });
     if (url) warnIfFailed(setServicePhoto(key, url));
+  }
+
+  // Mismo tamaño que la foto principal en la pestaña de Christopher.
+  async function handleFounderFile(ev) {
+    const url = await readAndUpload(ev, { maxSize: 1800, quality: 0.85 });
+    if (url) warnIfFailed(setFounderPhoto(url));
   }
 
   return (
@@ -909,14 +916,17 @@ function ServiciosTab() {
             <div className="grid grid-cols-1 gap-x-3.5 gap-y-2 sm:grid-cols-2 lg:grid-cols-3">
               {menu.cards.map((card) => {
                 const key = servicePhotoKey(card.categorySlug, card.slug);
-                const custom = Boolean(overrides[key]);
+                // Christopher: su tarjeta usa la "Foto principal" de su página.
+                const isFounder = card.photoFrom === "founderPhoto";
+                const custom = isFounder ? Boolean(founderPhoto) : Boolean(overrides[key]);
+                const shown = (isFounder ? founderPhoto : overrides[key]) || card.photo;
                 return (
                   <div key={key}>
                     <PhotoPicker
-                      onFile={(ev) => handleFile(key, ev)}
+                      onFile={(ev) => (isFounder ? handleFounderFile(ev) : handleFile(key, ev))}
                       className="min-h-[260px] overflow-hidden rounded-xl border border-[#1E2226] bg-black"
                     >
-                      <SmartImage src={overrides[key] || card.photo} alt={card.title} className="brightness-125" sizes="(max-width: 639px) 90vw, 420px" />
+                      <SmartImage src={shown} alt={card.title} className="brightness-125" sizes="(max-width: 639px) 90vw, 420px" />
                       <div
                         className="pointer-events-none absolute inset-0"
                         style={{ background: "linear-gradient(180deg, rgba(5,5,5,0) 0%, rgba(5,5,5,0.12) 38%, rgba(5,5,5,0.78) 70%, rgba(5,5,5,0.93) 100%)" }}
@@ -934,8 +944,16 @@ function ServiciosTab() {
                     <PhotoStatus
                       dark
                       custom={custom}
-                      onRemove={async () => await confirmar("¿Quitar tu foto? Vuelve a verse la foto de ejemplo.") && warnIfFailed(setServicePhoto(key, ""))}
+                      onRemove={async () =>
+                        isFounder
+                          ? (await confirmar("¿Quitar la foto de Christopher? Se quita también de arriba de su página y vuelve a verse la foto de ejemplo.")) &&
+                            warnIfFailed(setFounderPhoto(""))
+                          : (await confirmar("¿Quitar tu foto? Vuelve a verse la foto de ejemplo.")) && warnIfFailed(setServicePhoto(key, ""))
+                      }
                     />
+                    {isFounder && (
+                      <p className="text-xs leading-snug text-[#8A939B]">Es la misma foto de arriba de su página.</p>
+                    )}
                   </div>
                 );
               })}

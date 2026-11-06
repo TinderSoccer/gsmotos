@@ -1,8 +1,9 @@
-import Image from "next/image";
+import TallerPortadaFoto from "./TallerPortadaFoto";
 import ColorBars from "@/components/services/ColorBars";
 
-// Portada de /nosotros/taller: un cuadro del timelapse real del taller
-// (clips originales del cliente) de borde a borde, con el título y
+// Portada de /nosotros/taller: la foto de la tarjeta "Nuestro taller" (se
+// cambia desde el panel; por defecto un cuadro del timelapse del taller) de
+// borde a borde, con el título y
 // `children` (cómo trabajamos) encima. Se probó con el video, pero repetía
 // el hero de la home y pesaba 8MB; la foto fija pesa ~110KB y deja que la
 // página respire.
@@ -12,14 +13,7 @@ import ColorBars from "@/components/services/ColorBars";
 export default function TallerPortada({ children }) {
   return (
     <section className="relative w-full overflow-hidden bg-[#050505]">
-      <Image
-        src="/images/taller-portada.jpg"
-        alt="Mecánicos trabajando en motos BMW GS en el taller GSmotos"
-        fill
-        priority
-        sizes="100vw"
-        className="object-cover sm:brightness-110"
-      />
+      <TallerPortadaFoto />
       {/* Misma transparencia que la portada del inicio (HeroBanner): brillo
           +10% desde sm y un velo negro de 6% (pedido del cliente). */}
       <div className="pointer-events-none absolute inset-0 bg-black/[0.06]" />
