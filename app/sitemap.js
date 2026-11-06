@@ -18,7 +18,10 @@ export default function sitemap() {
 
   for (const menu of menus) {
     if (menu.kind !== "service") continue;
-    if (menu.slug !== "neumaticos") paths.push(`/servicios/${menu.slug}`);
+    // Neumáticos tiene su página propia (arriba) y sus tarjetas antiguas ya
+    // no tienen página de detalle (redirigen, ver next.config.js).
+    if (menu.slug === "neumaticos") continue;
+    paths.push(`/servicios/${menu.slug}`);
     for (const card of menu.cards) paths.push(`/servicios/${menu.slug}/${card.slug}`);
   }
 

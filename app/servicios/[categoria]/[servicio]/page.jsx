@@ -3,7 +3,9 @@ import ServiceDetailContent from "@/components/services/ServiceDetailContent";
 import SiteFooter from "@/components/SiteFooter";
 import { menus } from "@/lib/servicesData";
 
-const SERVICE_MENUS = menus.filter((m) => m.kind === "service");
+// Sin Neumáticos: sus tarjetas antiguas ya no se muestran en la web y sus
+// direcciones redirigen a /servicios/neumaticos (ver next.config.js).
+const SERVICE_MENUS = menus.filter((m) => m.kind === "service" && m.slug !== "neumaticos");
 
 // Plantilla de detalle reutilizada por todos los servicios de las 3
 // categorías. Los slugs de tarjeta se repiten entre categorías (ej.

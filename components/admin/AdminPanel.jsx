@@ -859,9 +859,11 @@ function CertificadosTab() {
 
 // Más la foto de "Nosotros" (categoría GSmotos): se ve en su tarjeta del
 // inicio y en /nosotros. Las otras dos tarjetas de GSmotos (taller y
-// Christopher) quedan con su foto fija.
+// Christopher) quedan con su foto fija. Neumáticos no va: su página propia
+// tiene sus fotos en la pestaña "Neumáticos" y sus tarjetas antiguas ya no
+// se muestran en la web.
 const SERVICE_CATEGORIES = [
-  ...menus.filter((m) => m.kind === "service"),
+  ...menus.filter((m) => m.kind === "service" && m.slug !== "neumaticos"),
   ...menus
     .filter((m) => m.slug === "gsmotos")
     .map((m) => ({ ...m, cards: m.cards.filter((c) => c.slug === "nosotros") })),

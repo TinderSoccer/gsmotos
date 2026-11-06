@@ -23,7 +23,13 @@ const nextConfig = {
   // cliente). La dirección vieja redirige para no romper enlaces ni los QR ya
   // impresos.
   async redirects() {
-    return [{ source: "/tarifas", destination: "/carta-de-servicios", permanent: true }];
+    // Las tarjetas antiguas de Neumáticos (venta e instalación, balanceo,
+    // vulcanización, tubeless) tenían su página de detalle; hoy todo está en
+    // la página propia de Neumáticos.
+    return [
+      { source: "/tarifas", destination: "/carta-de-servicios", permanent: true },
+      { source: "/servicios/neumaticos/:servicio", destination: "/servicios/neumaticos", permanent: true },
+    ];
   },
   async headers() {
     return [
