@@ -1,7 +1,7 @@
 "use client";
 
 import { MapPin } from "lucide-react";
-import { mapsUrl, useSettings } from "@/lib/settings";
+import { locationUrl, useSettings } from "@/lib/settings";
 import TallerWhatsappButton from "./TallerWhatsappButton";
 import MapaTaller from "@/components/MapaTaller";
 import Button from "@/components/common/Button";
@@ -19,7 +19,7 @@ export default function TallerVisita() {
           ¿Quieres conocer el taller en persona?
         </h2>
         <a
-          href={mapsUrl(s.address)}
+          href={locationUrl(s)}
           target="_blank"
           rel="noreferrer"
           className="flex min-h-11 w-fit items-center gap-3 text-[15.5px] leading-snug text-[#C3C9CE] hover:text-mCyan"

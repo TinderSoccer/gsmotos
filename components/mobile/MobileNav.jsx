@@ -19,7 +19,7 @@ import { Mail, MapPin, Menu, Phone, X } from "lucide-react";
 import { FaInstagram, FaWhatsapp } from "react-icons/fa6";
 import Logo from "@/components/Logo";
 import { menus } from "@/lib/servicesData";
-import { instagramUrl, mapsUrl, useSettings, whatsappUrl } from "@/lib/settings";
+import { instagramUrl, locationUrl, useSettings, whatsappUrl } from "@/lib/settings";
 import Button from "@/components/common/Button";
 
 const MobileMenuContext = createContext(null);
@@ -118,7 +118,7 @@ function MobileTabBar() {
           <span className="font-display text-[10.5px] uppercase tracking-[1.4px]">Escribirnos</span>
         </a>
         <a
-          href={mapsUrl(s.address)}
+          href={locationUrl(s)}
           target="_blank"
           rel="noreferrer"
           className="flex flex-col items-center gap-1.5 border-r border-[#23272B] py-3 pb-3.5 text-[#E4E7EA]"

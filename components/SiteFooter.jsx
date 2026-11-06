@@ -16,7 +16,7 @@
 import { useEffect, useState } from "react";
 import { ClipboardList, Mail, MapPin, Phone, ScanLine, ShieldCheck, Users, Wrench } from "lucide-react";
 import { FaInstagram, FaWhatsapp } from "react-icons/fa6";
-import { instagramUrl, mapsUrl, qrCodeUrl, reviewsUrlFor, useSettings, whatsappUrl } from "@/lib/settings";
+import { instagramUrl, locationUrl, qrCodeUrl, reviewsUrlFor, useSettings, whatsappUrl } from "@/lib/settings";
 
 const BAR_HEIGHT = 80;
 const TICKER_MS = 3400;
@@ -92,7 +92,7 @@ export default function SiteFooter() {
     { label: s.phoneDisplay, href: `tel:+${s.phoneDigits}`, Icon: Phone },
     { label: "WhatsApp", href: whatsappUrl(s.phoneDigits), external: true, Icon: FaWhatsapp, color: "#25D366" },
     { label: s.email, href: `mailto:${s.email}`, Icon: Mail },
-    { label: "Ubicación", href: mapsUrl(s.address), external: true, Icon: MapPin },
+    { label: "Ubicación", href: locationUrl(s), external: true, Icon: MapPin },
     { label: `@${s.instagramUser}`, href: instagramUrl(s.instagramUser), external: true, Icon: FaInstagram },
   ];
 

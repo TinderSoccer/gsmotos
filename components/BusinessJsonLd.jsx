@@ -1,5 +1,5 @@
 import { SITE_NAME, SITE_URL } from "@/lib/site";
-import { DEFAULT_SETTINGS } from "@/lib/settingsDefaults";
+import { DEFAULT_SETTINGS, GEO } from "@/lib/settingsDefaults";
 
 // Ficha del taller para Google (schema.org): nombre, dirección, teléfono y
 // redes, con los datos de la pestaña "Contacto" del panel. Es invisible en
@@ -28,6 +28,7 @@ export default function BusinessJsonLd({ settings }) {
       addressRegion: "Región Metropolitana",
       addressCountry: "CL",
     },
+    geo: { "@type": "GeoCoordinates", latitude: GEO.lat, longitude: GEO.lng },
     hasMap: s.reviewsUrl || undefined,
     sameAs: s.instagramUser ? [`https://www.instagram.com/${s.instagramUser}/`] : undefined,
   };

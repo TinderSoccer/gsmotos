@@ -9,7 +9,7 @@
 // editables desde /administracion → pestaña "Contacto".
 import { Mail, MapPin, Phone } from "lucide-react";
 import { FaInstagram, FaWhatsapp } from "react-icons/fa6";
-import { instagramUrl, mapsUrl, useSettings, whatsappUrl } from "@/lib/settings";
+import { instagramUrl, locationUrl, useSettings, whatsappUrl } from "@/lib/settings";
 
 const INSTAGRAM_GRADIENT = "linear-gradient(45deg, #feda75, #fa7e1e, #d62976, #962fbf, #4f5bd5)";
 
@@ -20,7 +20,7 @@ export default function ContactInfo({ dark = false, className = "" }) {
   const text = dark ? "text-white/85" : "text-[#2A2A2A]";
 
   const items = [
-    { label: s.address, href: mapsUrl(s.address), external: true, Icon: MapPin },
+    { label: s.address, href: locationUrl(s), external: true, Icon: MapPin },
     { label: s.phoneDisplay, href: `tel:+${s.phoneDigits}`, Icon: Phone },
     { label: "WhatsApp", href: whatsappUrl(s.phoneDigits), external: true, Icon: FaWhatsapp, badge: "#25D366" },
     { label: s.email, href: `mailto:${s.email}`, Icon: Mail },
