@@ -10,6 +10,7 @@ import { useServicePhoto } from "@/lib/servicePhotos";
 import { instagramUrl, useSettings, whatsappUrl } from "@/lib/settings";
 import SmartImage from "@/components/common/SmartImage";
 import Button from "@/components/common/Button";
+import { useCartaHref } from "@/lib/tarifas";
 
 // Contenido de detalle de un servicio (kicker/título/lead/texto largo/nota +
 // CTAs). Antes vivía como overlay en components/home/DetailModal.jsx; ahora
@@ -18,6 +19,8 @@ import Button from "@/components/common/Button";
 export default function ServiceDetailContent({ card, backHref, backLabel }) {
   const photo = useServicePhoto(card);
   const s = useSettings();
+  // Abre la carta en la página de este servicio (ver cartaHref en lib/tarifas.js).
+  const cartaHref = useCartaHref(card?.carta);
   return (
     <article className="bg-[#0B0B0B]">
       <MobileTopBar />
@@ -54,7 +57,7 @@ export default function ServiceDetailContent({ card, backHref, backLabel }) {
           </div>
           <div className="flex flex-wrap items-center gap-4 pt-1">
             <Button block="mobile" href="/contacto">Agendar ahora</Button>
-            <Button block="mobile" variant="secondary" href="/carta-de-servicios" icon={<BookOpen size={17} strokeWidth={1.8} aria-hidden="true" />}>
+            <Button block="mobile" variant="secondary" href={cartaHref} icon={<BookOpen size={17} strokeWidth={1.8} aria-hidden="true" />}>
               Ver carta de servicios
             </Button>
             <Button block="mobile" variant="whatsapp" href={whatsappUrl(s.phoneDigits, `Hola, quiero consultar por: ${card.title}`)}>

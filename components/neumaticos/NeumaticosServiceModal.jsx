@@ -7,6 +7,7 @@ import { useSettings, whatsappUrl } from "@/lib/settings";
 import SmartImage from "@/components/common/SmartImage";
 import { BACKDROP_OUT, CARD_OUT, useClosing } from "@/lib/useClosing";
 import Button from "@/components/common/Button";
+import { useCartaHref } from "@/lib/tarifas";
 
 // Popup de detalle de servicio — mismo criterio visual y de animación que
 // components/services/ServiceDetailModal.jsx (el que ya usan BMW Motorrad y
@@ -22,6 +23,8 @@ import Button from "@/components/common/Button";
 export default function NeumaticosServiceModal({ card, photo, agendarHref, onClose }) {
   const [closing, close] = useClosing(onClose);
   const s = useSettings();
+  // Los servicios de neumáticos abren la carta en su página (ver lib/tarifas.js).
+  const cartaHref = useCartaHref(["neumatico"]);
   if (!card) return null;
   const { Icon, title, subtitle, text } = card;
 
@@ -67,7 +70,7 @@ export default function NeumaticosServiceModal({ card, photo, agendarHref, onClo
           <p className="text-[15.5px] leading-[1.75] text-[#C3C9CE]">{text}</p>
           <div className="flex flex-wrap items-center gap-4">
             <Button block="mobile" href={agendarHref}>Agendar ahora</Button>
-            <Button block="mobile" variant="secondary" href="/carta-de-servicios" icon={<BookOpen size={17} strokeWidth={1.8} aria-hidden="true" />}>
+            <Button block="mobile" variant="secondary" href={cartaHref} icon={<BookOpen size={17} strokeWidth={1.8} aria-hidden="true" />}>
               Ver carta de servicios
             </Button>
             <Button block="mobile" variant="whatsapp" href={whatsappUrl(s.phoneDigits, `Hola, quiero consultar por: ${title}`)}>

@@ -8,6 +8,7 @@ import { instagramUrl, useSettings, whatsappUrl } from "@/lib/settings";
 import SmartImage from "@/components/common/SmartImage";
 import { BACKDROP_OUT, CARD_OUT, useClosing } from "@/lib/useClosing";
 import Button from "@/components/common/Button";
+import { useCartaHref } from "@/lib/tarifas";
 
 // Popup de detalle de servicio, fiel a la animación del diseño original de
 // Claude Design (gsmBack/gsmPop, ver app/globals.css). Es la interacción
@@ -20,6 +21,8 @@ export default function ServiceDetailModal({ card, onClose }) {
   const [closing, close] = useClosing(onClose);
   const photo = useServicePhoto(card);
   const s = useSettings();
+  // Abre la carta en la página de este servicio (ver cartaHref).
+  const cartaHref = useCartaHref(card?.carta);
   if (!card) return null;
 
   return (
@@ -65,7 +68,7 @@ export default function ServiceDetailModal({ card, onClose }) {
           </div>
           <div className="flex flex-wrap items-center gap-4">
             <Button block="mobile" href="/contacto">Agendar ahora</Button>
-            <Button block="mobile" variant="secondary" href="/carta-de-servicios" icon={<BookOpen size={17} strokeWidth={1.8} aria-hidden="true" />}>
+            <Button block="mobile" variant="secondary" href={cartaHref} icon={<BookOpen size={17} strokeWidth={1.8} aria-hidden="true" />}>
               Ver carta de servicios
             </Button>
             <Button block="mobile" variant="whatsapp" href={whatsappUrl(s.phoneDigits, `Hola, quiero consultar por: ${card.title}`)}>

@@ -35,6 +35,29 @@ export default function TarifasContent() {
   const [current, setCurrent] = useState(0); // página a la vista (desde 0)
   const [indexOpen, setIndexOpen] = useState(false);
   const pagesRef = useRef(null);
+  // Página a la que llegó desde un servicio (#pagina-N, ver cartaHref en
+  // lib/tarifas.js): se baja hasta ella y se destaca un momento.
+  const [arrived, setArrived] = useState(null);
+
+  useEffect(() => {
+    if (!hasPages) return undefined;
+    let timer;
+    function goToHash() {
+      const m = /^#pagina-(\d+)$/.exec(window.location.hash);
+      const el = m && document.getElementById(`pagina-${m[1]}`);
+      if (!el) return;
+      requestAnimationFrame(() => el.scrollIntoView({ block: "start" }));
+      setArrived(Number(m[1]) - 1);
+      clearTimeout(timer);
+      timer = setTimeout(() => setArrived(null), 2600);
+    }
+    goToHash();
+    window.addEventListener("hashchange", goToHash);
+    return () => {
+      clearTimeout(timer);
+      window.removeEventListener("hashchange", goToHash);
+    };
+  }, [hasPages]);
 
   // Página a la vista: la que cruza una línea a un tercio de la pantalla.
   useEffect(() => {
@@ -147,7 +170,9 @@ export default function TarifasContent() {
                 type="button"
                 onClick={() => setOpen(i)}
                 aria-label={`Ver página ${i + 1} de ${total} en grande`}
-                className="group relative block scroll-mt-4 cursor-zoom-in overflow-hidden bg-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-mCyan sm:rounded-lg sm:border sm:border-[#1E2226] sm:shadow-[0_10px_30px_rgba(0,0,0,0.35)]"
+                className={`group relative block scroll-mt-4 cursor-zoom-in overflow-hidden bg-white outline outline-[3px] outline-offset-4 transition-[outline-color] duration-700 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-mCyan sm:rounded-lg sm:border sm:border-[#1E2226] sm:shadow-[0_10px_30px_rgba(0,0,0,0.35)] ${
+                  arrived === i ? "outline-mCyan" : "outline-transparent"
+                }`}
               >
                 <Image
                   src={page.url}
