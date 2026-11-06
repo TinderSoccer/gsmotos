@@ -7,6 +7,7 @@ import SelectorPanel from "./SelectorPanel";
 import { menus } from "@/lib/servicesData";
 import { useProductos } from "@/lib/catalogo";
 import { PLACEHOLDER_PHOTO } from "@/lib/productosData";
+import { productMatches, queryWords } from "@/lib/productSearch";
 
 const PER_PAGE = 4;
 
@@ -39,9 +40,9 @@ export default function HeroExperience() {
   }, [productos]);
 
   const catalogue = useMemo(() => {
-    const q = query.trim().toLowerCase();
-    if (!q) return usadosDestacados;
-    return productos.filter((p) => `${p.name} ${p.cat} ${p.aplicacion || ""}`.toLowerCase().includes(q));
+    const words = queryWords(query);
+    if (!words.length) return usadosDestacados;
+    return productos.filter((p) => productMatches(p, words));
   }, [productos, usadosDestacados, query]);
 
   const pageCount = Math.max(1, Math.ceil(catalogue.length / PER_PAGE));

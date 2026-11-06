@@ -47,6 +47,7 @@ import SmartImage from "@/components/common/SmartImage";
 import { resetNeumaticosPhotos, setNeumaticosPhoto, useNeumaticosPhotos } from "@/lib/neumaticosPhotos";
 import { resetSettings, useSettings, writeSettings } from "@/lib/settings";
 import { readImageFile } from "@/lib/readImage";
+import { productMatches, queryWords } from "@/lib/productSearch";
 import { hasPendingSaves, lastSaveError, uploadImage } from "@/lib/contentStore";
 
 // Cada cambio que sí se guarda avisa con un "Guardado ✓" abajo en la
@@ -1337,10 +1338,10 @@ function ProductosTab() {
   // reescribir toda esa lógica), pero lo que se ve en pantalla es filtrado
   // y paginado, así que ese índice no coincide con la posición visible.
   const filtered = useMemo(() => {
-    const q = query.trim().toLowerCase();
+    const words = queryWords(query);
     const withIndex = products.map((prod, i) => ({ prod, i })).filter(({ prod }) => activeFilter.test(prod));
-    if (!q) return withIndex;
-    return withIndex.filter(({ prod }) => `${prod.name} ${prod.cat} ${prod.codigo || ""} ${prod.aplicacion || ""}`.toLowerCase().includes(q));
+    if (!words.length) return withIndex;
+    return withIndex.filter(({ prod }) => productMatches(prod, words));
   }, [products, query, activeFilter]);
 
   const counts = useMemo(() => Object.fromEntries(PRODUCT_FILTERS.map((f) => [f.id, products.filter(f.test).length])), [products]);
