@@ -6,9 +6,13 @@ import Logo from "@/components/Logo";
 import TableroFoto from "./TableroFoto";
 import { ChevronRight } from "lucide-react";
 import Button from "@/components/common/Button";
+import { DEFAULT_HERO_VIDEO, heroObjectPosition, useHeroVideo } from "@/lib/heroVideo";
 
 export default function HeroBanner({ onSelect }) {
   const videoRef = useRef(null);
+  // Video subido desde el panel (si hay); si no, el timelapse original.
+  const custom = useHeroVideo();
+  const hero = custom || DEFAULT_HERO_VIDEO;
 
   // El video no tiene controles, así que nunca debería quedar pausado.
   // Además del autoplay normal:
@@ -52,7 +56,7 @@ export default function HeroBanner({ onSelect }) {
       document.removeEventListener("visibilitychange", onVisible);
       window.removeEventListener("touchstart", tryPlay);
     };
-  }, []);
+  }, [hero.desktop]);
 
   return (
     <section className="relative h-auto overflow-hidden bg-[#050505] sm:h-[450px]">
@@ -63,14 +67,16 @@ export default function HeroBanner({ onSelect }) {
           vuelve a ser fondo de todo el hero. */}
       <div className="relative aspect-[4/3] w-full sm:absolute sm:inset-y-0 sm:left-[max(25%,400px)] sm:right-0 sm:w-auto sm:aspect-auto">
         <video
+          key={hero.desktop}
           ref={videoRef}
           autoPlay
           muted
           loop
           playsInline
           preload="auto"
-          poster="/images/hero-timelapse-poster.jpg"
-          className="absolute inset-0 block h-full w-full object-cover sm:object-left sm:brightness-110"
+          poster={hero.poster || DEFAULT_HERO_VIDEO.poster}
+          className={`absolute inset-0 block h-full w-full object-cover sm:brightness-110 ${custom ? "" : "sm:object-left"}`}
+          style={custom ? { objectPosition: heroObjectPosition(custom) } : undefined}
         >
           {/* Timelapse del taller con la grabación del 27/10/2026: los 10 minutos
               con más movimiento alrededor de la moto en trabajo, a 15x, 40s en loop, sin marca de agua (el tablero
@@ -80,8 +86,10 @@ export default function HeroBanner({ onSelect }) {
               termina la franja blanca para que ella no tape esa moto. El navegador elige el primer
               <source> cuyo `media` coincide. `poster`: primer cuadro, visible
               al instante mientras carga el video. */}
-          <source src="/videos/hero-timelapse-movil.mp4" type="video/mp4" media="(max-width: 639px)" />
-          <source src="/videos/hero-timelapse.mp4" type="video/mp4" />
+          {/* Un video subido desde el panel trae su versión de celular sin
+              recortar: se encuadra con su punto importante (objectPosition). */}
+          <source src={hero.mobile || hero.desktop} type="video/mp4" media="(max-width: 639px)" />
+          <source src={hero.desktop} type="video/mp4" />
         </video>
         {/* Mobile: algo de sombra arriba para que se lea el logo y fundido
             abajo hacia el fondo, donde arranca el título. */}

@@ -38,6 +38,7 @@ import { readGruasPhotos, useGruasPhotos, writeGruasPhotos } from "@/lib/gruas";
 import { useNeumaticosStock, writeAllNeumaticosStock, writeNeumaticosStock } from "@/lib/neumaticosStock";
 import { downloadCatalogoExcel, planExcelImport, readXlsx } from "@/lib/excelCatalogo";
 import { MAX_PHOTOS, makeMain } from "@/lib/productPhotos";
+import { DEFAULT_HERO_VIDEO, heroObjectPosition, useHeroVideo, writeHeroVideo } from "@/lib/heroVideo";
 import { readTarifas, useTarifas, writeTarifas } from "@/lib/tarifas";
 import { pdfToImages } from "@/lib/pdfPages";
 import { SITE_URL } from "@/lib/site";
@@ -3181,6 +3182,310 @@ function LogoCard() {
   );
 }
 
+// ── Video del inicio (lib/heroTimelapse.js, lib/heroVideo.js) ─────────────
+// Vista de cómo se ve la portada (computador y celular), con el video que
+// haya. Christopher elige un video; el navegador lo prepara (si es largo, lo
+// convierte en cámara rápida), se ve "Así quedaría" y recién con "Usar este
+// video" se sube y se publica. Siempre se puede volver al original.
+
+function HeroPreview({ src, poster, position, mobile = false }) {
+  return (
+    <div className={`relative w-full overflow-hidden rounded-lg border border-[#1E2226] bg-[#050505] ${mobile ? "aspect-[4/3]" : "aspect-[1280/450]"}`}>
+      <div className={`absolute inset-y-0 right-0 ${mobile ? "left-0" : "left-[31.25%]"}`}>
+        <video
+          key={src}
+          src={src}
+          poster={poster}
+          autoPlay
+          muted
+          loop
+          playsInline
+          className="absolute inset-0 h-full w-full object-cover brightness-110"
+          style={{ objectPosition: position }}
+        />
+      </div>
+      {mobile ? (
+        <div className="pointer-events-none absolute inset-0" style={{ background: "linear-gradient(180deg, rgba(5,5,5,0.6) 0%, rgba(5,5,5,0) 34%, rgba(5,5,5,0) 58%, rgba(5,5,5,0.72) 80%, #050505 100%)" }} />
+      ) : (
+        <>
+          <div className="pointer-events-none absolute inset-0 bg-white" style={{ clipPath: "polygon(0 0, 31.25% 0, 43.75% 100%, 0 100%)" }} />
+          <div className="pointer-events-none absolute inset-y-0 left-0 w-[64%]" style={{ background: "linear-gradient(103deg, #ffffff 42%, rgba(255,255,255,0.85) 49%, rgba(255,255,255,0) 64%)" }} />
+        </>
+      )}
+    </div>
+  );
+}
+
+// Imagen completa del video: se toca donde está lo importante y el video se
+// encuadra en ese punto en computador y celular.
+function FocusPicker({ poster, focus, onChange }) {
+  function pick(ev) {
+    const r = ev.currentTarget.getBoundingClientRect();
+    onChange({ focusX: Math.round(((ev.clientX - r.left) / r.width) * 100), focusY: Math.round(((ev.clientY - r.top) / r.height) * 100) });
+  }
+  function onKey(ev) {
+    const d = { ArrowLeft: [-5, 0], ArrowRight: [5, 0], ArrowUp: [0, -5], ArrowDown: [0, 5] }[ev.key];
+    if (!d) return;
+    ev.preventDefault();
+    const clamp = (n) => Math.max(0, Math.min(100, n));
+    onChange({ focusX: clamp(focus.focusX + d[0]), focusY: clamp(focus.focusY + d[1]) });
+  }
+  return (
+    <div className="flex flex-col gap-2">
+      <span className="text-sm text-[#3A3A3A]">
+        <strong>Toca dónde está lo importante</strong> (por ejemplo, la moto donde trabajan). El video se encuadra en ese punto.
+      </span>
+      <button
+        type="button"
+        onClick={pick}
+        onKeyDown={onKey}
+        aria-label={`Punto importante del video: ${focus.focusX}% horizontal, ${focus.focusY}% vertical. Usa las flechas para moverlo.`}
+        className="relative w-full max-w-[520px] cursor-crosshair overflow-hidden rounded-lg border border-[#E0E0E0] bg-[#050505] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-mBlue"
+      >
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img src={poster} alt="" className="block h-auto w-full" />
+        <span
+          aria-hidden="true"
+          className="pointer-events-none absolute h-9 w-9 -translate-x-1/2 -translate-y-1/2 rounded-full border-[3px] border-white shadow-[0_0_0_2px_rgba(0,0,0,0.45),0_2px_10px_rgba(0,0,0,0.5)]"
+          style={{ left: `${focus.focusX}%`, top: `${focus.focusY}%` }}
+        >
+          <span className="absolute left-1/2 top-1/2 h-2 w-2 -translate-x-1/2 -translate-y-1/2 rounded-full bg-mRed" />
+        </span>
+      </button>
+    </div>
+  );
+}
+
+async function uploadVideoBlob(blob, onPct) {
+  const { upload } = await import("@vercel/blob/client");
+  const res = await upload("admin/video-inicio.mp4", blob, {
+    access: "public",
+    contentType: "video/mp4",
+    handleUploadUrl: "/api/admin/upload-video",
+    multipart: blob.size > 20 * 1024 * 1024,
+    onUploadProgress: ({ percentage }) => onPct?.(Math.round(percentage)),
+  });
+  return res.url;
+}
+
+const HERO_PHASES = {
+  revisando: "Revisando el video…",
+  buscando: "Buscando los momentos con más movimiento…",
+  armando: "Armando el video…",
+  subiendo: "Subiendo y publicando…",
+};
+
+function HeroVideoTab() {
+  const current = useHeroVideo();
+  const shown = current || DEFAULT_HERO_VIDEO;
+  const [job, setJob] = useState(null); // { phase, pct }
+  const [draft, setDraft] = useState(null); // resultado listo para revisar
+  const objectUrls = useRef([]);
+
+  useEffect(() => () => objectUrls.current.forEach((u) => URL.revokeObjectURL(u)), []);
+
+  // Mientras prepara, avisa si se intenta cerrar la pestaña.
+  useEffect(() => {
+    if (!job) return undefined;
+    const warn = (ev) => {
+      ev.preventDefault();
+      ev.returnValue = "";
+    };
+    window.addEventListener("beforeunload", warn);
+    return () => window.removeEventListener("beforeunload", warn);
+  }, [job]);
+
+  async function onFile(ev) {
+    const file = ev.target.files?.[0];
+    ev.target.value = "";
+    if (!file) return;
+    const { makeHeroVideo, heroVideoErrorText } = await import("@/lib/heroTimelapse");
+    setDraft(null);
+    setJob({ phase: "revisando", pct: 0 });
+    try {
+      const r = await makeHeroVideo(file, setJob);
+      const desktopUrl = URL.createObjectURL(r.desktop);
+      const mobileUrl = URL.createObjectURL(r.mobile);
+      objectUrls.current.push(desktopUrl, mobileUrl);
+      setDraft({ ...r, desktopUrl, mobileUrl, fileName: file.name, focusX: 50, focusY: 50 });
+    } catch (err) {
+      avisar(heroVideoErrorText(err));
+    } finally {
+      setJob(null);
+    }
+  }
+
+  async function publish() {
+    setJob({ phase: "subiendo", pct: 0 });
+    try {
+      const [desktop, mobile, poster] = await Promise.all([
+        uploadVideoBlob(draft.desktop, (pct) => setJob({ phase: "subiendo", pct })),
+        uploadVideoBlob(draft.mobile),
+        uploadImage(draft.poster),
+      ]);
+      const ok = await warnIfFailed(
+        writeHeroVideo({ desktop, mobile, poster, focusX: draft.focusX, focusY: draft.focusY, fileName: draft.fileName, at: Date.now() }),
+        "Video publicado ✓"
+      );
+      if (ok) setDraft(null);
+    } catch (err) {
+      avisar(err?.message ? `No se pudo subir el video: ${err.message}` : "No se pudo subir el video. Revisa tu conexión e intenta de nuevo.");
+    } finally {
+      setJob(null);
+    }
+  }
+
+  const draftPos = draft ? `${draft.focusX}% ${draft.focusY}%` : "";
+  const currentPos = current ? heroObjectPosition(current) : "0% 50%";
+
+  return (
+    <>
+      <div className="flex flex-wrap items-end justify-between gap-8 px-6 pb-5 pt-11 sm:px-10">
+        <div className="flex flex-col gap-2.5">
+          <h1 className="font-display text-[32px] font-bold italic uppercase leading-none text-[#0B0B0B] sm:text-4xl">Video del inicio</h1>
+          <p className="max-w-xl text-[15.5px] leading-[1.6] text-[#5A5A5A]">
+            El video de la portada, arriba en la página de inicio. Así se ve hoy en computador y en el celular.
+          </p>
+          <SeeOnSite href="/" />
+        </div>
+      </div>
+
+      <div className="flex flex-col gap-6 px-6 pb-14 sm:px-10">
+        {!draft && (
+          <SitePanel>
+            <div className="grid grid-cols-1 gap-5 lg:grid-cols-[1fr_240px] lg:items-end">
+              <div className="flex flex-col gap-2">
+                <HeroPreview src={shown.desktop} poster={shown.poster} position={currentPos} />
+                <span className="text-xs uppercase tracking-wide text-[#8A939B]">En computador</span>
+              </div>
+              <div className="flex flex-col gap-2">
+                <div className="w-full max-w-[240px]">
+                  <HeroPreview mobile src={shown.mobile || shown.desktop} poster={shown.poster} position={current ? currentPos : "50% 50%"} />
+                </div>
+                <span className="text-xs uppercase tracking-wide text-[#8A939B]">En el celular</span>
+              </div>
+            </div>
+            <p className="mt-4 text-sm text-[#9AA1A8]">
+              {current ? (
+                <>
+                  Video subido: <strong className="text-white">{current.fileName || "video"}</strong>, el {fechaHora(current.at)}.
+                </>
+              ) : (
+                "Es el video original del taller (cámara rápida)."
+              )}
+            </p>
+          </SitePanel>
+        )}
+
+        {current && !draft && !job && (
+          <div className="rounded-xl border border-[#E0E0E0] bg-white p-5 sm:p-6">
+            <FocusPicker poster={current.poster} focus={{ focusX: current.focusX ?? 50, focusY: current.focusY ?? 50 }} onChange={(f) => warnIfFailed(writeHeroVideo({ ...current, ...f }))} />
+          </div>
+        )}
+
+        {draft && (
+          <div className="flex flex-col gap-5 rounded-xl border-2 border-mBlue bg-white p-5 sm:p-6">
+            <div className="flex flex-col gap-1">
+              <h2 className="font-display text-2xl font-bold italic uppercase leading-tight text-[#0B0B0B]">Así quedaría</h2>
+              <p className="text-[15px] leading-snug text-[#5A5A5A]">
+                {draft.timelapse ? `Convertimos el video en cámara rápida: quedó de ${draft.seconds} segundos, con los momentos de más movimiento.` : `Quedó de ${draft.seconds} segundos, sin sonido.`}{" "}
+                Todavía no se ha publicado.
+              </p>
+              {draft.portrait && (
+                <p className="mt-1 rounded-lg bg-[#FFF4D6] px-3.5 py-2.5 text-[14.5px] leading-snug text-[#0B0B0B]">
+                  <strong>Ojo:</strong> el video es vertical, y en computador se verá muy recortado. Si puedes, grábalo con el celular de lado.
+                </p>
+              )}
+            </div>
+            <div className="grid grid-cols-1 gap-5 lg:grid-cols-[1fr_240px] lg:items-end">
+              <div className="flex flex-col gap-2">
+                <HeroPreview src={draft.desktopUrl} poster={draft.poster} position={draftPos} />
+                <span className="text-xs uppercase tracking-wide text-[#6A6A6A]">En computador</span>
+              </div>
+              <div className="flex flex-col gap-2">
+                <div className="w-full max-w-[240px]">
+                  <HeroPreview mobile src={draft.mobileUrl} poster={draft.poster} position={draftPos} />
+                </div>
+                <span className="text-xs uppercase tracking-wide text-[#6A6A6A]">En el celular</span>
+              </div>
+            </div>
+            <FocusPicker poster={draft.poster} focus={draft} onChange={(f) => setDraft((d) => ({ ...d, ...f }))} />
+            <div className="flex flex-col gap-2.5 border-t border-[#ECECEC] pt-4 sm:flex-row-reverse sm:justify-start">
+              <button
+                type="button"
+                onClick={publish}
+                disabled={Boolean(job)}
+                className="inline-flex min-h-11 items-center justify-center gap-2 rounded bg-mBlue px-6 py-3 font-display text-sm font-semibold uppercase tracking-[2px] text-white transition-colors hover:bg-[#164E8F] disabled:opacity-60"
+              >
+                {job?.phase === "subiendo" && <Loader2 size={16} className="animate-spin motion-reduce:animate-none" aria-hidden="true" />}
+                {job?.phase === "subiendo" ? `Publicando… ${job.pct}%` : "Usar este video"}
+              </button>
+              <button
+                type="button"
+                onClick={() => setDraft(null)}
+                disabled={Boolean(job)}
+                className="min-h-11 rounded border border-[#CFCFCF] px-5 py-3 font-display text-sm font-semibold uppercase tracking-[2px] text-[#3A3A3A] transition-colors hover:border-[#0B0B0B] disabled:opacity-60"
+              >
+                Descartar, no cambiar nada
+              </button>
+            </div>
+          </div>
+        )}
+
+        {!draft && (
+          <div className="flex flex-col gap-4 rounded-xl border border-[#E0E0E0] bg-white p-5 sm:flex-row sm:items-center sm:justify-between sm:p-6">
+            <div className="flex flex-col gap-1">
+              <h2 className="font-display text-lg font-semibold uppercase tracking-wide text-[#0B0B0B]">Cambiar el video</h2>
+              <p className="max-w-[60ch] text-[14.5px] leading-[1.55] text-[#5A5A5A]">
+                Elige un video del taller, ojalá grabado horizontal y con la cámara quieta. Si dura más de 1 minuto lo convertimos en
+                cámara rápida, eligiendo solos los momentos con más movimiento. Hazlo <strong>desde un computador</strong> (Chrome): puede
+                tardar unos minutos, y no se publica nada hasta que lo apruebes.
+              </p>
+              {job && (
+                <div className="mt-3 flex flex-col gap-1.5" role="status">
+                  <div className="flex items-center justify-between text-sm text-[#0B0B0B]">
+                    <span className="font-semibold">{HERO_PHASES[job.phase]}</span>
+                    <span className="tabular-nums text-[#5A5A5A]">{job.pct}%</span>
+                  </div>
+                  <div className="h-2 overflow-hidden rounded-full bg-[#ECECEC]">
+                    <div className="h-full rounded-full bg-mBlue transition-[width] duration-300" style={{ width: `${job.pct}%` }} />
+                  </div>
+                  <span className="text-[13px] text-[#6A6A6A]">No cierres ni cambies de pestaña mientras avanza.</span>
+                </div>
+              )}
+            </div>
+            <div className="flex flex-none flex-col gap-2">
+              <label
+                className={`inline-flex min-h-11 items-center justify-center gap-2 rounded bg-mBlue px-5 py-3 font-display text-sm font-semibold uppercase tracking-[2px] text-white transition-colors focus-within:outline focus-within:outline-2 focus-within:outline-offset-2 focus-within:outline-mBlue ${
+                  job ? "pointer-events-none opacity-60" : "cursor-pointer hover:bg-[#164E8F]"
+                }`}
+              >
+                {job ? <Loader2 size={16} className="animate-spin motion-reduce:animate-none" aria-hidden="true" /> : <Upload size={16} aria-hidden="true" />}
+                {job ? "Preparando…" : "Elegir video"}
+                <input type="file" accept="video/*" className="sr-only" onChange={onFile} disabled={Boolean(job)} />
+              </label>
+              {current && (
+                <button
+                  type="button"
+                  disabled={Boolean(job)}
+                  onClick={async () =>
+                    (await confirmar("¿Volver al video original? Vuelve el video del taller que estaba antes y se deja de usar el que subiste.")) &&
+                    warnIfFailed(writeHeroVideo(null), "Video original de vuelta ✓")
+                  }
+                  className="inline-flex min-h-11 items-center justify-center gap-2 rounded border border-[#CFCFCF] px-5 py-3 font-display text-sm font-semibold uppercase tracking-[2px] text-[#3A3A3A] transition-colors hover:border-[#0B0B0B] disabled:opacity-60"
+                >
+                  <Undo2 size={16} aria-hidden="true" />
+                  Volver al original
+                </button>
+              )}
+            </div>
+          </div>
+        )}
+      </div>
+    </>
+  );
+}
+
 function GeneralTab() {
   return (
     <>
@@ -3293,6 +3598,7 @@ function ContactoTab() {
 }
 
 const TABS = {
+  inicio: HeroVideoTab,
   certs: CertificadosTab,
   servicios: ServiciosTab,
   neumaticos: NeumaticosTab,
@@ -3373,6 +3679,9 @@ export default function AdminPanel() {
           de la derecha avisa que hay más. */}
       <div className="relative">
         <div className="flex gap-0 overflow-x-auto border-b border-[#23272B] bg-[#141719] px-2 [scrollbar-width:none] sm:px-10 [&::-webkit-scrollbar]:hidden">
+          <Tab active={tab === "inicio"} onClick={() => setTab("inicio")}>
+            Video inicio
+          </Tab>
           <Tab active={tab === "certs"} onClick={() => setTab("certs")}>
             Christopher
           </Tab>
