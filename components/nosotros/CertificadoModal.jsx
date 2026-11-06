@@ -3,6 +3,7 @@
 import { X } from "lucide-react";
 import Image from "next/image";
 import { BACKDROP_OUT, CARD_OUT, useClosing } from "@/lib/useClosing";
+import { certKicker } from "@/lib/certExtra";
 
 // Popup al hacer clic en una tarjeta de CertificadosGrid.jsx — misma
 // animación (gsmBack/gsmPop, ver app/globals.css) que el resto de los
@@ -40,7 +41,7 @@ export default function CertificadoModal({ cert, photo, onClose }) {
             // documento, next/image no gana nada reprocesándola — mismo
             // criterio que SmartImage.jsx.
             // eslint-disable-next-line @next/next/no-img-element
-            <img src={photo} alt={cert.title} className="block max-h-[62vh] w-full object-contain" />
+            <img src={photo} alt={cert.title || "Certificado"} className="block max-h-[62vh] w-full object-contain" />
           ) : photo ? (
             // Escaneo del proyecto (140-260KB sin comprimir) — next/image
             // lo redimensiona y convierte a WebP. Sin `fill` (el alto es
@@ -49,7 +50,7 @@ export default function CertificadoModal({ cert, photo, onClose }) {
             // (photoW/photoH, ver lib/certificados.js) para el aspect-ratio.
             <Image
               src={photo}
-              alt={cert.title}
+              alt={cert.title || "Certificado"}
               width={cert.photoW || 1300}
               height={cert.photoH || 1000}
               priority
@@ -60,13 +61,11 @@ export default function CertificadoModal({ cert, photo, onClose }) {
         </div>
 
         <div className="flex flex-col gap-1.5 overflow-y-auto px-6 py-6 sm:px-[34px]">
-          <div className="font-display text-[13px] uppercase tracking-[2px] text-mBlue">
-            {cert.year} · {cert.org}
-          </div>
-          <div className="font-display text-2xl font-bold italic uppercase leading-[1.1] text-[#0B0B0B] sm:text-[28px]">
-            {cert.title}
-          </div>
-          <p className="mt-1 text-[15px] leading-[1.6] text-[#5A5A5A]">{cert.desc}</p>
+          {certKicker(cert) && <div className="font-display text-[13px] uppercase tracking-[2px] text-mBlue">{certKicker(cert)}</div>}
+          {cert.title && (
+            <div className="font-display text-2xl font-bold italic uppercase leading-[1.1] text-[#0B0B0B] sm:text-[28px]">{cert.title}</div>
+          )}
+          {cert.desc && <p className="mt-1 text-[15px] leading-[1.6] text-[#5A5A5A]">{cert.desc}</p>}
         </div>
       </div>
     </div>

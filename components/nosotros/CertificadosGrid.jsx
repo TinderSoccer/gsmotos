@@ -4,6 +4,7 @@ import { useRef, useState } from "react";
 import { Award } from "lucide-react";
 import { CERTIFICADOS } from "@/lib/certificados";
 import { useCertPhotos } from "@/lib/useCertPhotos";
+import { certKicker, useCertExtra } from "@/lib/certExtra";
 import CertificadoModal from "./CertificadoModal";
 import SmartImage from "@/components/common/SmartImage";
 import { ColorEdge } from "@/components/services/ColorBars";
@@ -25,9 +26,16 @@ import { ColorEdge } from "@/components/services/ColorBars";
 // nada, no hay nada que mostrar en grande.
 export default function CertificadosGrid() {
   const photos = useCertPhotos();
+  const extra = useCertExtra();
+  // Los fijos (con la foto del panel si la cambiaron) y después los que
+  // Christopher agregó desde el panel (lib/certExtra.js), si tienen foto.
+  const certs = [
+    ...CERTIFICADOS.map((c) => ({ ...c, photo: photos[c.slot] || c.defaultPhoto })),
+    ...extra.filter((c) => c.photo).map((c) => ({ ...c, slot: c.id })),
+  ];
   const [openSlot, setOpenSlot] = useState(null);
-  const openCert = CERTIFICADOS.find((c) => c.slot === openSlot) || null;
-  const openPhoto = openCert ? photos[openCert.slot] || openCert.defaultPhoto : null;
+  const openCert = certs.find((c) => c.slot === openSlot) || null;
+  const openPhoto = openCert ? openCert.photo : null;
   const rowRef = useRef(null);
   const [current, setCurrent] = useState(0);
 
@@ -36,7 +44,7 @@ export default function CertificadosGrid() {
     const row = rowRef.current;
     if (!row || !row.children.length) return;
     const step = row.children[0].getBoundingClientRect().width + 12;
-    setCurrent(Math.min(CERTIFICADOS.length - 1, Math.round(row.scrollLeft / step)));
+    setCurrent(Math.min(certs.length - 1, Math.round(row.scrollLeft / step)));
   }
 
   return (
@@ -46,8 +54,8 @@ export default function CertificadosGrid() {
       onScroll={onScroll}
       className="-mx-6 flex snap-x snap-mandatory gap-3 overflow-x-auto px-6 pb-1 [scrollbar-width:none] sm:mx-0 sm:grid sm:grid-cols-2 sm:gap-3.5 sm:overflow-visible sm:px-0 sm:pb-0 lg:grid-cols-3 [&::-webkit-scrollbar]:hidden"
     >
-      {CERTIFICADOS.map((cert) => {
-        const photo = photos[cert.slot] || cert.defaultPhoto;
+      {certs.map((cert) => {
+        const photo = cert.photo;
         return (
           <button
             key={cert.slot}
@@ -60,7 +68,7 @@ export default function CertificadosGrid() {
             <ColorEdge />
             <div className="relative h-[200px] overflow-hidden border-b border-[#E0E0E0] bg-[#F2F2F2] sm:h-[240px]">
               {photo ? (
-                <SmartImage src={photo} alt={cert.title} fit="contain" sizes="(max-width: 639px) 45vw, (max-width: 1023px) 45vw, 300px" />
+                <SmartImage src={photo} alt={cert.title || "Certificado"} fit="contain" sizes="(max-width: 639px) 45vw, (max-width: 1023px) 45vw, 300px" />
               ) : (
                 <div
                   className="flex h-full w-full flex-col items-center justify-center gap-2 sm:gap-3"
@@ -75,20 +83,24 @@ export default function CertificadosGrid() {
               )}
             </div>
             <div className="flex flex-col gap-1.5 px-4 pb-4 pt-3.5 sm:gap-2 sm:px-[22px] sm:pb-[22px] sm:pt-5">
-              <div className="font-display text-[12px] uppercase tracking-[1.6px] text-mBlue sm:text-[13px] sm:tracking-[2px]">
-                {cert.year} · {cert.org}
-              </div>
-              <div className="font-display text-[16px] font-semibold uppercase leading-[1.15] tracking-wide text-[#0B0B0B] sm:text-xl">
-                {cert.title}
-              </div>
-              <div className="text-[13.5px] leading-[1.5] text-[#5A5A5A] sm:text-[14.5px] sm:leading-[1.55]">{cert.desc}</div>
+              {certKicker(cert) && (
+                <div className="font-display text-[12px] uppercase tracking-[1.6px] text-mBlue sm:text-[13px] sm:tracking-[2px]">
+                  {certKicker(cert)}
+                </div>
+              )}
+              {cert.title && (
+                <div className="font-display text-[16px] font-semibold uppercase leading-[1.15] tracking-wide text-[#0B0B0B] sm:text-xl">
+                  {cert.title}
+                </div>
+              )}
+              {cert.desc && <div className="text-[13.5px] leading-[1.5] text-[#5A5A5A] sm:text-[14.5px] sm:leading-[1.55]">{cert.desc}</div>}
             </div>
           </button>
         );
       })}
     </div>
     <div className="mt-4 flex justify-center gap-1.5 sm:hidden" aria-hidden="true">
-      {CERTIFICADOS.map((cert, i) => (
+      {certs.map((cert, i) => (
         <span key={cert.slot} className={`h-1.5 rounded-full transition-all ${i === current ? "w-5 bg-mBlue" : "w-1.5 bg-[#0B0B0B]/20"}`} />
       ))}
     </div>

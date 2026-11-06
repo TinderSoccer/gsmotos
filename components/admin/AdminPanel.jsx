@@ -3,7 +3,8 @@
 // Panel de administración, portado del diseño "Administración.dc.html" de
 // Claude Design. Protegido con usuario/contraseña (ver app/administracion/
 // page.jsx y lib/adminAuth.js). Secciones —
-// - Certificados: fotos de cada certificado de Christopher (lib/certificados.js).
+// - Certificados: fotos de cada certificado de Christopher (lib/certificados.js)
+//   y los certificados nuevos que agrega él mismo (lib/certExtra.js).
 // - Productos: catálogo que alimenta el buscador de la Home y /productos
 //   (lib/catalogo.js).
 // - Servicios: foto propia por cada servicio (lib/servicePhotos.js).
@@ -26,6 +27,7 @@ import { Award, Camera, ChevronLeft, ChevronRight, ExternalLink, ImageOff, Loade
 import ColorBars from "@/components/services/ColorBars";
 import { CERTIFICADOS } from "@/lib/certificados";
 import { setCertPhoto, useCertPhotos } from "@/lib/useCertPhotos";
+import { readCertExtra, useCertExtra, writeCertExtra } from "@/lib/certExtra";
 import { setFounderPhoto, useFounderPhoto } from "@/lib/founderPhoto";
 import { setLogo, setLogoOnLight, useLogo, useLogoOnLight } from "@/lib/logo";
 import { formatCLP, resetProductos, useProductos, writeProductos } from "@/lib/catalogo";
@@ -632,13 +634,145 @@ function FounderHeroPhoto() {
   );
 }
 
+// Campo de texto de un certificado agregado, con la misma letra que tiene
+// esa línea en la tarjeta de la web (se ve igual mientras se escribe).
+function CertTextInput({ value, onChange, placeholder, label, className, multiline = false }) {
+  const Tag = multiline ? "textarea" : "input";
+  return (
+    <Tag
+      value={value || ""}
+      onChange={(ev) => onChange(ev.target.value)}
+      placeholder={placeholder}
+      aria-label={label}
+      rows={multiline ? 3 : undefined}
+      className={`w-full rounded-md border border-dashed border-[#D4D4D4] bg-[#FBFBFB] px-2.5 py-1.5 outline-none placeholder:normal-case placeholder:tracking-normal placeholder:text-[#A8A8A8] focus:border-solid focus:border-mCyan focus:bg-white ${multiline ? "resize-none" : ""} ${className}`}
+    />
+  );
+}
+
+// Tarjeta de un certificado agregado desde el panel: foto (se cambia
+// tocándola) y sus textos, que se escriben directo en la tarjeta.
+function ExtraCertCard({ cert, index, total, onPatch, onPhoto, onMove, onRemove }) {
+  return (
+    <div>
+      <div className="flex flex-col overflow-hidden rounded-xl border border-[#E0E0E0] bg-white shadow-[0_2px_10px_rgba(11,11,11,0.06)]">
+        <PhotoPicker onFile={onPhoto} className="h-[240px] overflow-hidden border-b border-[#E0E0E0] bg-[#F2F2F2]">
+          <SmartImage src={cert.photo} alt={cert.title || "Certificado"} fit="contain" sizes="(max-width: 639px) 90vw, 360px" />
+        </PhotoPicker>
+        <div className="flex flex-col gap-2 px-[22px] pb-[22px] pt-5">
+          <div className="grid grid-cols-[84px_1fr] gap-2">
+            <CertTextInput value={cert.year} onChange={(v) => onPatch({ year: v })} placeholder="Año" label="Año" className="font-display text-[13px] uppercase tracking-[2px] text-mBlue" />
+            <CertTextInput value={cert.org} onChange={(v) => onPatch({ org: v })} placeholder="Institución" label="Institución" className="font-display text-[13px] uppercase tracking-[2px] text-mBlue" />
+          </div>
+          <CertTextInput value={cert.title} onChange={(v) => onPatch({ title: v })} placeholder="Nombre del certificado" label="Nombre del certificado" className="font-display text-xl font-semibold uppercase leading-[1.15] tracking-wide text-[#0B0B0B]" />
+          <CertTextInput value={cert.desc} onChange={(v) => onPatch({ desc: v })} placeholder="Descripción breve (opcional)" label="Descripción" multiline className="text-[14.5px] leading-[1.55] text-[#5A5A5A]" />
+        </div>
+      </div>
+      <div className="flex min-h-[34px] items-center gap-2 pt-2">
+        <div className="flex items-center gap-1">
+          {[
+            { dir: -1, label: "Mover antes", Icon: ChevronLeft, disabled: index === 0 },
+            { dir: 1, label: "Mover después", Icon: ChevronRight, disabled: index === total - 1 },
+          ].map(({ dir, label, Icon, disabled }) => (
+            <button
+              key={dir}
+              type="button"
+              onClick={() => onMove(dir)}
+              disabled={disabled}
+              aria-label={label}
+              title={label}
+              className="flex h-8 w-8 items-center justify-center rounded-md border border-[#E0E0E0] text-[#5A5A5A] transition-colors enabled:hover:border-mCyan enabled:hover:text-mCyan disabled:opacity-30"
+            >
+              <Icon size={16} />
+            </button>
+          ))}
+        </div>
+        <button
+          type="button"
+          onClick={onRemove}
+          className="ml-auto rounded px-2.5 py-1.5 font-display text-[12px] font-semibold uppercase tracking-wide text-[#5A5A5A] transition-colors hover:text-mRed"
+        >
+          Eliminar
+        </button>
+      </div>
+    </div>
+  );
+}
+
+// Cuadro para agregar un certificado: se elige la foto y aparece la tarjeta
+// nueva para escribirle sus datos.
+function AddCertTile({ onFile }) {
+  const [busy, setBusy] = useState(false);
+  async function handle(ev) {
+    setBusy(true);
+    try {
+      await onFile(ev);
+    } finally {
+      setBusy(false);
+    }
+  }
+  return (
+    <label
+      className={`flex min-h-[240px] flex-col items-center justify-center gap-2 rounded-xl border-2 border-dashed border-[#CFCFCF] px-6 text-center text-mBlue transition-colors ${
+        busy ? "cursor-wait" : "cursor-pointer hover:border-mCyan hover:text-mCyan"
+      }`}
+    >
+      {busy ? (
+        <>
+          <Loader2 size={26} strokeWidth={1.8} className="animate-spin motion-reduce:animate-none" aria-hidden="true" />
+          <span className="font-display text-sm font-semibold uppercase tracking-wide" role="status">
+            Subiendo…
+          </span>
+        </>
+      ) : (
+        <>
+          <Award size={30} strokeWidth={1.6} />
+          <span className="font-display text-base font-semibold uppercase tracking-wide">Agregar certificado</span>
+          <span className="text-sm text-[#7A7A7A]">Elige la foto o el escaneo del certificado. Después escribes sus datos.</span>
+        </>
+      )}
+      <input type="file" accept="image/*" className="hidden" onChange={handle} disabled={busy} />
+    </label>
+  );
+}
+
 function CertificadosTab() {
   const overrides = useCertPhotos();
-  const count = CERTIFICADOS.filter((c) => overrides[c.slot] || c.defaultPhoto).length;
+  const extra = useCertExtra();
+  const total = CERTIFICADOS.length + extra.length;
+  const count = CERTIFICADOS.filter((c) => overrides[c.slot] || c.defaultPhoto).length + extra.filter((c) => c.photo).length;
 
   async function handleFile(slot, ev) {
     const url = await readAndUpload(ev, { maxSize: 1400, quality: 0.82 });
     if (url) warnIfFailed(setCertPhoto(slot, url));
+  }
+
+  function saveExtra(next, okMsg) {
+    return warnIfFailed(writeCertExtra(next), okMsg);
+  }
+
+  function patchExtra(id, changes) {
+    saveExtra(readCertExtra().map((c) => (c.id === id ? { ...c, ...changes } : c)));
+  }
+
+  async function addExtra(ev) {
+    const url = await readAndUpload(ev, { maxSize: 1400, quality: 0.82 });
+    if (url) {
+      saveExtra([...readCertExtra(), { id: `cert-${Date.now()}`, photo: url, year: "", org: "", title: "", desc: "" }], "Certificado agregado ✓");
+    }
+  }
+
+  async function replaceExtraPhoto(id, ev) {
+    const url = await readAndUpload(ev, { maxSize: 1400, quality: 0.82 });
+    if (url) patchExtra(id, { photo: url });
+  }
+
+  function moveExtra(index, dir) {
+    const next = [...readCertExtra()];
+    const to = index + dir;
+    if (to < 0 || to >= next.length) return;
+    [next[index], next[to]] = [next[to], next[index]];
+    saveExtra(next);
   }
 
   return (
@@ -650,13 +784,13 @@ function CertificadosTab() {
           </h1>
           <p className="max-w-xl text-[15.5px] leading-[1.6] text-[#5A5A5A]">
             La foto principal y los certificados. Cada certificado ya tiene su foto escaneada: cámbiala solo si
-            quieres otra.
+            quieres otra. Al final puedes agregar certificados nuevos.
           </p>
           <SeeOnSite href="/nosotros/christopher" />
         </div>
         <div className="flex flex-col items-end gap-0.5">
           <div className="font-display text-[32px] font-bold italic leading-none text-mBlue">
-            {count}/{CERTIFICADOS.length}
+            {count}/{total}
           </div>
           <div className="font-display text-[13px] uppercase tracking-[2px] text-[#8A8A8A]">Con foto</div>
         </div>
@@ -667,7 +801,7 @@ function CertificadosTab() {
       <div className="px-6 pb-14 sm:px-10">
         <div className="mb-1 font-display text-xl font-bold uppercase tracking-wide text-[#0B0B0B]">Certificados</div>
         <p className="mb-4 flex items-center gap-2 text-sm text-[#5A5A5A]">
-          <Camera size={15} /> Toca cualquier certificado para cambiar su foto.
+          <Camera size={15} /> Toca cualquier certificado para cambiar su foto. Los nuevos se agregan al final.
         </p>
         <div className="grid grid-cols-1 gap-3.5 sm:grid-cols-2 lg:grid-cols-3">
           {CERTIFICADOS.map((cert) => {
@@ -701,6 +835,22 @@ function CertificadosTab() {
               </div>
             );
           })}
+          {extra.map((cert, index) => (
+            <ExtraCertCard
+              key={cert.id}
+              cert={cert}
+              index={index}
+              total={extra.length}
+              onPatch={(changes) => patchExtra(cert.id, changes)}
+              onPhoto={(ev) => replaceExtraPhoto(cert.id, ev)}
+              onMove={(dir) => moveExtra(index, dir)}
+              onRemove={async () =>
+                (await confirmar(`¿Eliminar el certificado${cert.title ? ` "${cert.title}"` : ""}? Deja de verse en la web y no se puede deshacer.`)) &&
+                saveExtra(readCertExtra().filter((c) => c.id !== cert.id), "Certificado eliminado")
+              }
+            />
+          ))}
+          <AddCertTile onFile={addExtra} />
         </div>
       </div>
     </>
