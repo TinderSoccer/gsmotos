@@ -8,7 +8,7 @@ import ProductModal from "@/components/home/ProductModal";
 import SmartImage from "@/components/common/SmartImage";
 import Button from "@/components/common/Button";
 import { NEUMATICOS_USOS } from "@/lib/neumaticosContent";
-import { useNeumaticosStock } from "@/lib/neumaticosStock";
+import { tireInStock, useNeumaticosStock } from "@/lib/neumaticosStock";
 import { useSettings, whatsappUrl } from "@/lib/settings";
 import { formatCLP } from "@/lib/catalogo";
 
@@ -79,7 +79,8 @@ export default function NeumaticosVitrina({ embedded = false }) {
   }, []);
 
   const uso = NEUMATICOS_USOS.find((u) => u.slot === active) || NEUMATICOS_USOS[0];
-  const items = stock[uso.slot] || [];
+  // Sin los que tienen cantidad 0 en el Excel (ver lib/neumaticosStock.js).
+  const items = (stock[uso.slot] || []).filter(tireInStock);
 
   return (
     <section ref={sectionRef} id={VITRINA_ID} className={`scroll-mt-4 ${embedded ? "" : "px-6 pb-10 sm:px-10 lg:pb-14"}`}>

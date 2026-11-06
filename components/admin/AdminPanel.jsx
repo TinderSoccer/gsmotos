@@ -23,7 +23,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import Logo from "@/components/Logo";
 import { useRouter } from "next/navigation";
-import { Award, Camera, ChevronLeft, ChevronRight, ExternalLink, ImageOff, Loader2, LogOut, PlayCircle, Search, Upload } from "lucide-react";
+import { Award, Camera, ChevronLeft, ChevronRight, Download, ExternalLink, FileSpreadsheet, ImageOff, Loader2, LogOut, PlayCircle, Search, Undo2, Upload, X } from "lucide-react";
 import ColorBars from "@/components/services/ColorBars";
 import { CERTIFICADOS } from "@/lib/certificados";
 import { setCertPhoto, useCertPhotos } from "@/lib/useCertPhotos";
@@ -35,7 +35,8 @@ import { PLACEHOLDER_PHOTO } from "@/lib/productosData";
 import { isDirectVideoUrl, readTallerItems, resetTallerItems, useTallerItems, writeTallerItems } from "@/lib/taller";
 import { optimizeVideo, videoPoster } from "@/lib/videoOptimize";
 import { readGruasPhotos, useGruasPhotos, writeGruasPhotos } from "@/lib/gruas";
-import { useNeumaticosStock, writeNeumaticosStock } from "@/lib/neumaticosStock";
+import { useNeumaticosStock, writeAllNeumaticosStock, writeNeumaticosStock } from "@/lib/neumaticosStock";
+import { downloadCatalogoExcel, planExcelImport, readXlsx } from "@/lib/excelCatalogo";
 import { readTarifas, useTarifas, writeTarifas } from "@/lib/tarifas";
 import { pdfToImages } from "@/lib/pdfPages";
 import { SITE_URL } from "@/lib/site";
@@ -1307,7 +1308,8 @@ const PRODUCT_FILTERS = [
   { id: "sinmodelo", label: "Sin modelo", test: (p) => !p.aplicacion?.trim(), falta: true, campo: "aplicacion" },
   { id: "sincodigo", label: "Sin código", test: (p) => !p.codigo?.trim(), falta: true, campo: "codigo" },
   { id: "sinprecio", label: "Sin precio", test: (p) => !(p.price > 0), falta: true, campo: "price" },
-  { id: "sinstock", label: "Sin stock", test: (p) => !(p.stock > 0), falta: true, campo: "stock" },
+  // Stock 0: no se ven en la web (ver enStock en lib/catalogo.js).
+  { id: "sinstock", label: "Sin stock", test: (p) => p.stock === 0, falta: true, campo: "stock" },
 ];
 
 // "71 productos sin foto", "1 producto usado", "184 productos".
@@ -1320,6 +1322,505 @@ function resultLabel(f, n) {
 // Marca en rojo el campo que le falta a un producto cuando se está viendo
 // el filtro de ese dato.
 const MISSING = "ring-2 ring-mRed/70";
+
+// ── Productos y neumáticos con Excel (lib/excelCatalogo.js) ───────────────
+// Tarjeta "Actualizar con Excel" (descargar, subir, deshacer) y la ventana
+// "Revisa los cambios", que muestra todo antes de aplicar. Lo que no está en
+// el Excel se oculta de la web (no se borra), y la última carga se puede
+// deshacer (copia en app/api/admin/excel-backup).
+
+function plural(n, one, many) {
+  return `${n} ${n === 1 ? one : many}`;
+}
+
+function precioTxt(n) {
+  return n > 0 ? formatCLP(n) : "sin precio";
+}
+
+function cantidadTxt(n) {
+  return n === null || n === undefined ? "sin cantidad" : String(n);
+}
+
+function fechaHora(ms) {
+  const d = new Date(ms);
+  return `${d.toLocaleDateString("es-CL", { day: "numeric", month: "short" })} a las ${d.toLocaleTimeString("es-CL", { hour: "2-digit", minute: "2-digit", hour12: false })}`;
+}
+
+async function backupRequest(method, body) {
+  try {
+    const res = await fetch("/api/admin/excel-backup", {
+      method,
+      headers: body ? { "Content-Type": "application/json" } : undefined,
+      body: body ? JSON.stringify(body) : undefined,
+    });
+    const json = await res.json().catch(() => ({}));
+    return res.ok && json.ok ? json : { ok: false, error: json.error || "No se pudo conectar. Revisa tu conexión a internet." };
+  } catch {
+    return { ok: false, error: "No se pudo conectar. Revisa tu conexión a internet." };
+  }
+}
+
+const GROUP_TONES = {
+  ocultan: "text-mRed",
+  nuevos: "text-[#1B7F3B]",
+  vuelven: "text-[#1B7F3B]",
+  cambios: "text-mBlue",
+};
+
+// Un grupo del resumen ("3 se ocultan de la web"). Los que se ocultan van
+// siempre abiertos; el resto se pliega si es largo y lo dice ("ver los 12").
+function ExcelGroup({ tone, count, label, items, render, alwaysOpen = false }) {
+  if (!count) return null;
+  const startOpen = alwaysOpen || items.length <= 6;
+  return (
+    <details className="group" open={startOpen}>
+      <summary className="flex min-h-11 cursor-pointer list-none items-center gap-3 py-2 [&::-webkit-details-marker]:hidden">
+        <span className={`font-display text-2xl font-bold italic tabular-nums leading-none ${GROUP_TONES[tone]}`}>{count}</span>
+        <span className="flex-1 text-[15px] font-semibold leading-snug text-[#0B0B0B]">{label}</span>
+        <span className="flex items-center gap-1 whitespace-nowrap text-[13px] text-[#5A5A5A]">
+          <span className="group-open:hidden">Ver {items.length > 1 ? `los ${items.length}` : ""}</span>
+          <ChevronRight size={16} className="transition-transform group-open:rotate-90" aria-hidden="true" />
+        </span>
+      </summary>
+      <ul className="mb-2 ml-[42px] divide-y divide-[#ECECEC] text-[14.5px] leading-snug text-[#3A3A3A]">
+        {items.map((item, i) => (
+          <li key={i} className="py-2">
+            {render(item)}
+          </li>
+        ))}
+      </ul>
+    </details>
+  );
+}
+
+function ExcelPlanSection({ title, plan, isTires }) {
+  if (!plan) {
+    return (
+      <section className="flex flex-col gap-1">
+        <h3 className="font-display text-lg font-bold uppercase tracking-wide text-[#0B0B0B]">{title}</h3>
+        <p className="text-[14.5px] text-[#5A5A5A]">
+          El Excel no trae {isTires ? "la hoja de neumáticos" : "la hoja de productos"}, así que {isTires ? "los neumáticos quedan" : "los productos quedan"} como están.
+        </p>
+      </section>
+    );
+  }
+  const [one, many] = isTires ? ["neumático", "neumáticos"] : ["producto", "productos"];
+  const name = (item) => (
+    <>
+      <span className="font-semibold text-[#0B0B0B]">{item.name}</span>
+      {(item.uso || item.codigo) && <span className="text-[#5A5A5A]"> · {item.uso || item.codigo}</span>}
+    </>
+  );
+  const nothing = !plan.nuevos.length && !plan.cambios.length && !plan.ocultan.length && !plan.vuelven.length;
+  return (
+    <section className="flex flex-col gap-2">
+      <h3 className="font-display text-lg font-bold uppercase tracking-wide text-[#0B0B0B]">{title}</h3>
+      {plan.muchos && (
+        <p className="rounded-lg bg-mRed/[0.07] px-4 py-3 text-[14.5px] leading-snug text-[#0B0B0B]">
+          <strong>Ojo:</strong> se ocultarían más {many} de los que quedan a la vista. Revisa que sea el Excel correcto.
+        </p>
+      )}
+      {plan.renombres.length > 0 && (
+        <div className="rounded-lg bg-[#FFF4D6] px-4 py-3 text-[14.5px] leading-snug text-[#0B0B0B]">
+          <strong>¿Cambiaste {plan.renombres.length === 1 ? "un nombre" : "nombres"} en el Excel?</strong> Estos parecen el mismo {one} con otro nombre. Si es así, el
+          nuevo entra sin foto y el antiguo se oculta. Para cambiar un nombre, hazlo aquí en el panel.
+          <ul className="mt-2 flex flex-col gap-1">
+            {plan.renombres.map((r, i) => (
+              <li key={i}>
+                &ldquo;{r.viejo}&rdquo; → &ldquo;{r.nuevo}&rdquo;
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
+      <div className="flex flex-col divide-y divide-[#E4E4E4] rounded-lg bg-white px-4">
+        <ExcelGroup
+          tone="ocultan"
+          alwaysOpen
+          count={plan.ocultan.length}
+          label={plan.ocultan.length === 1 ? `${one} queda sin stock: deja de verse en la web` : `${many} quedan sin stock: dejan de verse en la web`}
+          items={plan.ocultan}
+          render={(item) => (
+            <>
+              {name(item)}
+              <span className="mt-0.5 block text-mRed">{item.faltaEnExcel ? "No está en el Excel" : "Cantidad 0 en el Excel"}</span>
+            </>
+          )}
+        />
+        <ExcelGroup
+          tone="nuevos"
+          count={plan.nuevos.length}
+          label={plan.nuevos.length === 1 ? `${one} nuevo: se agrega` : `${many} nuevos: se agregan`}
+          items={plan.nuevos}
+          render={(item) => (
+            <>
+              {name(item)}
+              {item.sinStock && <span className="mt-0.5 block text-mRed">Sin stock: queda en el panel, pero no se ve en la web</span>}
+            </>
+          )}
+        />
+        <ExcelGroup
+          tone="vuelven"
+          count={plan.vuelven.length}
+          label={plan.vuelven.length === 1 ? `${one} vuelve a tener stock: se ve de nuevo` : `${many} vuelven a tener stock: se ven de nuevo`}
+          items={plan.vuelven}
+          render={name}
+        />
+        <ExcelGroup
+          tone="cambios"
+          count={plan.cambios.length}
+          label={plan.cambios.length === 1 ? `${one} cambia de precio o cantidad` : `${many} cambian de precio o cantidad`}
+          items={plan.cambios}
+          render={(c) => (
+            <>
+              {name(c)}
+              <span className="mt-0.5 block text-[#5A5A5A]">
+                {c.precio && (
+                  <>
+                    Precio {precioTxt(c.precio[0])} → <strong className="font-semibold text-[#0B0B0B]">{precioTxt(c.precio[1])}</strong>
+                  </>
+                )}
+                {c.precio && c.cantidad && " · "}
+                {c.cantidad && (
+                  <>
+                    Cantidad {cantidadTxt(c.cantidad[0])} → <strong className="font-semibold text-[#0B0B0B]">{cantidadTxt(c.cantidad[1])}</strong>
+                  </>
+                )}
+              </span>
+            </>
+          )}
+        />
+        {(plan.sinCambios > 0 || nothing) && (
+          <p className="py-3 text-[14.5px] text-[#5A5A5A]">
+            {plan.sinCambios > 0 ? `${plural(plan.sinCambios, `${one} queda igual`, `${many} quedan iguales`)}.` : `No hay ${many} en la hoja.`}
+          </p>
+        )}
+      </div>
+    </section>
+  );
+}
+
+function planTotals(plan) {
+  const sum = (k) => (plan.productos?.[k].length || 0) + (plan.neumaticos?.[k].length || 0);
+  return { nuevos: sum("nuevos"), cambios: sum("cambios"), ocultan: sum("ocultan"), vuelven: sum("vuelven") };
+}
+
+// Ventana con el resumen: no se guarda nada hasta tocar el botón azul. Es un
+// diálogo de verdad: toma el foco, Tab no se escapa, Escape la cierra y la
+// página de atrás no se mueve.
+function ExcelImportModal({ plan, fileName, onCancel, onApply, applying }) {
+  const boxRef = useRef(null);
+  const titleRef = useRef(null);
+  const live = useRef({ applying, onCancel });
+  live.current = { applying, onCancel };
+  const problemas = [...(plan.productos?.problemas || []), ...(plan.neumaticos?.problemas || [])];
+  const t = planTotals(plan);
+  const nothing = !t.nuevos && !t.cambios && !t.ocultan && !t.vuelven;
+  const resumen = [
+    t.nuevos && { n: t.nuevos, txt: t.nuevos === 1 ? "se agrega" : "se agregan", tone: "nuevos" },
+    t.cambios && { n: t.cambios, txt: t.cambios === 1 ? "cambia" : "cambian", tone: "cambios" },
+    t.vuelven && { n: t.vuelven, txt: t.vuelven === 1 ? "vuelve a la web" : "vuelven a la web", tone: "vuelven" },
+    t.ocultan && { n: t.ocultan, txt: t.ocultan === 1 ? "queda sin stock" : "quedan sin stock", tone: "ocultan" },
+  ].filter(Boolean);
+
+  useEffect(() => {
+    const before = document.activeElement;
+    const { overflow } = document.body.style;
+    document.body.style.overflow = "hidden";
+    titleRef.current?.focus();
+    function onKey(ev) {
+      if (ev.key === "Escape" && !live.current.applying) {
+        ev.preventDefault();
+        live.current.onCancel();
+      }
+      if (ev.key !== "Tab" || !boxRef.current) return;
+      const els = [...boxRef.current.querySelectorAll('button:not([disabled]), summary, [tabindex="-1"]')];
+      const first = els[0];
+      const last = els[els.length - 1];
+      if (ev.shiftKey && document.activeElement === first) {
+        ev.preventDefault();
+        last.focus();
+      } else if (!ev.shiftKey && document.activeElement === last) {
+        ev.preventDefault();
+        first.focus();
+      } else if (!boxRef.current.contains(document.activeElement)) {
+        ev.preventDefault();
+        first.focus();
+      }
+    }
+    window.addEventListener("keydown", onKey);
+    return () => {
+      window.removeEventListener("keydown", onKey);
+      document.body.style.overflow = overflow;
+      before?.focus?.();
+    };
+  }, []);
+
+  return (
+    <div className="fixed inset-0 z-[300] flex items-end justify-center bg-black/60 sm:items-center sm:p-6" style={{ animation: "gsmBack 220ms ease both" }}>
+      <div
+        ref={boxRef}
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="excel-dialog-title"
+        className="flex max-h-[92dvh] w-full max-w-2xl flex-col overflow-hidden rounded-t-2xl bg-[#F4F4F4] shadow-[0_30px_80px_rgba(0,0,0,0.4)] sm:rounded-2xl"
+      >
+        <div className="flex flex-col gap-2 bg-white px-6 pb-5 pt-6">
+          <h2 id="excel-dialog-title" ref={titleRef} tabIndex={-1} className="font-display text-2xl font-bold italic uppercase leading-tight text-[#0B0B0B] outline-none">
+            Revisa los cambios
+          </h2>
+          <p className="text-[14.5px] leading-snug text-[#5A5A5A]">
+            Esto es lo que cambiaría en la web con <strong className="font-semibold text-[#0B0B0B]">{fileName}</strong>. Todavía no se ha cambiado nada.
+          </p>
+          {nothing ? (
+            <p className="mt-2 text-[15px] font-semibold text-[#0B0B0B]">Todo está igual que en el Excel: no hay nada que cambiar.</p>
+          ) : (
+            <p className="mt-2 flex flex-wrap gap-x-5 gap-y-1.5">
+              {resumen.map((r) => (
+                <span key={r.tone} className="flex items-baseline gap-1.5 text-[15px] text-[#0B0B0B]">
+                  <span className={`font-display text-[26px] font-bold italic tabular-nums leading-none ${GROUP_TONES[r.tone]}`}>{r.n}</span>
+                  {r.txt}
+                </span>
+              ))}
+            </p>
+          )}
+        </div>
+        {!nothing && (
+          <div className="flex flex-col gap-6 overflow-y-auto overscroll-contain px-6 py-5">
+            <ExcelPlanSection title="Productos" plan={plan.productos} />
+            <ExcelPlanSection title="Neumáticos" plan={plan.neumaticos} isTires />
+            {problemas.length > 0 && (
+              <section className="flex flex-col gap-2">
+                <h3 className="font-display text-lg font-bold uppercase tracking-wide text-[#0B0B0B]">{plural(problemas.length, "fila no se pudo usar", "filas no se pudieron usar")}</h3>
+                <ul className="flex flex-col divide-y divide-[#E4E4E4] rounded-lg bg-white px-4 text-[14.5px] leading-snug text-[#3A3A3A]">
+                  {problemas.map((p, i) => (
+                    <li key={i} className="py-2.5">
+                      {p}
+                    </li>
+                  ))}
+                </ul>
+              </section>
+            )}
+            <p className="text-[14px] leading-snug text-[#5A5A5A]">
+              En lo que ya está en la web solo cambian el precio y la cantidad. Lo que queda sin stock no se borra: sigue aquí en el panel con su
+              foto, marcado en rojo, y vuelve a verse en cuanto le pongas stock. Y si algo no quedó bien, puedes deshacer esta carga completa.
+            </p>
+          </div>
+        )}
+        <div className="flex flex-col gap-2.5 border-t border-[#E0E0E0] bg-white px-6 py-4 sm:flex-row-reverse sm:justify-start">
+          {!nothing && (
+            <button
+              type="button"
+              onClick={onApply}
+              disabled={applying}
+              className="inline-flex min-h-11 items-center justify-center gap-2 rounded bg-mBlue px-6 py-3 font-display text-sm font-semibold uppercase tracking-[2px] text-white transition-colors hover:bg-[#164E8F] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-mBlue disabled:opacity-60"
+            >
+              {applying && <Loader2 size={16} className="animate-spin motion-reduce:animate-none" aria-hidden="true" />}
+              {applying ? "Aplicando…" : "Aplicar cambios"}
+            </button>
+          )}
+          <button
+            type="button"
+            onClick={onCancel}
+            disabled={applying}
+            className="min-h-11 rounded border border-[#CFCFCF] px-5 py-3 font-display text-sm font-semibold uppercase tracking-[2px] text-[#3A3A3A] transition-colors hover:border-[#0B0B0B] hover:text-[#0B0B0B] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-mBlue"
+          >
+            {nothing ? "Cerrar" : "Cancelar, no cambiar nada"}
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// Tarjeta "Actualizar con Excel" de la pestaña Productos.
+function ExcelCatalogoCard({ productos, onShowSinFoto }) {
+  const tires = useNeumaticosStock();
+  const [busy, setBusy] = useState("");
+  const [preview, setPreview] = useState(null);
+  const [result, setResult] = useState(null);
+  const [backup, setBackup] = useState(null);
+
+  useEffect(() => {
+    backupRequest("GET").then((r) => r.ok && setBackup(r.backup));
+  }, []);
+
+  async function download() {
+    setBusy("descargando");
+    try {
+      await downloadCatalogoExcel(productos, tires);
+    } catch {
+      avisar("No se pudo armar el Excel. Intenta de nuevo.");
+    } finally {
+      setBusy("");
+    }
+  }
+
+  async function onFile(ev) {
+    const file = ev.target.files?.[0];
+    ev.target.value = "";
+    if (!file) return;
+    setBusy("leyendo");
+    setResult(null);
+    try {
+      const sheets = await readXlsx(file);
+      setPreview({ plan: planExcelImport(sheets, productos, tires), fileName: file.name });
+    } catch (err) {
+      avisar(err?.message || "No se pudo leer ese Excel.");
+    } finally {
+      setBusy("");
+    }
+  }
+
+  async function apply() {
+    const { plan, fileName } = preview;
+    setBusy("aplicando");
+    // Primero la copia para deshacer: sin ella no se cambia nada.
+    const saved = await backupRequest("POST", { productos, neumaticosStock: tires || {}, fileName });
+    if (!saved.ok) {
+      setBusy("");
+      avisar(saved.error);
+      return;
+    }
+    const [okProd, okTires] = await Promise.all([
+      plan.productos ? writeProductos(plan.productos.next) : true,
+      plan.neumaticos ? writeAllNeumaticosStock(plan.neumaticos.next) : true,
+    ]);
+    setBusy("");
+    setBackup({ fileName, at: Date.now() });
+    if (!okProd || !okTires) {
+      avisar(
+        okProd || okTires
+          ? `Los ${okProd ? "productos" : "neumáticos"} quedaron listos, pero los ${okProd ? "neumáticos" : "productos"} no se pudieron guardar. Sube el Excel de nuevo. ${lastSaveError()}`
+          : `No se pudo aplicar el Excel. ${lastSaveError()}`
+      );
+      return;
+    }
+    setPreview(null);
+    setResult({ ...planTotals(plan), nuevosProductos: plan.productos?.nuevos.length || 0 });
+  }
+
+  async function undo() {
+    if (!(await confirmar(`¿Deshacer la última carga de Excel? Los productos y neumáticos vuelven a como estaban el ${fechaHora(backup.at)}, antes de subir "${backup.fileName}". Lo que hayas cambiado en el panel después también se pierde.`))) return;
+    setBusy("deshaciendo");
+    const r = await backupRequest("GET");
+    if (!r.ok || !r.backup) {
+      setBusy("");
+      avisar(r.error || "Ya no hay una carga para deshacer.");
+      setBackup(null);
+      return;
+    }
+    const [okProd, okTires] = await Promise.all([writeProductos(r.backup.productos), writeAllNeumaticosStock(r.backup.neumaticosStock || {})]);
+    if (okProd && okTires) {
+      await backupRequest("DELETE");
+      setBackup(null);
+      setResult(null);
+      notifySaved("Carga deshecha ✓");
+    } else avisar(`No se pudo deshacer. ${lastSaveError()}`);
+    setBusy("");
+  }
+
+  const resultLine = result && [
+    result.nuevos && `se ${result.nuevos === 1 ? "agregó" : "agregaron"} ${result.nuevos}`,
+    result.cambios && `${result.cambios === 1 ? "cambió" : "cambiaron"} ${result.cambios}`,
+    result.vuelven && `${result.vuelven === 1 ? "volvió" : "volvieron"} ${result.vuelven}`,
+    result.ocultan && `${result.ocultan === 1 ? "quedó" : "quedaron"} ${result.ocultan} sin stock`,
+  ].filter(Boolean);
+
+  return (
+    <div className="px-6 pb-5 sm:px-10">
+      {preview && (
+        <ExcelImportModal plan={preview.plan} fileName={preview.fileName} applying={busy === "aplicando"} onCancel={() => setPreview(null)} onApply={apply} />
+      )}
+      <div className="flex flex-col gap-4 rounded-xl border border-[#E0E0E0] bg-white p-5 sm:p-6">
+        <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+          <div className="flex gap-3.5">
+            <FileSpreadsheet size={28} strokeWidth={1.6} className="mt-0.5 flex-none text-[#1B7F3B]" aria-hidden="true" />
+            <div className="flex flex-col gap-1">
+              <h2 className="font-display text-lg font-semibold uppercase tracking-wide text-[#0B0B0B]">Actualizar con Excel</h2>
+              <p className="max-w-[58ch] text-[14.5px] leading-[1.55] text-[#5A5A5A]">
+                Descarga el Excel, cambia precios y cantidades o agrega filas, y vuélvelo a subir. Antes de aplicar te mostramos qué cambia.
+              </p>
+            </div>
+          </div>
+          <div className="flex flex-none flex-col gap-2">
+            <button
+              type="button"
+              onClick={download}
+              disabled={Boolean(busy)}
+              className="inline-flex min-h-11 items-center justify-center gap-2 rounded border border-[#CFCFCF] px-5 py-3 font-display text-sm font-semibold uppercase tracking-[2px] text-[#0B0B0B] transition-colors hover:border-mBlue hover:text-mBlue focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-mBlue disabled:opacity-60"
+            >
+              {busy === "descargando" ? <Loader2 size={16} className="animate-spin motion-reduce:animate-none" aria-hidden="true" /> : <Download size={16} aria-hidden="true" />}
+              Descargar Excel
+            </button>
+            {/* El input queda accesible (sr-only, no display:none): se llega
+                con Tab y se abre con Enter o espacio. */}
+            <label
+              className={`inline-flex min-h-11 items-center justify-center gap-2 rounded bg-mBlue px-5 py-3 font-display text-sm font-semibold uppercase tracking-[2px] text-white transition-colors focus-within:outline focus-within:outline-2 focus-within:outline-offset-2 focus-within:outline-mBlue ${
+                busy ? "pointer-events-none opacity-60" : "cursor-pointer hover:bg-[#164E8F]"
+              }`}
+            >
+              {busy === "leyendo" ? <Loader2 size={16} className="animate-spin motion-reduce:animate-none" aria-hidden="true" /> : <Upload size={16} aria-hidden="true" />}
+              {busy === "leyendo" ? "Leyendo Excel…" : "Subir Excel"}
+              <input
+                type="file"
+                accept=".xlsx,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+                className="sr-only"
+                onChange={onFile}
+                disabled={Boolean(busy)}
+              />
+            </label>
+          </div>
+        </div>
+
+        {result && (
+          <div role="status" className="flex flex-col gap-2 rounded-lg bg-[#1B7F3B]/[0.08] px-4 py-3 sm:flex-row sm:items-center sm:justify-between">
+            <p className="text-[15px] leading-snug text-[#0B0B0B]">
+              <strong>Listo, ya está en la web:</strong> {resultLine.length ? `${resultLine.join(", ")}.` : "no había nada que cambiar."}
+              {result.nuevosProductos > 0 && " Los productos nuevos no tienen foto todavía."}
+            </p>
+            <div className="flex flex-none items-center gap-3">
+              {result.nuevosProductos > 0 && (
+                <button
+                  type="button"
+                  onClick={onShowSinFoto}
+                  className="min-h-11 whitespace-nowrap rounded bg-[#0B0B0B] px-4 font-display text-[13px] font-semibold uppercase tracking-[1.5px] text-white transition-colors hover:bg-mBlue"
+                >
+                  Ver los sin foto
+                </button>
+              )}
+              <button
+                type="button"
+                onClick={() => setResult(null)}
+                aria-label="Cerrar aviso"
+                className="flex h-11 w-11 items-center justify-center rounded text-[#3A3A3A] transition-colors hover:text-[#0B0B0B]"
+              >
+                <X size={18} aria-hidden="true" />
+              </button>
+            </div>
+          </div>
+        )}
+
+        {backup && (
+          <div className="flex flex-col gap-2 border-t border-[#ECECEC] pt-3 text-[14px] text-[#5A5A5A] sm:flex-row sm:items-center sm:justify-between">
+            <span>
+              Última carga: <strong className="font-semibold text-[#3A3A3A]">{backup.fileName || "Excel"}</strong>, el {fechaHora(backup.at)}.
+            </span>
+            <button
+              type="button"
+              onClick={undo}
+              disabled={Boolean(busy)}
+              className="inline-flex min-h-11 items-center gap-2 self-start whitespace-nowrap font-display text-[13px] font-semibold uppercase tracking-[1.5px] text-mBlue underline-offset-4 transition-colors hover:underline disabled:opacity-60 sm:self-auto"
+            >
+              {busy === "deshaciendo" ? <Loader2 size={15} className="animate-spin motion-reduce:animate-none" aria-hidden="true" /> : <Undo2 size={15} aria-hidden="true" />}
+              Deshacer esta carga
+            </button>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
 
 function ProductosTab() {
   const products = useProductos();
@@ -1405,6 +1906,16 @@ function ProductosTab() {
           </button>
         </div>
       </div>
+
+      <ExcelCatalogoCard
+        productos={products}
+        onShowSinFoto={() => {
+          setFilter("sinfoto");
+          setPage(0);
+          setOpenRow(null);
+          requestAnimationFrame(() => listTopRef.current?.scrollIntoView({ behavior: "smooth", block: "start" }));
+        }}
+      />
 
       <div className="px-6 pb-5 sm:px-10">
         <div className="flex items-center gap-3 rounded-[10px] border border-[#E0E0E0] bg-white py-1 pl-5 pr-2.5">
@@ -1498,7 +2009,9 @@ function ProductosTab() {
         {pageItems.map(({ prod, i }) => (
           <div
             key={i}
-            className="grid grid-cols-[104px_1fr] items-center gap-3 rounded-xl border border-[#E0E0E0] bg-white p-3 shadow-[0_2px_10px_rgba(11,11,11,0.05)] sm:grid-cols-[190px_1fr_auto] sm:gap-x-5 sm:gap-y-2.5 sm:p-5"
+            className={`grid grid-cols-[104px_1fr] items-center gap-3 rounded-xl border bg-white p-3 shadow-[0_2px_10px_rgba(11,11,11,0.05)] sm:grid-cols-[190px_1fr_auto] sm:gap-x-5 sm:gap-y-2.5 sm:p-5 ${
+              prod.stock === 0 ? "border-2 border-mRed" : "border-[#E0E0E0]"
+            }`}
           >
             <PhotoPicker onFile={(ev) => handleFile(i, ev)} className="h-[96px] overflow-hidden rounded-lg border border-[#1E2226] bg-[#EFEDE9] sm:row-span-2 sm:h-[130px]">
               <ProductPhotoPreview photo={prod.photo} name={prod.name} estado={prod.estado} />
@@ -1618,6 +2131,12 @@ function ProductosTab() {
             >
               Eliminar
             </button>
+            {prod.stock === 0 && (
+              <p className="col-span-full rounded-lg bg-mRed px-3.5 py-2.5 text-[14px] leading-snug text-white sm:row-start-3">
+                <strong className="mr-1.5 whitespace-nowrap font-display text-[13px] uppercase tracking-[1.5px]">Sin stock</strong>
+                No se ve en la web. Ponle stock para que vuelva a aparecer.
+              </p>
+            )}
           </div>
         ))}
       </div>
@@ -2107,7 +2626,7 @@ function StockNeumaticosTab() {
           <p className="max-w-xl text-[15.5px] leading-[1.6] text-[#5A5A5A]">
             Las tres vitrinas de la página de Neumáticos: On road, Mixtos y Off road. Elige una, sube la foto de cada
             neumático que tengas y escríbele su nombre y precio. Si no le pones precio, en la web dice &ldquo;Precio a
-            consultar&rdquo;.
+            consultar&rdquo;. También puedes actualizar los precios y cantidades con el Excel de la pestaña Productos.
           </p>
           <SeeOnSite href="/servicios/neumaticos#en-stock" />
         </div>
@@ -2143,9 +2662,19 @@ function StockNeumaticosTab() {
           <TapHint dark />
           <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 sm:gap-4 lg:grid-cols-4 xl:grid-cols-5">
             {items.map((item, index) => (
-              <div key={item.id} className="flex flex-col overflow-hidden rounded-xl border border-[#1E2226] bg-surface-card">
+              <div key={item.id} className={`flex flex-col overflow-hidden rounded-xl border bg-surface-card ${item.stock === 0 ? "border-2 border-mRed" : "border-[#1E2226]"}`}>
                 <PhotoPicker onFile={(ev) => replacePhoto(item.id, ev)} className="aspect-square overflow-hidden bg-[#EFEDE9]">
-                  <SmartImage src={item.photo} alt={item.title || "Neumático"} fit="contain" className="p-2.5 sm:p-3" sizes="240px" />
+                  {item.photo ? (
+                    <SmartImage src={item.photo} alt={item.title || "Neumático"} fit="contain" className="p-2.5 sm:p-3" sizes="240px" />
+                  ) : (
+                    <PlaceholderIcon label="Sin foto" />
+                  )}
+                  {/* Cantidad 0: no se muestra en la web (no se borra). */}
+                  {item.stock === 0 && (
+                    <span className="absolute inset-x-0 bottom-0 z-20 bg-mRed px-2 py-1.5 text-center font-display text-[12px] font-semibold uppercase tracking-wide text-white">
+                      Sin stock · no se ve en la web
+                    </span>
+                  )}
                 </PhotoPicker>
                 <textarea
                   rows={2}
@@ -2165,6 +2694,24 @@ function StockNeumaticosTab() {
                     placeholder="Precio"
                     aria-label="Precio en pesos"
                     className="w-full min-w-0 bg-transparent outline-none placeholder:font-normal placeholder:text-[#5E666D] focus:bg-white/[0.04]"
+                  />
+                </label>
+                {/* Cantidad: con 0 no se ve en la web (se marca en rojo). Vacío = sin dato, se muestra. */}
+                <label className="mx-3.5 flex items-center justify-between gap-2 border-t border-white/[0.07] py-2 text-[13px] text-[#B9C0C7]">
+                  Cantidad
+                  <input
+                    type="text"
+                    inputMode="numeric"
+                    value={typeof item.stock === "number" ? String(item.stock) : ""}
+                    onChange={(ev) => {
+                      const v = ev.target.value.replace(/\D/g, "");
+                      patch(item.id, { stock: v === "" ? undefined : Number(v) });
+                    }}
+                    placeholder="—"
+                    aria-label="Cantidad en stock"
+                    className={`w-16 min-w-0 rounded border bg-transparent px-2 py-1.5 text-right font-display text-[15px] font-semibold outline-none focus:border-mCyan ${
+                      item.stock === 0 ? "border-mRed text-[#FF8A9C]" : "border-white/15 text-white"
+                    }`}
                   />
                 </label>
                 <div className="mt-auto flex items-center gap-2 border-t border-[#1E2226] px-2.5 py-2">

@@ -5,7 +5,7 @@ import Image from "next/image";
 import HeroBanner from "./HeroBanner";
 import SelectorPanel from "./SelectorPanel";
 import { menus } from "@/lib/servicesData";
-import { useProductos } from "@/lib/catalogo";
+import { enStock, useProductos } from "@/lib/catalogo";
 import { PLACEHOLDER_PHOTO } from "@/lib/productosData";
 import { productMatches, queryWords } from "@/lib/productSearch";
 
@@ -21,7 +21,9 @@ export default function HeroExperience() {
 
   const menu = menus[sel];
   const isProductos = menu.kind === "catalog";
-  const productos = useProductos();
+  const todos = useProductos();
+  // Sin los que no tienen stock (ver enStock en lib/catalogo.js).
+  const productos = useMemo(() => todos.filter(enStock), [todos]);
 
   // "Destacados de esta semana" (sin búsqueda activa) muestra solo productos
   // usados, en orden aleatorio — a diferencia de una búsqueda puntual, que
