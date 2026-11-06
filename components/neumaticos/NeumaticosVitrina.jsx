@@ -145,7 +145,7 @@ export default function NeumaticosVitrina({ embedded = false }) {
 
       {/* Mismo popup que los productos, con los datos del neumático. */}
       <ProductModal
-        prod={openTire ? { name: openTire.title || "Neumático", photo: openTire.photo, price: openTire.price } : null}
+        prod={openTire ? { name: openTire.title || "Neumático", photo: openTire.photo, photos: openTire.photos, price: openTire.price } : null}
         showEstado={false}
         ficha={[["Tipo de uso", uso.title]]}
         message={

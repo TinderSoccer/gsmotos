@@ -1,11 +1,11 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { ImageOff, X } from "lucide-react";
 import { FaWhatsapp } from "react-icons/fa6";
 import { formatCLP, isBmwCode, productConsultMessage } from "@/lib/catalogo";
-import { PLACEHOLDER_PHOTO } from "@/lib/productosData";
+import { galleryOf } from "@/lib/productPhotos";
 import { useSettings, whatsappUrl } from "@/lib/settings";
 import SmartImage from "@/components/common/SmartImage";
 import { BACKDROP_OUT, CARD_OUT, useClosing } from "@/lib/useClosing";
@@ -22,13 +22,38 @@ import Button from "@/components/common/Button";
 export default function ProductModal({ prod, onClose, ficha: fichaProp, message, showEstado = true }) {
   const [closing, close] = useClosing(onClose);
   const s = useSettings();
+  // Foto que se ve en grande; las demás van abajo en miniatura.
+  const photos = galleryOf(prod);
+  const [sel, setSel] = useState(0);
+  const [prevProd, setPrevProd] = useState(prod);
+  if (prod !== prevProd) {
+    setPrevProd(prod);
+    setSel(0);
+  }
+  const current = photos[Math.min(sel, photos.length - 1)];
+  const galleryLen = useRef(0);
+  galleryLen.current = photos.length;
+  // En el celular la foto grande se desliza con el dedo.
+  const touchX = useRef(null);
+  function onTouchEnd(ev) {
+    if (touchX.current === null) return;
+    const dx = ev.changedTouches[0].clientX - touchX.current;
+    touchX.current = null;
+    if (Math.abs(dx) < 40) return;
+    setSel((i) => Math.max(0, Math.min(galleryLen.current - 1, i + (dx < 0 ? 1 : -1))));
+  }
 
   // Escape cierra y el fondo no se desplaza mientras está abierto (igual
   // que el visor de fotos, components/common/PhotoViewer.jsx).
   const open = Boolean(prod);
   useEffect(() => {
     if (!open) return undefined;
-    const onKey = (ev) => ev.key === "Escape" && close();
+    const onKey = (ev) => {
+      if (ev.key === "Escape") close();
+      // Flechas: foto anterior / siguiente.
+      if (ev.key === "ArrowRight") setSel((i) => Math.min(i + 1, Math.max(0, galleryLen.current - 1)));
+      if (ev.key === "ArrowLeft") setSel((i) => Math.max(0, i - 1));
+    };
     window.addEventListener("keydown", onKey);
     const prevOverflow = document.body.style.overflow;
     document.body.style.overflow = "hidden";
@@ -79,9 +104,14 @@ export default function ProductModal({ prod, onClose, ficha: fichaProp, message,
           <X size={20} strokeWidth={2} />
         </button>
 
-        <div className="relative h-[240px] flex-none overflow-hidden bg-[#EFEDE9] md:h-auto md:min-h-[440px] md:w-[52%]">
-          {prod.photo && prod.photo !== PLACEHOLDER_PHOTO ? (
-            <SmartImage src={prod.photo} alt={prod.name} fit="contain" className="p-5 md:p-8" sizes="(max-width: 767px) 100vw, 450px" priority />
+        <div className="flex flex-none flex-col bg-[#EFEDE9] md:w-[52%]">
+        <div
+          className="relative h-[240px] overflow-hidden md:h-auto md:min-h-[400px] md:flex-1"
+          onTouchStart={photos.length > 1 ? (ev) => (touchX.current = ev.touches[0].clientX) : undefined}
+          onTouchEnd={photos.length > 1 ? onTouchEnd : undefined}
+        >
+          {current ? (
+            <SmartImage key={current} style={{ animation: "gsmFotoIn 260ms cubic-bezier(0.22,0.61,0.36,1) both" }} src={current} alt={photos.length > 1 ? `${prod.name}, foto ${Math.min(sel, photos.length - 1) + 1} de ${photos.length}` : prod.name} fit="contain" className="p-5 md:p-8" sizes="(max-width: 767px) 100vw, 450px" priority />
           ) : (
             <div className="flex h-full w-full flex-col items-center justify-center gap-2 bg-[repeating-linear-gradient(135deg,#EDEBE7_0_10px,#E4E1DB_10px_20px)]">
               <ImageOff size={26} strokeWidth={1.4} className="text-[#8C857C]" />
@@ -98,6 +128,28 @@ export default function ProductModal({ prod, onClose, ficha: fichaProp, message,
             {usado ? "Usado" : "Nuevo"}
           </span>
           )}
+        </div>
+        {photos.length > 1 && (
+          <div className="flex gap-2 overflow-x-auto px-3 pb-3 [scrollbar-width:none] md:px-5 md:pb-5 [&::-webkit-scrollbar]:hidden" role="group" aria-label="Fotos">
+            {photos.map((url, i) => {
+              const on = i === Math.min(sel, photos.length - 1);
+              return (
+                <button
+                  key={url}
+                  type="button"
+                  onClick={() => setSel(i)}
+                  aria-label={`Ver foto ${i + 1} de ${photos.length}`}
+                  aria-pressed={on}
+                  className={`relative h-14 w-14 flex-none overflow-hidden rounded-md border-2 bg-white transition-[opacity,border-color] duration-200 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-[3px] focus-visible:outline-[#0B0B0B] md:h-16 md:w-16 ${
+                    on ? "border-mBlue opacity-100" : "border-transparent opacity-60 hover:opacity-100"
+                  }`}
+                >
+                  <SmartImage src={url} alt="" fit="contain" className="p-1" sizes="64px" />
+                </button>
+              );
+            })}
+          </div>
+        )}
         </div>
 
         <div className="flex min-h-0 flex-1 flex-col overflow-y-auto px-6 pb-[max(1.5rem,env(safe-area-inset-bottom))] pt-5 md:px-9 md:pb-8 md:pt-9">

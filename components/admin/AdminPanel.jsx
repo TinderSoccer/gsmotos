@@ -23,7 +23,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import Logo from "@/components/Logo";
 import { useRouter } from "next/navigation";
-import { Award, Camera, ChevronLeft, ChevronRight, Download, ExternalLink, FileSpreadsheet, ImageOff, Loader2, LogOut, PlayCircle, Search, Undo2, Upload, X } from "lucide-react";
+import { Award, Camera, ChevronLeft, ChevronRight, Download, ExternalLink, FileSpreadsheet, ImageOff, Loader2, LogOut, PlayCircle, Plus, Search, Star, Undo2, Upload, X } from "lucide-react";
 import ColorBars from "@/components/services/ColorBars";
 import { CERTIFICADOS } from "@/lib/certificados";
 import { setCertPhoto, useCertPhotos } from "@/lib/useCertPhotos";
@@ -37,6 +37,7 @@ import { optimizeVideo, videoPoster } from "@/lib/videoOptimize";
 import { readGruasPhotos, useGruasPhotos, writeGruasPhotos } from "@/lib/gruas";
 import { useNeumaticosStock, writeAllNeumaticosStock, writeNeumaticosStock } from "@/lib/neumaticosStock";
 import { downloadCatalogoExcel, planExcelImport, readXlsx } from "@/lib/excelCatalogo";
+import { MAX_PHOTOS, makeMain } from "@/lib/productPhotos";
 import { readTarifas, useTarifas, writeTarifas } from "@/lib/tarifas";
 import { pdfToImages } from "@/lib/pdfPages";
 import { SITE_URL } from "@/lib/site";
@@ -1323,6 +1324,81 @@ function resultLabel(f, n) {
 // el filtro de ese dato.
 const MISSING = "ring-2 ring-mRed/70";
 
+// ── Más fotos de un producto o neumático (lib/productPhotos.js) ───────────
+// Miniaturas de las fotos adicionales: se ven en la web en la vista en
+// grande, debajo de la principal. Cada una se puede volver principal o
+// quitar; "+" agrega otra (hasta MAX_PHOTOS contando la principal).
+function MorePhotos({ item, onChange, dark = false }) {
+  const extra = Array.isArray(item.photos) ? item.photos : [];
+  const total = extra.length + 1;
+  const [busy, setBusy] = useState(false);
+
+  async function add(ev) {
+    setBusy(true);
+    try {
+      const url = await readAndUpload(ev, { maxSize: 1200, quality: 0.8 });
+      if (url) onChange({ photos: [...extra, url] }, "Foto agregada ✓");
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  const tile = "relative h-20 w-20 flex-none overflow-hidden rounded-md sm:h-[72px] sm:w-[72px]";
+  const corner =
+    "absolute flex h-8 w-8 items-center justify-center rounded bg-white/95 text-[#3A3A3A] shadow-[0_1px_4px_rgba(0,0,0,0.3)] transition-colors sm:h-7 sm:w-7";
+  return (
+    <div className="col-span-full flex flex-col gap-1.5">
+      <span className={`text-xs uppercase tracking-wide ${dark ? "text-[#9AA1A8]" : "text-[#6A6A6A]"}`}>
+        Más fotos <span className="tabular-nums">({total} de {MAX_PHOTOS})</span>
+      </span>
+      <div className="flex flex-wrap gap-2">
+        {extra.map((url, i) => (
+          <div key={url} className={`${tile} group/foto border ${dark ? "border-white/15 bg-[#EFEDE9]" : "border-[#E0E0E0] bg-[#F4F2EE]"}`}>
+            <SmartImage src={url} alt={`Foto ${i + 2}`} fit="contain" className="p-1" sizes="64px" />
+            <button
+              type="button"
+              onClick={() => onChange(makeMain(item, i), "Foto principal cambiada ✓")}
+              aria-label={`Usar la foto ${i + 2} como principal`}
+              title="Usar como principal"
+              className={`${corner} bottom-1 left-1 hover:text-mBlue`}
+            >
+              <Star size={15} aria-hidden="true" />
+            </button>
+            <button
+              type="button"
+              onClick={async () => (await confirmar("¿Quitar esta foto? Deja de verse en la web.")) && onChange({ photos: extra.filter((u) => u !== url) }, "Foto quitada")}
+              aria-label={`Quitar la foto ${i + 2}`}
+              title="Quitar"
+              className={`${corner} right-1 top-1 hover:text-mRed`}
+            >
+              <X size={15} aria-hidden="true" />
+            </button>
+          </div>
+        ))}
+        {total < MAX_PHOTOS && (
+          <label
+            className={`${tile} flex flex-col items-center justify-center gap-0.5 border-2 border-dashed text-[11px] font-semibold uppercase tracking-wide transition-colors focus-within:outline focus-within:outline-2 focus-within:outline-offset-2 focus-within:outline-mBlue ${
+              dark ? "border-[#2E3A45] text-[#8FC2E6] hover:border-mCyan hover:text-mCyan" : "border-[#CFCFCF] text-mBlue hover:border-mBlue"
+            } ${busy ? "cursor-wait" : "cursor-pointer"}`}
+          >
+            {busy ? <Loader2 size={18} className="animate-spin motion-reduce:animate-none" aria-hidden="true" /> : <Plus size={18} aria-hidden="true" />}
+            {busy ? "" : "Foto"}
+            <input type="file" accept="image/*" className="sr-only" onChange={add} disabled={busy} aria-label="Agregar otra foto" />
+          </label>
+        )}
+      </div>
+      <p className={`flex flex-wrap items-center gap-x-1 text-[12.5px] leading-snug ${dark ? "text-[#9AA1A8]" : "text-[#6A6A6A]"}`}>
+        Se ven al abrirlo en la web, bajo la foto principal.
+        {extra.length > 0 && (
+          <span className="inline-flex items-center gap-1">
+            <Star size={12} aria-hidden="true" /> la vuelve principal.
+          </span>
+        )}
+      </p>
+    </div>
+  );
+}
+
 // ── Productos y neumáticos con Excel (lib/excelCatalogo.js) ───────────────
 // Tarjeta "Actualizar con Excel" (descargar, subir, deshacer) y la ventana
 // "Revisa los cambios", que muestra todo antes de aplicar. Lo que no está en
@@ -2115,6 +2191,9 @@ function ProductosTab() {
                   </button>
                 ))}
               </div>
+              <div className="col-span-2 mt-1 sm:w-full">
+                <MorePhotos item={prod} onChange={(changes, msg) => warnIfFailed(writeProductos(products.map((p, k) => (k === i ? { ...p, ...changes } : p))), msg)} />
+              </div>
               <button
                 type="button"
                 onClick={async () => (await confirmar(`¿Eliminar "${prod.name || "este producto"}"? No se puede deshacer.`)) && removeProduct(i)}
@@ -2714,6 +2793,9 @@ function StockNeumaticosTab() {
                     }`}
                   />
                 </label>
+                <div className="mx-3.5 border-t border-white/[0.07] py-2.5">
+                  <MorePhotos dark item={item} onChange={(changes, msg) => save(items.map((it) => (it.id === item.id ? { ...it, ...changes } : it)), msg)} />
+                </div>
                 <div className="mt-auto flex items-center gap-2 border-t border-[#1E2226] px-2.5 py-2">
                   <div className="flex items-center gap-1">
                     {[
