@@ -22,7 +22,7 @@ Sitio de GSmotos, un taller especialista en BMW Motorrad en Santiago, Chile. El 
 - En el panel **todo se guarda solo**: nada de botones "Guardar" ni avisos de "publicar". Usar lenguaje simple, sin rutas ni términos técnicos, y pedir confirmación antes de borrar o restaurar.
 - En el panel, cada foto se muestra **igual que en la web** y se cambia tocándola.
 - Hay dos logos distintos: claro para fondos oscuros (`logo`) y oscuro para fondos claros (`logoOnLight`).
-- En mobile no hay menú hamburguesa: el menú es el tablero del hero (`TableroFoto`) y "Volver al inicio" va en la barra fija de abajo (pie blanco en computador, último botón de la barra en celular, en el lugar de Instagram), no arriba.
+- En mobile no hay menú hamburguesa: el menú es el tablero del hero (`TableroFoto`) y "Volver al inicio" va en la barra fija de abajo (a la derecha del pie blanco en computador, último botón de la barra en celular, en el lugar de Instagram), no arriba.
 
 ## Forma de trabajar
 

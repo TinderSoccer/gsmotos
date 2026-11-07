@@ -123,19 +123,8 @@ export default function SiteFooter() {
         className="fixed inset-x-0 bottom-0 z-40 hidden items-center border-t border-gray-200 bg-[#F4F5F6] px-2.5 sm:flex xl:px-6"
         style={{ height: BAR_HEIGHT }}
       >
-        {!enInicio && (
-          <Link
-            href="/"
-            className="mr-4 flex flex-none items-center gap-2 rounded-md bg-[#0B0B0B] px-3.5 py-2.5 font-display text-[13px] font-semibold uppercase tracking-[1.5px] text-white transition-colors hover:bg-mBlue focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-mBlue md:mr-2 lg:px-4"
-          >
-            <ArrowLeft size={16} strokeWidth={2.2} aria-hidden="true" />
-            <span className="2xl:hidden">Inicio</span>
-            <span className="hidden 2xl:inline">Volver al inicio</span>
-          </Link>
-        )}
-        {/* "Inicio" queda siempre pegado a la izquierda; lo demás, centrado en
-            el espacio que sobra (antes todo iba centrado y el botón se corría
-            según el ancho de la pantalla). */}
+        {/* "Volver al inicio" queda siempre pegado a la derecha (pedido del
+            cliente); lo demás, centrado en el espacio que sobra. */}
         <div className="flex min-w-0 flex-1 items-center justify-center gap-2 md:gap-3 lg:gap-4 xl:gap-5">
         {items.map(({ label, href, external, Icon, color, long }) => (
           <a
@@ -182,6 +171,16 @@ export default function SiteFooter() {
           />
         </a>
         </div>
+        {!enInicio && (
+          <Link
+            href="/"
+            className="ml-4 flex flex-none items-center gap-2 rounded-md bg-[#0B0B0B] px-3.5 py-2.5 font-display text-[13px] font-semibold uppercase tracking-[1.5px] text-white transition-colors hover:bg-mBlue focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-mBlue md:mr-2 lg:px-4"
+          >
+            <ArrowLeft size={16} strokeWidth={2.2} aria-hidden="true" />
+            <span className="lg:hidden">Inicio</span>
+            <span className="hidden lg:inline">Volver al inicio</span>
+          </Link>
+        )}
       </footer>
     </>
   );
