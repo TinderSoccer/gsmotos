@@ -4,7 +4,7 @@ import { agendaConfigured, availableDays } from "@/lib/tallergpServer";
 // Horas libres del taller para el formulario de /contacto (ver
 // lib/tallergpServer.js). La primera consulta de cada día puede tardar
 // (~15 s, por TallerGP); después responde al tiro desde lo guardado.
-export const maxDuration = 60;
+export const maxDuration = 120;
 
 export async function GET() {
   if (!agendaConfigured()) return NextResponse.json({ ok: false, reason: "config" }, { status: 503 });
