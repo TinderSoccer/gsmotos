@@ -19,7 +19,7 @@
 // Todo se guarda en el servidor (ver lib/contentStore.js): las fotos se
 // suben a Vercel Blob y los datos a Redis, así que lo ven todos los
 // visitantes, no solo el navegador de quien edita.
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import Logo from "@/components/Logo";
 import { useRouter } from "next/navigation";
@@ -3567,6 +3567,68 @@ function GeneralTab() {
   );
 }
 
+// Reservas hechas desde la web (agenda conectada a Open Garage, ver
+// lib/tallergpServer.js). Sirve para la marcha blanca: comparar con lo que
+// aparece en Open Garage y ver si alguna falló.
+function BookingLogCard() {
+  const [state, setState] = useState({ loading: true, log: [], error: "" });
+  const load = useCallback(async () => {
+    setState((st) => ({ ...st, loading: true }));
+    try {
+      const res = await fetch("/api/admin/agenda-log", { cache: "no-store" });
+      const json = await res.json();
+      setState({ loading: false, log: json.ok ? json.log : [], error: json.ok ? "" : json.error || "No se pudo leer." });
+    } catch {
+      setState({ loading: false, log: [], error: "No se pudo leer. Revisa tu conexión." });
+    }
+  }, []);
+  useEffect(() => {
+    load();
+  }, [load]);
+  const fecha = (iso, time) => `${new Date(`${iso}T12:00:00`).toLocaleDateString("es-CL", { weekday: "short", day: "numeric", month: "short" })} · ${time}`;
+  return (
+    <div className="px-6 pb-8 sm:px-10">
+      <div className="flex flex-col gap-3 rounded-xl border border-[#E0E0E0] bg-white p-5 sm:p-6">
+        <div className="flex flex-wrap items-start justify-between gap-3">
+          <div className="flex flex-col gap-1">
+            <h2 className="font-display text-xl font-bold uppercase tracking-wide text-[#0B0B0B]">Reservas desde la web</h2>
+            <p className="max-w-[62ch] text-sm leading-[1.55] text-[#5A5A5A]">
+              Las horas que agendan los clientes en la página Contacto quedan directo en Open Garage. Aquí ves las últimas, para revisar que
+              todas hayan llegado.
+            </p>
+          </div>
+          <button
+            type="button"
+            onClick={load}
+            disabled={state.loading}
+            className="inline-flex min-h-11 items-center gap-2 rounded border border-[#CFCFCF] px-4 font-display text-[13px] font-semibold uppercase tracking-[1.5px] text-[#3A3A3A] hover:border-[#0B0B0B] disabled:opacity-60"
+          >
+            {state.loading ? <Loader2 size={15} className="animate-spin motion-reduce:animate-none" aria-hidden="true" /> : null}
+            Actualizar
+          </button>
+        </div>
+        {state.error && <p className="text-sm text-mRed">{state.error}</p>}
+        {!state.loading && !state.error && !state.log.length && <p className="text-sm text-[#6A6A6A]">Todavía no hay reservas desde la web.</p>}
+        {state.log.length > 0 && (
+          <ul className="divide-y divide-[#ECECEC] text-sm">
+            {state.log.slice(0, 30).map((b, i) => (
+              <li key={i} className="flex flex-col gap-0.5 py-2.5 sm:flex-row sm:items-center sm:justify-between sm:gap-4">
+                <span className="text-[#0B0B0B]">
+                  <strong className="font-semibold">{fecha(b.date, b.time)}</strong> · {b.name} · {b.phone} · {b.plate}
+                  {b.model ? ` · ${b.model}` : ""}
+                </span>
+                <span className={`flex-none font-display text-[12px] font-semibold uppercase tracking-[1.4px] ${b.status === "ok" ? "text-[#1B7F3B]" : "text-mRed"}`}>
+                  {b.status === "ok" ? (b.dryRun ? "Prueba (no se creó)" : "En Open Garage ✓") : "Falló: no llegó"}
+                </span>
+              </li>
+            ))}
+          </ul>
+        )}
+      </div>
+    </div>
+  );
+}
+
 function ContactoTab() {
   // Se guarda solo mientras se escribe, igual que el resto del panel (el
   // store agrupa las letras seguidas en un solo envío al servidor).
@@ -3612,6 +3674,8 @@ function ContactoTab() {
           <Field label="Dirección" value={form.address} onChange={(v) => update("address", v)} placeholder="Av. Presidente Riesco 6721, Las Condes, Santiago, Chile" hint="También se usa para el mapa de Google Maps." />
         </div>
       </div>
+
+      <BookingLogCard />
 
       <div className="px-6 pb-8 sm:px-10">
         <div className="mb-4 font-display text-xl font-bold uppercase tracking-wide text-[#0B0B0B]">Números destacados (inicio y pie de página)</div>
