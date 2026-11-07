@@ -29,6 +29,25 @@ const nextConfig = {
     return [
       { source: "/tarifas", destination: "/carta-de-servicios", permanent: true },
       { source: "/servicios/neumaticos/:servicio", destination: "/servicios/neumaticos", permanent: true },
+      // Sitio antiguo de gsmotos.cl (WordPress): sus direcciones llevan a la
+      // página equivalente del sitio nuevo, para no perder lo que ya estaba en
+      // Google ni romper enlaces viejos cuando el dominio apunte acá. Sacadas
+      // de su sitemap (36 páginas, nov 2026). /contacto/ ya existe igual.
+      { source: "/sobre-nosotros", destination: "/nosotros", permanent: true },
+      { source: "/catalogo", destination: "/productos", permanent: true },
+      { source: "/tienda/:path*", destination: "/productos", permanent: true },
+      { source: "/producto/:slug(banano-.*)", destination: "/productos?q=banano", permanent: true },
+      { source: "/producto/tapabarro-mudsling", destination: "/productos?q=mudsling", permanent: true },
+      { source: "/producto/:slug(neumatico.*)", destination: "/servicios/neumaticos", permanent: true },
+      { source: "/producto/:slug*", destination: "/productos", permanent: true },
+      { source: "/categoria-producto/repuestos/neumaticos", destination: "/servicios/neumaticos", permanent: true },
+      { source: "/categoria-producto/marcas/:marca(continental|heidenau|kingtyre)", destination: "/servicios/neumaticos", permanent: true },
+      { source: "/categoria-producto/:path*", destination: "/productos", permanent: true },
+      { source: "/blog", destination: "/", permanent: true },
+      { source: "/category/:path*", destination: "/", permanent: true },
+      { source: "/sitio-web-desarrollado-por-paginaswebs-cl", destination: "/", permanent: true },
+      { source: "/:path(carrito|mi-cuenta|finalizar-compra|checkout|cart|my-account)", destination: "/productos", permanent: true },
+      { source: "/:path(wp-admin|wp-login.php|wp-content|feed)/:rest*", destination: "/", permanent: true },
     ];
   },
   async headers() {
