@@ -5,7 +5,6 @@ import ChristopherHeroBg from "@/components/nosotros/ChristopherHeroBg";
 import ColorBars from "@/components/services/ColorBars";
 import SiteFooter from "@/components/SiteFooter";
 import Logo from "@/components/Logo";
-import { MobileHomeButton } from "@/components/mobile/MobileNav";
 import TrayectoriaFoto from "@/components/nosotros/TrayectoriaFoto";
 import { TRAYECTORIA } from "@/lib/certificados";
 import Button from "@/components/common/Button";
@@ -42,7 +41,6 @@ export default function ChristopherPage() {
           <Link href="/" className="flex min-h-11 items-center leading-none">
             <Logo light={false} className="block h-auto w-[82px] sm:w-[150px]" />
           </Link>
-          <MobileHomeButton />
         </header>
 
         <div className="relative z-20 flex h-full max-w-[68%] flex-col sm:max-w-[560px] justify-end gap-1.5 px-6 pb-4 sm:px-10 sm:pb-6">

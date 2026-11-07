@@ -15,7 +15,7 @@
 import { createContext, useCallback, useContext, useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Mail, MapPin, Menu, Phone, X } from "lucide-react";
+import { House, Mail, MapPin, Menu, Phone, X } from "lucide-react";
 import { FaInstagram, FaWhatsapp } from "react-icons/fa6";
 import Logo from "@/components/Logo";
 import { menus } from "@/lib/servicesData";
@@ -94,6 +94,10 @@ export function MobileChrome({ children }) {
 
 function MobileTabBar() {
   const s = useSettings();
+  // En las páginas internas el último botón es "Inicio" (pedido del cliente:
+  // volver al inicio siempre a mano, en la barra fija), en el lugar de
+  // Instagram para no dejar seis botones apretados.
+  const enInicio = usePathname() === "/";
   return (
     <div
       className="fixed inset-x-0 bottom-0 z-[150] flex justify-center sm:hidden"
@@ -126,15 +130,30 @@ function MobileTabBar() {
           <MapPin size={19} strokeWidth={1.6} />
           <span className="font-display text-[10.5px] uppercase tracking-[1.4px]">Ubicación</span>
         </a>
-        <a
-          href={instagramUrl(s.instagramUser)}
-          target="_blank"
-          rel="noreferrer"
-          className="flex flex-col items-center gap-1.5 py-3 pb-3.5 text-[#E4E7EA]"
-        >
-          <FaInstagram size={18} />
-          <span className="font-display text-[10.5px] uppercase tracking-[1.4px]">Instagram</span>
-        </a>
+        {/* Páginas internas: "Inicio" en el lugar de Instagram (a la derecha),
+            así los otros cuatro botones no cambian de lugar entre páginas.
+            Oscuro como el resto, con el ícono y una línea arriba en azul: se
+            distingue sin competir con las acciones de contacto. */}
+        {!enInicio && (
+          <Link
+            href="/"
+            className="flex flex-col items-center gap-1.5 py-3 pb-3.5 text-white shadow-[inset_0_2px_0_#1B5FAE] focus-visible:outline focus-visible:outline-2 focus-visible:-outline-offset-4 focus-visible:outline-mCyan"
+          >
+            <House size={19} strokeWidth={1.8} className="text-[#5B9BE0]" aria-hidden="true" />
+            <span className="font-display text-[10.5px] font-semibold uppercase tracking-[1.4px]">Inicio</span>
+          </Link>
+        )}
+        {enInicio && (
+          <a
+            href={instagramUrl(s.instagramUser)}
+            target="_blank"
+            rel="noreferrer"
+            className="flex flex-col items-center gap-1.5 py-3 pb-3.5 text-[#E4E7EA]"
+          >
+            <FaInstagram size={18} />
+            <span className="font-display text-[10.5px] uppercase tracking-[1.4px]">Instagram</span>
+          </a>
+        )}
       </div>
     </div>
   );
@@ -157,19 +176,8 @@ export function MobileMenuButton({ className = "" }) {
   );
 }
 
-// Botón "← Inicio" — reemplaza al menú hamburguesa (pedido del cliente):
-// el menú del sitio es el tablero del inicio, así que desde cualquier
-// página se vuelve ahí.
-export function MobileHomeButton({ className = "" }) {
-  return (
-    <Button variant="back" size="sm" href="/" aria-label="Volver al inicio" className={`sm:min-h-[52px] sm:px-5 sm:text-[14px] ${className}`}>
-      <span className="sm:hidden">Inicio</span>
-      <span className="hidden sm:inline">Volver al inicio</span>
-    </Button>
-  );
-}
 
-// Barra superior (logo + "← Inicio") para las páginas internas que no
+// Barra superior (logo, que también lleva al inicio) para las páginas internas que no
 // tienen header propio (Contacto, Productos, Nosotros, Taller, Grúas,
 // Servicios...). Antes era solo mobile y en computador esas páginas
 // quedaban sin logo ni forma visible de volver; ahora va en todos los
@@ -182,7 +190,6 @@ export function MobileTopBar({ overlay = false }) {
       <Link href="/" className="block leading-none" aria-label="GSmotos — inicio">
         <Logo className={`block h-auto w-[130px] sm:w-[150px] ${overlay ? "drop-shadow-[0_2px_8px_rgba(0,0,0,0.85)]" : ""}`} />
       </Link>
-      <MobileHomeButton />
     </div>
   );
 }

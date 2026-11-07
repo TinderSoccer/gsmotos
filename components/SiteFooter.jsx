@@ -14,7 +14,9 @@
 // página, para que el contenido de más abajo no quede tapado detrás de
 // la franja fija.
 import { useEffect, useState } from "react";
-import { ClipboardList, Mail, MapPin, Phone, ScanLine, ShieldCheck, Users, Wrench } from "lucide-react";
+import Link from "next/link";
+import { usePathname } from "next/navigation";
+import { ArrowLeft, ClipboardList, Mail, MapPin, Phone, ScanLine, ShieldCheck, Users, Wrench } from "lucide-react";
 import { FaInstagram, FaWhatsapp } from "react-icons/fa6";
 import { instagramUrl, locationUrl, qrCodeUrl, reviewsUrlFor, useSettings, whatsappUrl } from "@/lib/settings";
 
@@ -87,13 +89,19 @@ function StatsTicker({ items }) {
 export default function SiteFooter() {
   const s = useSettings();
   const reviewsUrl = reviewsUrlFor(s);
+  // "Volver al inicio" va acá, en la franja que siempre se ve (pedido del
+  // cliente: arriba de la página se perdía al bajar). En el inicio no va.
+  const enInicio = usePathname() === "/";
 
   const items = [
     { label: s.phoneDisplay, href: `tel:+${s.phoneDigits}`, Icon: Phone },
     { label: "WhatsApp", href: whatsappUrl(s.phoneDigits), external: true, Icon: FaWhatsapp, color: "#25D366" },
-    { label: s.email, href: `mailto:${s.email}`, Icon: Mail },
+    // En páginas internas el botón "Inicio" ocupa espacio: el correo y el
+    // Instagram (los textos más largos) quedan solo con su ícono hasta
+    // pantallas muy anchas.
+    { label: s.email, href: `mailto:${s.email}`, Icon: Mail, long: true },
     { label: "Ubicación", href: locationUrl(s), external: true, Icon: MapPin },
-    { label: `@${s.instagramUser}`, href: instagramUrl(s.instagramUser), external: true, Icon: FaInstagram },
+    { label: `@${s.instagramUser}`, href: instagramUrl(s.instagramUser), external: true, Icon: FaInstagram, long: true },
   ];
 
   // Las cifras (años de experiencia, profesionales, motos atendidas) —
@@ -112,19 +120,34 @@ export default function SiteFooter() {
     <>
       <div aria-hidden style={{ height: BAR_HEIGHT }} className="hidden sm:block" />
       <footer
-        className="fixed inset-x-0 bottom-0 z-40 hidden items-center justify-center gap-2 border-t border-gray-200 bg-[#F4F5F6] px-2.5 sm:flex md:gap-3 lg:gap-4 xl:gap-5 xl:px-6"
+        className="fixed inset-x-0 bottom-0 z-40 hidden items-center border-t border-gray-200 bg-[#F4F5F6] px-2.5 sm:flex xl:px-6"
         style={{ height: BAR_HEIGHT }}
       >
-        {items.map(({ label, href, external, Icon, color }) => (
+        {!enInicio && (
+          <Link
+            href="/"
+            className="mr-4 flex flex-none items-center gap-2 rounded-md bg-[#0B0B0B] px-3.5 py-2.5 font-display text-[13px] font-semibold uppercase tracking-[1.5px] text-white transition-colors hover:bg-mBlue focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-mBlue md:mr-2 lg:px-4"
+          >
+            <ArrowLeft size={16} strokeWidth={2.2} aria-hidden="true" />
+            <span className="2xl:hidden">Inicio</span>
+            <span className="hidden 2xl:inline">Volver al inicio</span>
+          </Link>
+        )}
+        {/* "Inicio" queda siempre pegado a la izquierda; lo demás, centrado en
+            el espacio que sobra (antes todo iba centrado y el botón se corría
+            según el ancho de la pantalla). */}
+        <div className="flex min-w-0 flex-1 items-center justify-center gap-2 md:gap-3 lg:gap-4 xl:gap-5">
+        {items.map(({ label, href, external, Icon, color, long }) => (
           <a
             key={label}
             href={href}
             target={external ? "_blank" : undefined}
             rel={external ? "noreferrer" : undefined}
+            aria-label={label}
             className="flex flex-none items-center gap-2 text-[13px] text-[#3A3A3A] transition-colors hover:text-mCyan"
           >
             <Icon size={16} strokeWidth={1.8} color={color || "#3A3A3A"} />
-            <span className="hidden whitespace-nowrap font-medium xl:inline">{label}</span>
+            <span className={`hidden whitespace-nowrap font-medium ${long && !enInicio ? "2xl:inline" : "xl:inline"}`}>{label}</span>
           </a>
         ))}
 
@@ -134,6 +157,7 @@ export default function SiteFooter() {
           href={reviewsUrl}
           target="_blank"
           rel="noreferrer"
+          aria-label={`${s.ratingScore} de 5 estrellas, ${s.ratingCount} reseñas en Google`}
           className="flex flex-none items-center gap-1.5 border-l border-gray-300 pl-2 text-[12px] text-[#3A3A3A] transition-colors hover:text-mCyan sm:gap-2 md:pl-4 md:text-[13px] xl:pl-7"
         >
           <span className="font-display font-bold">{s.ratingScore}</span>
@@ -157,6 +181,7 @@ export default function SiteFooter() {
             height={56}
           />
         </a>
+        </div>
       </footer>
     </>
   );
