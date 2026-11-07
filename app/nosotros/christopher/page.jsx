@@ -185,9 +185,6 @@ export default function ChristopherPage() {
         </div>
         <div className="flex flex-wrap items-center gap-4">
           <Button href="/contacto" block="mobile">Agendar ahora</Button>
-          <Button variant="secondaryOnLight" href="/" block="mobile">
-            Volver al inicio
-          </Button>
         </div>
       </section>
 

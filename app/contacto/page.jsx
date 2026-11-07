@@ -1,7 +1,6 @@
 "use client";
 
 import { use, useEffect, useState } from "react";
-import Link from "next/link";
 import ColorBars from "@/components/services/ColorBars";
 import ContactInfo from "@/components/ContactInfo";
 import MapaTaller from "@/components/MapaTaller";
@@ -127,12 +126,6 @@ export default function ContactoPage({ searchParams }) {
                   >
                     Agendar otra hora
                   </button>
-                  <Link
-                    href="/"
-                    className="inline-flex min-h-11 items-center font-display text-sm uppercase tracking-wide text-white/70 hover:text-white"
-                  >
-                    ← Volver al inicio
-                  </Link>
                 </div>
               </div>
             ) : (

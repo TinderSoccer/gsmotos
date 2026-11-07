@@ -38,7 +38,7 @@ const COMO_TRABAJAMOS = [
 export default function TallerPage() {
   return (
     <main className="flex min-h-screen flex-col bg-[#0B0B0B]">
-      {/* La foto llega hasta arriba, con el logo y "Volver al inicio" encima
+      {/* La foto llega hasta arriba, con el logo encima
           (pedido del cliente: sin la franja negra superior). */}
       <div className="relative">
       <MobileTopBar overlay />
