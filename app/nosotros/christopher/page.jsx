@@ -7,7 +7,7 @@ import SiteFooter from "@/components/SiteFooter";
 import Logo from "@/components/Logo";
 import TrayectoriaFoto from "@/components/nosotros/TrayectoriaFoto";
 import { TRAYECTORIA } from "@/lib/certificados";
-import Button from "@/components/common/Button";
+import AgendarChristopher from "@/components/nosotros/AgendarChristopher";
 
 // Página propia de Christopher: hero con su foto, bio + tarjeta de
 // trayectoria, y certificados administrables desde /administracion (ver
@@ -184,7 +184,7 @@ export default function ChristopherPage() {
           </p>
         </div>
         <div className="flex flex-wrap items-center gap-4">
-          <Button href="/contacto" block="mobile">Agendar ahora</Button>
+          <AgendarChristopher />
         </div>
       </section>
 

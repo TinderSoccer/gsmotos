@@ -39,6 +39,7 @@ import { useNeumaticosStock, writeAllNeumaticosStock, writeNeumaticosStock } fro
 import { downloadCatalogoExcel, planExcelImport, readXlsx } from "@/lib/excelCatalogo";
 import { MAX_PHOTOS, makeMain } from "@/lib/productPhotos";
 import { DEFAULT_HERO_VIDEO, heroObjectPosition, useHeroVideo, writeHeroVideo } from "@/lib/heroVideo";
+import { isGoogleAgendaUrl, isValidAgendaUrl, useChristopherAgenda, writeChristopherAgenda } from "@/lib/christopherAgenda";
 import { readTarifas, useTarifas, writeTarifas } from "@/lib/tarifas";
 import { pdfToImages } from "@/lib/pdfPages";
 import { SITE_URL } from "@/lib/site";
@@ -740,6 +741,67 @@ function AddCertTile({ onFile }) {
   );
 }
 
+// Agenda de Christopher (lib/christopherAgenda.js): el link de su "Agenda de
+// citas" de Google Calendar. Con link, el botón de su página abre la agenda y
+// la reserva le llega a su correo; sin link, va al formulario general.
+function ChristopherAgendaCard() {
+  const saved = useChristopherAgenda();
+  const [value, setValue] = useState(saved);
+  const [prevSaved, setPrevSaved] = useState(saved);
+  if (saved !== prevSaved) {
+    setPrevSaved(saved);
+    setValue(saved);
+  }
+  const trimmed = value.trim();
+  const invalid = trimmed && !isValidAgendaUrl(trimmed);
+  const notGoogle = trimmed && !invalid && !isGoogleAgendaUrl(trimmed);
+
+  function onChange(v) {
+    setValue(v);
+    const t = v.trim();
+    if (!t || isValidAgendaUrl(t)) warnIfFailed(writeChristopherAgenda(t), t ? "Agenda guardada ✓" : "Agenda quitada");
+  }
+
+  return (
+    <div className="px-6 pb-8 sm:px-10">
+      <div className="flex flex-col gap-3 rounded-xl border border-[#E0E0E0] bg-white p-5 shadow-[0_2px_10px_rgba(11,11,11,0.05)] sm:p-6">
+        <div className="flex flex-col gap-1">
+          <h2 className="font-display text-xl font-bold uppercase tracking-wide text-[#0B0B0B]">Agenda de Christopher</h2>
+          <p className="max-w-[62ch] text-sm leading-[1.55] text-[#5A5A5A]">
+            Para &ldquo;¿Necesitas conversar con Christopher?&rdquo; (asesorías y pruebas de ruta). Pega aquí el link de reserva de su
+            <strong> Agenda de citas de Google Calendar</strong>. Sus días y horas se configuran en su Calendar, y cada reserva le llega a su
+            correo. Si lo dejas vacío, el botón lleva al formulario general del taller.
+          </p>
+        </div>
+        <label className="flex flex-col gap-1.5 text-sm text-[#3A3A3A]">
+          Link de la agenda
+          <input
+            type="url"
+            inputMode="url"
+            value={value}
+            onChange={(ev) => onChange(ev.target.value)}
+            placeholder="https://calendar.app.google/..."
+            className={`rounded-md border bg-[#FBFBFB] px-3.5 py-2.5 text-base text-[#0B0B0B] outline-none focus:border-mCyan ${invalid ? "border-mRed" : "border-[#E0E0E0]"}`}
+          />
+        </label>
+        {invalid && <p className="text-sm text-mRed">Ese link no es válido. Debe empezar con https://</p>}
+        {notGoogle && <p className="text-sm text-[#8A5A00]">Ojo: no parece un link de Google Calendar. Revisa que sea el link de reserva correcto.</p>}
+        <div className="flex flex-wrap items-center gap-3 text-sm">
+          <span className={`inline-flex items-center gap-1.5 font-display text-[12px] font-semibold uppercase tracking-[1.6px] ${saved ? "text-mCyan" : "text-[#8A8A8A]"}`}>
+            <span className={`h-2 w-2 rounded-full ${saved ? "bg-mCyan" : "bg-[#8A939B]"}`} />
+            {saved ? "El botón abre su agenda" : "Sin agenda: el botón va al formulario general"}
+          </span>
+          {saved && (
+            <a href={saved} target="_blank" rel="noreferrer" className="inline-flex min-h-11 items-center gap-1.5 font-display text-[13px] font-semibold uppercase tracking-[1.5px] text-mBlue hover:underline">
+              Probar el link <ExternalLink size={14} aria-hidden="true" />
+            </a>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}
+
 function CertificadosTab() {
   const overrides = useCertPhotos();
   const extra = useCertExtra();
@@ -801,6 +863,8 @@ function CertificadosTab() {
       </div>
 
       <FounderHeroPhoto />
+
+      <ChristopherAgendaCard />
 
       <div className="px-6 pb-14 sm:px-10">
         <div className="mb-1 font-display text-xl font-bold uppercase tracking-wide text-[#0B0B0B]">Certificados</div>
